@@ -1,0 +1,119 @@
+[DebugChecksum]
+Checksum=1379444882
+[Stack]
+FillEnabled=0
+OverflowWarningsEnabled=1
+WarningThreshold=90
+SpWarningsEnabled=1
+WarnLogOnly=1
+UseTrigger=1
+TriggerName=main
+LimitSize=0
+ByteLimit=50
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
+[CodeCoverage]
+Enabled=_ 0
+[SfrWindow]
+Show=1 1
+Sort=4 0
+[InterruptStripe]
+Sort=0
+[BreakpointUsageDialog]
+Placement=_ 461 223 906 505
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
+[InterruptLog]
+LogEnabled=1
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=0
+ShowTimeSum=1
+SumSortOrder=0
+[DataLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints2]
+Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.97.3" 0 0 1 "" 0 ""
+Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.551.1" 0 0 1 "" 0 ""
+Bp2=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.135.4" 0 0 1 "" 0 ""
+Bp3=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.551.4" 0 0 1 "" 0 ""
+Bp4=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.213.2" 0 0 1 "" 0 ""
+Bp5=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.617.1" 0 0 1 "" 0 ""
+Bp6=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.617.2" 0 0 1 "" 0 ""
+Bp7=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.317.2" 0 0 1 "" 0 ""
+Count=8
+[Interrupts]
+Enabled=1
+Irq0=_ 0 0 0 10 1 0 0 100 0 1 "TIM1_OVR_UIF 0x8034  13  TIM1_IER.UIE  TIM1_SR1.UIF  ITC_SPR3.VECT11SPR"
+Count=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[Trace1]
+Enabled=0
+ShowSource=1
+[Simulator]
+Freq=16000000
+[struct_types]
+Fmt0=BIKE_STATUS-CRZLight	4	0
+Fmt1=BIKE_STATUS-Hour	3	0
+Fmt2=BIKE_STATUS-Minute	3	0
+Fmt3=BIKE_STATUS-NearLight	4	0
+Fmt4=BIKE_STATUS-Speed	3	0
+Fmt5=BIKE_STATUS-TurnLeft	4	0
+Fmt6=BIKE_STATUS-TurnRight	4	0
+[array_types]
+Fmt0=char[12]	4	0
+Fmt1=char[16]	4	0
+Fmt2=char[36]	4	0
+Fmt3=char[8]	4	0
+Fmt4=char[9]	4	0
+Fmt5=unsigned char[18]	4	0
+Fmt6=unsigned int[10]	3	0
+[watch_formats]
+Fmt0={W}1:YXT_Buf	4	2
+Fmt1={W}1:YXT_RxBit	3	0
+Fmt2={W}1:bike->Speed	3	0
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 1 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.284.15" 1 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.285.15" 1 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.287.15" 1 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.286.15" 1 0 0 0 "" 0 ""
+Count=5
+[Aliases]
+A0=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_gpio.c" ""
+A1=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_i2c.c" ""
+A2=_ "M:\HC\BMeter\Dis_Code\Dis_Code\User\main.c" ""
+Count=3
+SuppressDialog=1
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0
