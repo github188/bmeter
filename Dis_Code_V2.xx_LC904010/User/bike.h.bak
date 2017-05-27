@@ -86,7 +86,9 @@ unsigned int Get_SysTick(void);
 unsigned int Get_ElapseTick(unsigned int pre_tick);
 
 /******************************************************************************/
-#define TIME_DISPLAY				0				//
+#define TIME_ENABLE 				1				//
+#define YXT_ENABLE          0				//
+
 #define VOL_CALIBRATIOIN		600UL		//60.0V
 #define TEMP_CALIBRATIOIN		250UL		//25.0C
 #define SPEED_CALIBRATIOIN	30UL		//30km/h

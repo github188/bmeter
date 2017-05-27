@@ -17,6 +17,10 @@ const unsigned int BatStatus48[8] = {420,426,434,443,452,461,470,480};
 const unsigned int BatStatus60[8] = {520,530,543,555,567,578,589,604};
 const unsigned int BatStatus72[8] = {630,643,657,670,683,697,710,723};
 
+const unsigned int BatEnergy48[8] = {420,490};
+const unsigned int BatEnergy60[8] = {520,620};
+const unsigned int BatEnergy72[8] = {630,740};
+
 volatile unsigned int  sys_tick = 0;
 unsigned int 	tick_100ms=0,tick_1s=0;
 unsigned int speed_buf[16];
@@ -25,6 +29,7 @@ int temp_buf[4];
 unsigned char uart1_buf[16];
 unsigned char uart1_index=0;
 const unsigned int* BatStatus;
+const unsigned int* BatEnergy;
 
 BIKE_STATUS bike;
 BIKE_CONFIG config;
@@ -249,28 +254,28 @@ void Light_Task(void)
 	unsigned char speed_mode=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
-	#ifdef NearLightOut_PORT
-	if( bike.NearLight ) 
-			 GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
-	else GPIO_WriteHigh(NearLightOut_PORT,NearLightOut_PIN);
-	#endif
+//	#ifdef NearLightOut_PORT
+//	if( bike.NearLight ) 
+//			 GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
+//	else GPIO_WriteHigh(NearLightOut_PORT,NearLightOut_PIN);
+//	#endif
 
   if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
-	#ifdef TurnRightOut_PORT
-	if( bike.TurnRight ) 
-			 GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
-	else GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
-	#endif
+//	#ifdef TurnRightOut_PORT
+//	if( bike.TurnRight ) 
+//			 GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
+//	else GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+//	#endif
 
   if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
-	#ifdef TurnLeftOut_PORT
-	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
-		CFG->GCR = CFG_GCR_SWD;
-	#endif
-	if( bike.TurnLeft ) 
-			 GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
-	else GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
-	#endif
+////	#ifdef TurnLeftOut_PORT
+////	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
+////		CFG->GCR = CFG_GCR_SWD;
+////	#endif
+//	if( bike.TurnLeft ) 
+//			 GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
+//	else GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+//	#endif
   //if(!GPIO_Read(CRZLight_PORT	, CRZLight_PIN	) ) bike.CRZLight  = 1; else bike.CRZLight  = 0;
   //if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
@@ -352,19 +357,23 @@ void InitConfig(void)
 #if ( PCB_VER == 0041 )
 	config.SysVoltage = 60;
 	BatStatus = BatStatus60; 
+  BatEnergy = BatEnergy60;
 #else
 	GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
 	GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
 	if ( GPIO_ReadInputPin(VMODE1_PORT, VMODE1_PIN) == RESET ){
 		config.SysVoltage = 72;
 		BatStatus = BatStatus72;
+    BatEnergy = BatEnergy72;
 	} else {
 		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
 			config.SysVoltage = 48;
 			BatStatus = BatStatus48;
+      BatEnergy = BatEnergy48;
 		} else {
 			config.SysVoltage = 60;
 			BatStatus = BatStatus60;
+      BatEnergy = BatEnergy60;
 		}
 	}
 #endif
@@ -378,6 +387,18 @@ unsigned char GetBatStatus(unsigned int vol)
 	for(i=0;i<ContainOf(BatStatus60);i++)
 		if ( vol < BatStatus[i] ) break;
 	return i;
+}
+
+unsigned char GetBatEnergy(unsigned int vol)
+{
+  unsigned int energy ;
+  
+  if ( bike.Voltage <= BatEnergy[0] ) energy = 0;
+  else if ( bike.Voltage >= BatEnergy[1] ) energy = 100;
+  else {
+    energy = (bike.Voltage - BatEnergy[0])*100/(BatEnergy[1] - BatEnergy[0]);
+  }
+  return energy;
 }
 
 void MileTask(void)
@@ -627,7 +648,7 @@ void Calibration(void)
 	for(i=0;i<16;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
-		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == SET ) break;
+		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
 		Delay(1000);
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
@@ -640,21 +661,23 @@ void Calibration(void)
 		config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					//60.00V
 		//config.TempScale= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
 		//config.SpeedScale = (unsigned long)bike.Speed*1000UL/SPEED_CALIBRATIOIN;				//30km/h
+    //config.Mile = 0;
 		WriteConfig();
 	}
 	for(i=0;i<16;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
-		if( GPIO_Read(SPMODE1_PORT	, SPMODE2_PIN)  == SET ) break;
+		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
 		Delay(1000);
-		if( GPIO_Read(SPMODE1_PORT	, SPMODE2_PIN)  == RESET ) break;
+		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN)  == RESET ) break;
 	}
 	if ( i == 16 ){
 		bike.uart = 1;
 	} else
 		bike.uart = 0;
 
+    //GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_IN_FL_NO_IT);
 	CFG->GCR &= ~CFG_GCR_SWD;
 }
 
@@ -662,6 +685,7 @@ void main(void)
 {
 	unsigned char i;
 	unsigned int tick;
+  unsigned count;
 
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
@@ -671,6 +695,14 @@ void main(void)
 	Init_timer();  
 	BL55072_Config(1);
 
+    GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+    GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
+    GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+    GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
+    CFG->GCR = CFG_GCR_SWD;
+    GPIO_Init(NearLightOut_PORT, NearLightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+    GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
+   
 	InitConfig();
 	for(i=0;i<32;i++){
 		GetVol();
@@ -679,6 +711,7 @@ void main(void)
 		IWDG_ReloadCounter();  
 	}
 	Calibration();
+    GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
 	
 	bike.HasTimer = 0;
 #if ( TIME_ENABLE == 1 )	
@@ -697,6 +730,9 @@ void main(void)
 	
 	while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
 	BL55072_Config(0);
+    GPIO_WriteHigh (TurnLeftOut_PORT,TurnLeftOut_PIN);
+    GPIO_WriteHigh (TurnRightOut_PORT,TurnRightOut_PIN);
+    GPIO_WriteHigh (NearLightOut_PORT,NearLightOut_PIN);
 	
 	while(1){
 		tick = Get_SysTick();
@@ -709,14 +745,9 @@ void main(void)
 			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
 			//bike.Temperature= GetTemp();
 			bike.BatStatus 	= GetBatStatus(bike.Voltage);
+      bike.Energy = GetBatEnergy(bike.Voltage);
 			if ( bike.YXTERR )
 				bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
-
-			// if ( ++count >= 100 ) count = 0;
-			// bike.Voltage 			= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
-			// bike.Temperature 	= count/10 + count/10*10UL + count/10*100UL;
-			// bike.Speed			 		= count/10 + count/10*10;
-			// bike.Mile			 	  = count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
 
 			Light_Task();
 			MileTask();    
@@ -727,7 +758,19 @@ void main(void)
 #if ( TIME_ENABLE == 1 )	
 			TimeTask();   
 #endif
-			MenuUpdate(&bike);
+      
+#if 0
+			 if ( ++count >= 100 ) count = 0;
+			 bike.Voltage 			= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
+			 bike.Temperature 	= count/10 + count/10*10UL + count/10*100UL;
+			 bike.Speed			 		= count/10 + count/10*10;
+			 bike.Mile			 	  = count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
+       bike.Hour          = count/10 + count/10*10;
+       bike.Minute        = count/10 + count/10*10;
+       bike.Energy        = count/10 + count/10*10UL;
+#endif
+       
+       MenuUpdate(&bike);
 			
 			/* Reload IWDG counter */
 			IWDG_ReloadCounter();  

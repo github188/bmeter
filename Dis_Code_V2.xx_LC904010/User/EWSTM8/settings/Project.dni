@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=1379444882
+Checksum=-939121974
 [Stack]
 FillEnabled=0
 OverflowWarningsEnabled=1
@@ -103,12 +103,11 @@ Category=_ 0
 LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 1 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.284.15" 1 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.285.15" 1 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.287.15" 1 0 0 0 "" 0 ""
-Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.286.15" 1 0 0 0 "" 0 ""
-Count=5
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 0 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\bike.h}.63.1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.644.2" 1 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.656.2" 1 0 0 0 "" 0 ""
+Count=4
 [Aliases]
 A0=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_gpio.c" ""
 A1=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_i2c.c" ""

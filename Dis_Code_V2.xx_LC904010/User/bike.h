@@ -58,9 +58,10 @@ typedef struct {
 					 int  Temperature;
 	unsigned int  Voltage;	
 	unsigned char BatStatus;
+  unsigned char Energy;
 	unsigned char Speed;
 	unsigned long Mile;
-	
+
 	unsigned char Hour;
 	unsigned char Minute;
 	unsigned char Second;
@@ -86,8 +87,8 @@ unsigned int Get_SysTick(void);
 unsigned int Get_ElapseTick(unsigned int pre_tick);
 
 /******************************************************************************/
-#define TIME_ENABLE 				1				//
-#define YXT_ENABLE          0				//
+#define TIME_ENABLE 				0				//
+#define YXT_ENABLE          1				//
 
 #define VOL_CALIBRATIOIN		600UL		//60.0V
 #define TEMP_CALIBRATIOIN		250UL		//25.0C
@@ -100,8 +101,8 @@ unsigned int Get_ElapseTick(unsigned int pre_tick);
 
 /******************************************************************************/
 
-#define PCB_VER	0100
-//#define PCB_VER	0041
+//#define PCB_VER	0100
+#define PCB_VER	0041
 
 #if ( PCB_VER == 0100 )
 	#define SPEEDV_ADC_CH		ADC1_CHANNEL_3
