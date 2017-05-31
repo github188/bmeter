@@ -7,6 +7,9 @@
   * @brief   
    ******************************************************************************
   * @Changlog
+  * V2.03
+  * 增加金彭产品支持，JP_4060、JP_6072
+  *
   * LC904011
   * 删除对老PCB版本的支持，
   *
@@ -36,6 +39,48 @@
 
 #ifndef __BIKE_H__
 #define __BIKE_H__
+
+/******************************************************************************/
+//release define
+
+#define JP_4860
+#ifdef JP_4860
+	#define PCB_VER			0100
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  0				//
+#endif
+
+//#define JP_6072
+#ifdef JP_6072
+	#define PCB_VER			0100
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  0				//
+#endif
+
+
+/******************************************************************************/
+#ifndef TIME_ENABLE
+	#define TIME_ENABLE 				1				//
+#endif
+
+#ifndef YXT_ENABLE
+	#define YXT_ENABLE          0				//
+#endif
+
+#define VOL_CALIBRATIOIN		600UL		//60.0V
+#define TEMP_CALIBRATIOIN		250UL		//25.0C
+#define SPEED_CALIBRATIOIN	30UL		//30km/h
+
+#define PON_ALLON_TIME			1000UL	//1000ms
+
+#define DISPLAY_MAX_SPEED		40UL		//40km/h
+#define SPEEDMODE_DEFAULT		1				//1档
+
+/******************************************************************************/
+#ifndef PCB_VER
+	#define PCB_VER	0100
+#endif
+//#define PCB_VER	0041
 
 /******************************************************************************/
 typedef struct {
@@ -86,22 +131,6 @@ unsigned int Get_SysTick(void);
 unsigned int Get_ElapseTick(unsigned int pre_tick);
 
 /******************************************************************************/
-#define TIME_ENABLE 				1				//
-#define YXT_ENABLE          0				//
-
-#define VOL_CALIBRATIOIN		600UL		//60.0V
-#define TEMP_CALIBRATIOIN		250UL		//25.0C
-#define SPEED_CALIBRATIOIN	30UL		//30km/h
-
-#define PON_ALLON_TIME			1000UL	//1000ms
-
-#define DISPLAY_MAX_SPEED		40UL		//40km/h
-#define SPEEDMODE_DEFAULT		1				//1档
-
-/******************************************************************************/
-
-#define PCB_VER	0100
-//#define PCB_VER	0041
 
 #if ( PCB_VER == 0100 )
 	#define SPEEDV_ADC_CH		ADC1_CHANNEL_3

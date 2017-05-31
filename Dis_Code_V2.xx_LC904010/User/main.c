@@ -13,9 +13,19 @@
 
 #define ContainOf(x) (sizeof(x)/sizeof(x[0]))
 
-const unsigned int BatStatus48[8] = {420,426,434,443,452,461,470,480};
-const unsigned int BatStatus60[8] = {520,530,543,555,567,578,589,604};
-const unsigned int BatStatus72[8] = {630,643,657,670,683,697,710,723};
+#ifdef JP_4860
+const unsigned int BatStatus48[8] = {420,426,432,439,445,451,457,464};
+const unsigned int BatStatus60[8] = {520,528,536,542,550,558,566,574};
+const unsigned int BatStatus72[8] = {0};
+#elif defined JP_6072
+const unsigned int BatStatus48[8] = {0};
+const unsigned int BatStatus60[8] = {480,493,506,519,532,545,558,570};
+const unsigned int BatStatus72[8] = {550,569,589,608,628,647,667,686};
+#else
+const unsigned int BatStatus48[8] = {420,427,435,444,453,462,471,481};
+const unsigned int BatStatus60[8] = {520,531,544,556,568,579,590,605};
+const unsigned int BatStatus72[8] = {630,644,658,671,684,698,711,724};
+#endif
 
 volatile unsigned int  sys_tick = 0;
 unsigned int 	tick_100ms=0,tick_1s=0;
@@ -211,26 +221,38 @@ unsigned char GetSpeed(void)
 	speed /= ContainOf(speed_buf);
 	
 	if ( config.SysVoltage	== 48 ){	// speed*5V*21/1024/24V*45 KM/H
+	#ifdef JP_4860
+		speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*15UL/64UL;			//24.5V->56KM/H
 		else
 			speed = (unsigned long)speed*1645UL/8192UL;	//24V->47KM/H
+	#endif
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
+	#if ( defined JP_4860 ) || ( defined JP_6072 )
+		speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*350/2048;			//30V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/32256UL;//31.5V->56KM/H
 		else
 			speed = (unsigned long)speed*4935UL/31744UL;//31V->47KM/H
+	#endif
 	} else if ( config.SysVoltage	== 72 )	{// speed*5V*21/1024/36V*45 KM/H
+	#if defined JP_6072
+		speed = (unsigned long)speed*1505UL/12288UL;	//36V->43KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/37376UL;//36.5V->56KM/H
 		else 
 			speed = (unsigned long)speed*4935UL/36864UL;//36V->47KM/H
+	#endif
 	}
 	if ( speed > 99 )
 		speed = 99;
@@ -566,7 +588,6 @@ void TimeTask(void)
 	 bike.Minute 	= RtcTime.RTC_Minutes;
 }
 
-#endif 
 
 void InitUART(void)
 {
@@ -615,6 +636,7 @@ void UartTask(void)
 		uart1_index = 0;
 	}
 }
+#endif 
 
 void Calibration(void)
 {
@@ -684,15 +706,14 @@ void main(void)
 #if ( TIME_ENABLE == 1 )	
 	//bike.HasTimer = !PCF8563_Check();
 	bike.HasTimer = PCF8563_GetTime(PCF_Format_BIN,&RtcTime);
-	// bike.Hour = 0;
-	// bike.Minute = 1;
+
+  InitUART();
 #endif
 
 #if ( YXT_ENABLE == 1 )
 	YXT_Init();  
 #endif
   
-  InitUART();
 	enableInterrupts();
 	
 	while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
@@ -720,13 +741,13 @@ void main(void)
 
 			Light_Task();
 			MileTask();    
-#if ( YXT_ENABLE == 1 )
+		#if ( YXT_ENABLE == 1 )
 			YXT_Task(&bike);  
-#endif
+		#endif
       
-#if ( TIME_ENABLE == 1 )	
+		#if ( TIME_ENABLE == 1 )	
 			TimeTask();   
-#endif
+		#endif
 			MenuUpdate(&bike);
 			
 			/* Reload IWDG counter */
@@ -739,7 +760,9 @@ void main(void)
 			bike.Temperature= GetTemp();
 			
 		}
+	#if ( TIME_ENABLE == 1 )	
     UartTask();
+	#endif
 	}
 }
 
