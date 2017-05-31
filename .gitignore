@@ -4,6 +4,10 @@ obj/
 # Prerequisites
 *.d
 
+# Backup files
+*.bak
+*.rar
+
 # Object files
 *.o
 *.ko
