@@ -13,16 +13,30 @@
 
 #define ContainOf(x) (sizeof(x)/sizeof(x[0]))
 
-const unsigned int BatStatus48[8] = {420,426,434,443,452,461,470,480};
-const unsigned int BatStatus60[8] = {520,530,543,555,567,578,589,604};
-const unsigned int BatStatus72[8] = {630,643,657,670,683,697,710,723};
+#ifdef JINPENG_4860
+const unsigned int BatStatus48[8] = {420,426,432,439,445,451,457,464};
+const unsigned int BatStatus60[8] = {520,528,536,542,550,558,566,574};
+const unsigned int BatStatus72[8] = {0};
+#elif defined JINPENG_6072
+const unsigned int BatStatus48[8] = {0};
+const unsigned int BatStatus60[8] = {480,493,506,519,532,545,558,570};
+const unsigned int BatStatus72[8] = {550,569,589,608,628,647,667,686};
+#elif defined LCD6040
+const unsigned int BatStatus48[] = {425,432,444,456,468};
+const unsigned int BatStatus60[] = {525,537,553,566,578};
+const unsigned int BatStatus72[] = {630,641,661,681,701};
+#else
+const unsigned int BatStatus48[8] = {420,427,435,444,453,462,471,481};
+const unsigned int BatStatus60[8] = {520,531,544,556,568,579,590,605};
+const unsigned int BatStatus72[8] = {630,644,658,671,684,698,711,724};
+#endif
 
 const unsigned int BatEnergy48[8] = {420,490};
 const unsigned int BatEnergy60[8] = {520,620};
 const unsigned int BatEnergy72[8] = {630,740};
 
 volatile unsigned int  sys_tick = 0;
-unsigned int 	tick_100ms=0,tick_1s=0;
+unsigned int tick_100ms=0,tick_1s=0;
 unsigned int speed_buf[16];
 unsigned int vol_buf[32];
 int temp_buf[4];
@@ -32,7 +46,7 @@ const unsigned int* BatStatus;
 const unsigned int* BatEnergy;
 
 BIKE_STATUS bike;
-BIKE_CONFIG config;
+__no_init BIKE_CONFIG config;
 
 
 /**
@@ -129,20 +143,20 @@ void Init_timer(void)
 int GetTemp(void)
 {
 	static unsigned char index = 0;
-  int temp;
-  unsigned char i;
+	int temp;
+	unsigned char i;
 
-  GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
-  ADC1_DeInit();  
-  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_6, ADC1_PRESSEL_FCPU_D2, \
-            ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL6 ,\
-            DISABLE);
-  ADC1_Cmd(ENABLE);
-  Delay(1000);
-  ADC1_StartConversion(); 
-  while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-  temp = ADC1_GetConversionValue();
-  ADC1_Cmd(DISABLE);
+	GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
+	ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_6, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL6 ,\
+				DISABLE);
+	ADC1_Cmd(ENABLE);
+	Delay(1000);
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	temp = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
   
 	temp_buf[index++] = temp;
 	if ( index >= ContainOf(temp_buf) )
@@ -156,26 +170,26 @@ int GetTemp(void)
 	
 	temp = ((3600- (long)temp * 2905/1024)/10);
 	
-  return temp;
+	return temp;
 }
 
 unsigned int GetVol(void)
 {
 	static unsigned char index = 0;
-  unsigned int vol;
-  unsigned char i;
-	
-  GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	unsigned int vol;
+	unsigned char i;
+
+	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	ADC1_DeInit();  
-  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
-            ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
-            DISABLE);
-  ADC1_Cmd(ENABLE);
-  Delay(5000);  
-  ADC1_StartConversion(); 
-  while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-  vol = ADC1_GetConversionValue();
-  ADC1_Cmd(DISABLE);
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+				DISABLE);
+	ADC1_Cmd(ENABLE);
+	Delay(5000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	vol = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
 
 	vol_buf[index++] = vol;
 	if ( index >= ContainOf(vol_buf) )
@@ -183,29 +197,29 @@ unsigned int GetVol(void)
 	for(i=0,vol=0;i<ContainOf(vol_buf);i++)
 		vol += vol_buf[i];
 	vol /= ContainOf(vol_buf);
-  vol = (unsigned long)vol*1050/1024 ;
+	vol = (unsigned long)vol*1050/1024 ;
 	
-  return vol;
+	return vol;
 }
 
 unsigned char GetSpeed(void)
 {
 	static unsigned char index = 0;
-  unsigned int speed;
-  unsigned char i;
+	unsigned int speed;
+	unsigned char i;
 
-  GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
-  ADC1_DeInit();  
-  ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
-            ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
-            DISABLE);
+	GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
+	ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+			ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
+			DISABLE);
 
-  ADC1_Cmd(ENABLE);
-  Delay(1000);  
-  ADC1_StartConversion(); 
-  while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	ADC1_Cmd(ENABLE);
+	Delay(1000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
 	speed = ADC1_GetConversionValue();
-  ADC1_Cmd(DISABLE);
+	ADC1_Cmd(DISABLE);
   	
 	speed_buf[index++] = speed;
 	if ( index >= ContainOf(speed_buf) )
@@ -216,26 +230,44 @@ unsigned char GetSpeed(void)
 	speed /= ContainOf(speed_buf);
 	
 	if ( config.SysVoltage	== 48 ){	// speed*5V*21/1024/24V*45 KM/H
+	#ifdef JINPENG_4860
+		speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+	#elif defined DENGGUAN_XUNYING
+		speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*15UL/64UL;			//24.5V->56KM/H
 		else
 			speed = (unsigned long)speed*1645UL/8192UL;	//24V->47KM/H
+	#endif
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
+	#if ( defined JINPENG_4860 ) || ( defined JINPENG_6072 )
+		speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
+	#elif defined DENGGUAN_XUNYING
+		speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*350/2048;			//30V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/32256UL;//31.5V->56KM/H
 		else
 			speed = (unsigned long)speed*4935UL/31744UL;//31V->47KM/H
+	#endif
 	} else if ( config.SysVoltage	== 72 )	{// speed*5V*21/1024/36V*45 KM/H
+	#if defined JINPENG_6072
+		speed = (unsigned long)speed*1505UL/12288UL;	//36V->43KM/H
+	#elif defined DENGGUAN_XUNYING
+		speed = (unsigned long)speed*1925UL/12288UL;	//36V->55KM/H
+	#else
 		if ( bike.SpeedMode == 0 )
 			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/37376UL;//36.5V->56KM/H
 		else 
 			speed = (unsigned long)speed*4935UL/36864UL;//36V->47KM/H
+	#endif
 	}
 	if ( speed > 99 )
 		speed = 99;
@@ -254,30 +286,9 @@ void Light_Task(void)
 	unsigned char speed_mode=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
-//	#ifdef NearLightOut_PORT
-//	if( bike.NearLight ) 
-//			 GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
-//	else GPIO_WriteHigh(NearLightOut_PORT,NearLightOut_PIN);
-//	#endif
-
-  if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
-//	#ifdef TurnRightOut_PORT
-//	if( bike.TurnRight ) 
-//			 GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
-//	else GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
-//	#endif
-
-  if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
-////	#ifdef TurnLeftOut_PORT
-////	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
-////		CFG->GCR = CFG_GCR_SWD;
-////	#endif
-//	if( bike.TurnLeft ) 
-//			 GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
-//	else GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
-//	#endif
-  //if(!GPIO_Read(CRZLight_PORT	, CRZLight_PIN	) ) bike.CRZLight  = 1; else bike.CRZLight  = 0;
-  //if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
+	if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
+	if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
+	//if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
 	if ( bike.YXTERR ){
 		speed_mode = 0;
@@ -287,11 +298,11 @@ void Light_Task(void)
 		if( GPIO_Read(SPMODE4_PORT,SPMODE4_PIN) ) speed_mode |= 1<<3;
 		
 		switch(speed_mode){
-			case 0x01: bike.SpeedMode = 1; break;
-			case 0x02: bike.SpeedMode = 2; break;
-			case 0x04: bike.SpeedMode = 3; break;
-			case 0x08: bike.SpeedMode = 4; break;
-			default:	 bike.SpeedMode = 0; break;
+			case 0x01: 	bike.SpeedMode = 1; break;
+			case 0x02: 	bike.SpeedMode = 2; break;
+			case 0x04: 	bike.SpeedMode = 3; break;
+			case 0x08: 	bike.SpeedMode = 4; break;
+			default:	bike.SpeedMode = 0; break;
 		}
 	}
 }
@@ -323,12 +334,20 @@ void InitConfig(void)
 {
 	unsigned char *cbuf = (unsigned char *)&config;
 	unsigned char i,sum;
-	unsigned int vol;
 	
 	FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
 	FLASH_Unlock(FLASH_MEMTYPE_DATA);  
 	Delay(5000);
-	
+
+	if (config.bike[0] == 'b' &&
+		config.bike[1] == 'i' && 
+		config.bike[2] == 'k' && 
+		config.bike[3] == 'e' ){
+		bike.HotReset = 1;
+	} else {
+		bike.HotReset = 0;
+	}
+		
 	for(i=0;i<sizeof(BIKE_CONFIG);i++)
 		cbuf[i] = FLASH_ReadByte(0x4000 + i);
 
@@ -336,10 +355,10 @@ void InitConfig(void)
 		sum += cbuf[i];
 		
 	if (config.bike[0] != 'b' || 
-			 config.bike[1] != 'i' || 
-			 config.bike[2] != 'k' || 
-			 config.bike[3] != 'e' || 
-			sum != config.Sum ){
+		config.bike[1] != 'i' || 
+		config.bike[2] != 'k' || 
+		config.bike[3] != 'e' || 
+		sum != config.Sum ){
 		config.VolScale  	= 1000;
 		config.TempScale 	= 1000;
 		config.SpeedScale	= 1000;
@@ -349,36 +368,66 @@ void InitConfig(void)
 	Delay(5000); 
 	FLASH_Lock(FLASH_MEMTYPE_DATA);
 
+#ifdef LCD6040
+ 	bike.Mile = 0; 
+#else
 	bike.Mile = config.Mile;
+#endif
 	bike.HasTimer = 0;
 	//bike.SpeedMode = SPEEDMODE_DEFAULT;
 	bike.YXTERR = 1;
 	
 #if ( PCB_VER == 0041 )
 	config.SysVoltage = 60;
-	BatStatus = BatStatus60; 
-  BatEnergy = BatEnergy60;
 #else
-	GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
-	GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
-	if ( GPIO_ReadInputPin(VMODE1_PORT, VMODE1_PIN) == RESET ){
+	#if (defined BENLING_OUSHANG) || (defined BENLING_BL48_60)
+		unsigned int vol;
+		for(i=0;i<64;i++){
+			vol = GetVol();
+			IWDG_ReloadCounter();  
+		}
+		if ( 720 <= vol && vol <= 870 ){
+			config.SysVoltage = 72;
+			WriteConfig();
+		}	else if ( 480 <= vol && vol <= 600 ){
+			config.SysVoltage = 60;
+			WriteConfig();
+		//}	else if ( 480 <= vol && vol <= 600 ){
+		//	config.SysVoltage = 48;
+		//	WriteConfig();
+		}
+	#elif defined BENLING_ZHONGSHA
 		config.SysVoltage = 72;
-		BatStatus = BatStatus72;
-    BatEnergy = BatEnergy72;
-	} else {
+	#elif defined OUJUN
+		GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
+		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
 		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
-			config.SysVoltage = 48;
-			BatStatus = BatStatus48;
-      BatEnergy = BatEnergy48;
+			config.SysVoltage = 72;
 		} else {
 			config.SysVoltage = 60;
-			BatStatus = BatStatus60;
-      BatEnergy = BatEnergy60;
 		}
-	}
+	#else
+		GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
+		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(VMODE1_PORT, VMODE1_PIN) == RESET ){
+			config.SysVoltage = 72;
+		} else {
+			if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+				config.SysVoltage = 48;
+			} else {
+				config.SysVoltage = 60;
+			}
+		}
+	#endif
 #endif
-}
 
+	switch ( config.SysVoltage ){
+	case 48:BatStatus = BatStatus48;BatEnergy = BatEnergy48;break;
+	case 60:BatStatus = BatStatus60;BatEnergy = BatEnergy60;break;
+	case 72:BatStatus = BatStatus72;BatEnergy = BatEnergy72;break;
+	default:BatStatus = BatStatus60;BatEnergy = BatEnergy60;break;
+	}
+}
 
 unsigned char GetBatStatus(unsigned int vol)
 {
@@ -391,14 +440,14 @@ unsigned char GetBatStatus(unsigned int vol)
 
 unsigned char GetBatEnergy(unsigned int vol)
 {
-  unsigned int energy ;
-  
-  if ( bike.Voltage <= BatEnergy[0] ) energy = 0;
-  else if ( bike.Voltage >= BatEnergy[1] ) energy = 100;
-  else {
-    energy = (bike.Voltage - BatEnergy[0])*100/(BatEnergy[1] - BatEnergy[0]);
-  }
-  return energy;
+	unsigned int energy ;
+
+	if ( bike.Voltage <= BatEnergy[0] ) energy = 0;
+	else if ( bike.Voltage >= BatEnergy[1] ) energy = 100;
+	else {
+		energy = (bike.Voltage - BatEnergy[0])*100/(BatEnergy[1] - BatEnergy[0]);
+	}
+	return energy;
 }
 
 void MileTask(void)
@@ -409,16 +458,16 @@ void MileTask(void)
 	speed = bike.Speed;
 	if ( speed > DISPLAY_MAX_SPEED ) speed = DISPLAY_MAX_SPEED;
 	
-  Fmile = Fmile + speed;
-  if(Fmile > 36000)
-  {
-    Fmile = 0;
-    bike.Mile++;
+	Fmile = Fmile + speed;
+	if(Fmile > 36000)
+	{
+		Fmile = 0;
+		bike.Mile++;
 		if ( bike.Mile > 99999 )
 			bike.Mile = 0;
 		config.Mile = bike.Mile;
 		WriteConfig();
-  }  
+	}  
 }
 
 #if ( TIME_ENABLE == 1 )
@@ -587,7 +636,6 @@ void TimeTask(void)
 	 bike.Minute 	= RtcTime.RTC_Minutes;
 }
 
-#endif 
 
 void InitUART(void)
 {
@@ -620,9 +668,9 @@ void UartTask(void)
 	
 	if ( uart1_index > 0 && uart1_buf[uart1_index-1] == '\n' ){
 		if ( uart1_index >= 11 && uart1_buf[0] == 'T' /*&& uart1_buf[1] == 'i' && uart1_buf[2] == 'm' && uart1_buf[3] == 'e' */) {
-				RtcTime.RTC_Hours 	= (uart1_buf[5]-'0')*10 + (uart1_buf[6] - '0');
-				RtcTime.RTC_Minutes = (uart1_buf[8]-'0')*10 + (uart1_buf[9] - '0');
-				PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
+			RtcTime.RTC_Hours 	= (uart1_buf[5]-'0')*10 + (uart1_buf[6] - '0');
+			RtcTime.RTC_Minutes = (uart1_buf[8]-'0')*10 + (uart1_buf[9] - '0');
+			PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
 		} else if ( uart1_index >= 5 && uart1_buf[0] == 'C' /*&& uart1_buf[1] == 'a' && uart1_buf[2] == 'l' && uart1_buf[3] == 'i' */){
 			bike.Voltage 		= GetVol();
 			bike.Temperature= GetTemp();
@@ -636,6 +684,7 @@ void UartTask(void)
 		uart1_index = 0;
 	}
 }
+#endif 
 
 void Calibration(void)
 {
@@ -643,17 +692,20 @@ void Calibration(void)
 	
 	CFG->GCR = CFG_GCR_SWD;
 	//¶Ì½ÓµÍËÙ¡¢SWIMÐÅºÅ
-  GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
+	GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
 
-	for(i=0;i<16;i++){
+	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
 		Delay(1000);
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
+		GetVol();
+		GetTemp();
+		GetSpeed();
 	}
-	if ( i == 16 ){
+	if ( i == 32 ){
 		bike.Voltage 		= GetVol();
 		//bike.Temperature= GetTemp();
 		//bike.Speed			= GetSpeed();
@@ -661,10 +713,10 @@ void Calibration(void)
 		config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					//60.00V
 		//config.TempScale= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
 		//config.SpeedScale = (unsigned long)bike.Speed*1000UL/SPEED_CALIBRATIOIN;				//30km/h
-    //config.Mile = 0;
+		//config.Mile = 0;
 		WriteConfig();
 	}
-	for(i=0;i<16;i++){
+	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
 		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN) ) break;
@@ -672,12 +724,11 @@ void Calibration(void)
 		Delay(1000);
 		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN)  == RESET ) break;
 	}
-	if ( i == 16 ){
+	if ( i == 32 ){
 		bike.uart = 1;
 	} else
 		bike.uart = 0;
 
-    //GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_IN_FL_NO_IT);
 	CFG->GCR &= ~CFG_GCR_SWD;
 }
 
@@ -685,7 +736,6 @@ void main(void)
 {
 	unsigned char i;
 	unsigned int tick;
-  unsigned count;
 
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
@@ -693,46 +743,58 @@ void main(void)
   //IWDG_Config();
 
 	Init_timer();  
-	BL55072_Config(1);
-
-    GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-    GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
-    GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-    GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
-    CFG->GCR = CFG_GCR_SWD;
-    GPIO_Init(NearLightOut_PORT, NearLightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-    GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
-   
 	InitConfig();
+	if ( bike.HotReset == 0 ) {
+		BL55072_Config(1);
+
+	#if ( PCB_VER == 0041 )
+		GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+		GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
+		GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+		GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN);
+		CFG->GCR = CFG_GCR_SWD;
+		GPIO_Init(NearLightOut_PORT, NearLightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
+		GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN);
+	#endif
+	} else
+		BL55072_Config(0);
+
+	Calibration();
+	if ( bike.HotReset == 0 ) {
+	#if ( PCB_VER == 0041 )
+		GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
+	#endif
+	}
+	
 	for(i=0;i<32;i++){
 		GetVol();
 		GetTemp();
 		GetSpeed();
 		IWDG_ReloadCounter();  
 	}
-	Calibration();
-    GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
+	bike.Temperature= GetTemp();
 	
-	bike.HasTimer = 0;
 #if ( TIME_ENABLE == 1 )	
 	//bike.HasTimer = !PCF8563_Check();
 	bike.HasTimer = PCF8563_GetTime(PCF_Format_BIN,&RtcTime);
-	// bike.Hour = 0;
-	// bike.Minute = 1;
+	InitUART();
 #endif
 
 #if ( YXT_ENABLE == 1 )
 	YXT_Init();  
 #endif
   
-  InitUART();
 	enableInterrupts();
 	
-	while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
-	BL55072_Config(0);
-    GPIO_WriteHigh (TurnLeftOut_PORT,TurnLeftOut_PIN);
-    GPIO_WriteHigh (TurnRightOut_PORT,TurnRightOut_PIN);
-    GPIO_WriteHigh (NearLightOut_PORT,NearLightOut_PIN);
+	if ( bike.HotReset == 0 ){
+		while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
+		BL55072_Config(0);
+	#if ( PCB_VER == 0041 )
+		GPIO_WriteHigh (TurnLeftOut_PORT	,TurnLeftOut_PIN);
+		GPIO_WriteHigh (TurnRightOut_PORT	,TurnRightOut_PIN);
+		GPIO_WriteHigh (NearLightOut_PORT	,NearLightOut_PIN);
+	#endif
+	}	
 	
 	while(1){
 		tick = Get_SysTick();
@@ -741,36 +803,35 @@ void main(void)
 				 (tick <  tick_100ms && (0xFFFF - tick_100ms + tick) > 100 ) ) {
 			tick_100ms = tick;
 
-			bike.Voltage 		= (unsigned long)GetVol()*1000UL/config.VolScale;
+			bike.Voltage 	= (unsigned long)GetVol()*1000UL/config.VolScale;
 			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
 			//bike.Temperature= GetTemp();
 			bike.BatStatus 	= GetBatStatus(bike.Voltage);
-      bike.Energy = GetBatEnergy(bike.Voltage);
+			bike.Energy 	= GetBatEnergy(bike.Voltage);
 			if ( bike.YXTERR )
 				bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
 
 			Light_Task();
 			MileTask();    
-#if ( YXT_ENABLE == 1 )
+		#if ( YXT_ENABLE == 1 )
 			YXT_Task(&bike);  
-#endif
-      
-#if ( TIME_ENABLE == 1 )	
+		#endif
+		#if ( TIME_ENABLE == 1 )	
 			TimeTask();   
-#endif
+		#endif
       
-#if 0
-			 if ( ++count >= 100 ) count = 0;
-			 bike.Voltage 			= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
-			 bike.Temperature 	= count/10 + count/10*10UL + count/10*100UL;
-			 bike.Speed			 		= count/10 + count/10*10;
-			 bike.Mile			 	  = count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
-       bike.Hour          = count/10 + count/10*10;
-       bike.Minute        = count/10 + count/10*10;
-       bike.Energy        = count/10 + count/10*10UL;
-#endif
+		#if 0
+			if ( ++count >= 100 ) count = 0;
+			bike.Voltage 			= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
+			bike.Temperature 	= count/10 + count/10*10UL + count/10*100UL;
+			bike.Speed			 		= count/10 + count/10*10;
+			bike.Mile			 	  = count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
+			bike.Hour          = count/10 + count/10*10;
+			bike.Minute        = count/10 + count/10*10;
+			bike.Energy        = count/10 + count/10*10UL;
+		#endif
        
-       MenuUpdate(&bike);
+			MenuUpdate(&bike);
 			
 			/* Reload IWDG counter */
 			IWDG_ReloadCounter();  
@@ -778,11 +839,13 @@ void main(void)
 		if ( (tick >= tick_1s && (tick - tick_1s) > 1000 ) || \
 								(tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
 			tick_1s = tick;
-      if ( bike.uart == 0 )
+		if ( bike.uart == 0 )
 			bike.Temperature= GetTemp();
 			
 		}
-    UartTask();
+	#if ( TIME_ENABLE == 1 )	
+		UartTask();
+	#endif
 	}
 }
 

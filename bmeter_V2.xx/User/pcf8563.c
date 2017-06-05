@@ -61,7 +61,7 @@ void PCF8563_Write_Byte(unsigned char REG_ADD, unsigned char dat)
 **/
 unsigned char PCF8563_Read_Byte(unsigned char REG_ADD)
 {
-	unsigned char ReData;
+	//unsigned char ReData;
 	unsigned char buf[2];
 	
 	I2C_ReadBuf(PCF8563_Write, REG_ADD, buf, 1);
@@ -85,7 +85,7 @@ unsigned char PCF8563_Read_Byte(unsigned char REG_ADD)
 **/
 unsigned char PCF8563_Check(void)
 {
-	unsigned char test_value = 0;
+	//unsigned char test_value = 0;
 	
 	// PCF8563_Write_Byte(PCF8563_Address_Timer, PCF_Timer_Close);  
 	// PCF8563_Write_Byte(PCF8563_Address_Timer_VAL, PCF8563_Check_Data);  
@@ -388,7 +388,6 @@ void PCF8563_Set_Times(unsigned char PCF_Format,\
 	//
 	//D¡ä¨¨?D??¡é¦Ì???¡ä??¡Â
 	//
-		unsigned char buf[2];
 	
 	buffer[0] = PCF8563_Address_Seconds;
 	buffer[1] = Time_InitStructure.RTC_Seconds;
@@ -992,7 +991,7 @@ void PCF8563_SetFunc(void)
 
 void Init_pcf8563(void)
 {
-	 IIC_GPIO_Init();
+	 //IIC_GPIO_Init();
 	 PCF8563_Check();
   //PCF8563_SetFunc();
 }

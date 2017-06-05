@@ -11,6 +11,7 @@ extern unsigned char YXT_Update;
 
 void YXT_Init(void);
 void YXT_Task(BIKE_STATUS *bike);
+void YXT_Tim_Receive(unsigned short duty);
 
 #endif
 

@@ -92,9 +92,6 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 {
   unsigned int low,period;
   unsigned int duty;
-  char PlusCode;
-  char checksum;
-  char i;
   
   TIM1_ClearITPendingBit(TIM1_IT_CC2);
   

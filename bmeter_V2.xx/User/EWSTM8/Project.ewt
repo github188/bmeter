@@ -54,6 +54,9 @@
       <name>$PROJ_DIR$\..\display.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\display_6040.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\display_8794GCT.c</name>
     </file>
     <file>

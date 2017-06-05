@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=-939121974
+Checksum=-518035750
 [Stack]
 FillEnabled=0
 OverflowWarningsEnabled=1
@@ -45,15 +45,19 @@ GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
 [Breakpoints2]
-Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.97.3" 0 0 1 "" 0 ""
-Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.551.1" 0 0 1 "" 0 ""
-Bp2=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.135.4" 0 0 1 "" 0 ""
-Bp3=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.551.4" 0 0 1 "" 0 ""
-Bp4=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.213.2" 0 0 1 "" 0 ""
-Bp5=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.617.1" 0 0 1 "" 0 ""
-Bp6=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.617.2" 0 0 1 "" 0 ""
-Bp7=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.317.2" 0 0 1 "" 0 ""
-Count=8
+Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.99.3" 0 0 1 "" 0 ""
+Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.654.1" 0 0 1 "" 0 ""
+Bp2=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\stm8s_it.c}.124.1" 0 0 1 "" 0 ""
+Bp3=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.654.1" 0 0 1 "" 0 ""
+Bp4=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.213.3" 0 0 1 "" 0 ""
+Bp5=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.654.1" 0 0 1 "" 0 ""
+Bp6=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.654.2" 0 0 1 "" 0 ""
+Bp7=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.321.2" 0 0 1 "" 0 ""
+Bp8=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.234.9" 0 0 1 "" 0 ""
+Bp9=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.236.3" 0 0 1 "" 0 ""
+Bp10=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.249.3" 0 0 1 "" 0 ""
+Bp11=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.345.2" 0 0 1 "" 0 ""
+Count=12
 [Interrupts]
 Enabled=1
 Irq0=_ 0 0 0 10 1 0 0 100 0 1 "TIM1_OVR_UIF 0x8034  13  TIM1_IER.UIE  TIM1_SR1.UIF  ITC_SPR3.VECT11SPR"
@@ -103,11 +107,10 @@ Category=_ 0
 LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 0 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\bike.h}.63.1" 0 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.644.2" 1 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.656.2" 1 0 0 0 "" 0 ""
-Count=4
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 1 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.704.2" 1 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.253.3" 1 0 0 0 "" 0 ""
+Count=3
 [Aliases]
 A0=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_gpio.c" ""
 A1=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_i2c.c" ""
