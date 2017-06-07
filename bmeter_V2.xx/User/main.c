@@ -284,10 +284,11 @@ BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
 void Light_Task(void)
 {
 	unsigned char speed_mode=0;
+	static unsigned char left_count=0,right_count=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
-	if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
-	if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
+	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
+	//if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
 	//if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
 	if ( bike.YXTERR ){
@@ -304,6 +305,7 @@ void Light_Task(void)
 			case 0x08: 	bike.SpeedMode = 4; break;
 			default:	bike.SpeedMode = 0; break;
 		}
+		bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
 	}
 }
 
@@ -800,7 +802,7 @@ void main(void)
 		tick = Get_SysTick();
 		
 		if ( (tick >= tick_100ms && (tick - tick_100ms) > 100 ) || \
-				 (tick <  tick_100ms && (0xFFFF - tick_100ms + tick) > 100 ) ) {
+			 (tick <  tick_100ms && (0xFFFF - tick_100ms + tick) > 100 ) ) {
 			tick_100ms = tick;
 
 			bike.Voltage 	= (unsigned long)GetVol()*1000UL/config.VolScale;
@@ -808,8 +810,6 @@ void main(void)
 			//bike.Temperature= GetTemp();
 			bike.BatStatus 	= GetBatStatus(bike.Voltage);
 			bike.Energy 	= GetBatEnergy(bike.Voltage);
-			if ( bike.YXTERR )
-				bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
 
 			Light_Task();
 			MileTask();    
@@ -822,13 +822,13 @@ void main(void)
       
 		#if 0
 			if ( ++count >= 100 ) count = 0;
-			bike.Voltage 			= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
-			bike.Temperature 	= count/10 + count/10*10UL + count/10*100UL;
-			bike.Speed			 		= count/10 + count/10*10;
-			bike.Mile			 	  = count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
-			bike.Hour          = count/10 + count/10*10;
-			bike.Minute        = count/10 + count/10*10;
-			bike.Energy        = count/10 + count/10*10UL;
+			bike.Voltage 	= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
+			bike.Temperature= count/10 + count/10*10UL + count/10*100UL;
+			bike.Speed		= count/10 + count/10*10;
+			bike.Mile		= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
+			bike.Hour       = count/10 + count/10*10;
+			bike.Minute     = count/10 + count/10*10;
+			bike.Energy     = count/10 + count/10*10UL;
 		#endif
        
 			MenuUpdate(&bike);
@@ -837,11 +837,10 @@ void main(void)
 			IWDG_ReloadCounter();  
 		} 
 		if ( (tick >= tick_1s && (tick - tick_1s) > 1000 ) || \
-								(tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
+			 (tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
 			tick_1s = tick;
 		if ( bike.uart == 0 )
 			bike.Temperature= GetTemp();
-			
 		}
 	#if ( TIME_ENABLE == 1 )	
 		UartTask();

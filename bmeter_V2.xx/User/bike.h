@@ -48,10 +48,11 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-#define LCD9040
+//#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
-//#define DENGGUAN_XUNYING	//DG55,BLSP55
+#define DENGGUAN_XUNYING	//DG55,BLSP55
+#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG	//BL60_72
 //#define BENLING_BL48_60	//BL48_60
 //#define BENLING_ZHONGSHA	//BLV72
@@ -83,6 +84,11 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 #elif defined DENGGUAN_XUNYING
+	#define PCB_VER		0100
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1
+#elif defined DENGGUAN_XUNYING_T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
@@ -149,8 +155,6 @@
 typedef struct {
 	unsigned char NearLight	:1;
 	unsigned char CRZLight	:1;
-	unsigned char TurnLeft	:1;
-	unsigned char TurnRight	:1;
 	unsigned char Cruise	:1;
 	unsigned char ECUERR	:1;
 	unsigned char Braked	:1;
@@ -163,9 +167,11 @@ typedef struct {
 	unsigned char uart		:1;	
 	unsigned char HotReset	:1;	
 	
-	unsigned char SpeedMode	;
+	unsigned char TurnLeft;
+	unsigned char TurnRight;
+	unsigned char SpeedMode;
 			 int  Temperature;
-	unsigned int  Voltage;	
+	unsigned int  Voltage;
 	unsigned char BatStatus;
 	unsigned char Energy;
 	unsigned char Speed;

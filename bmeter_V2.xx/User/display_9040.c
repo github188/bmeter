@@ -14,29 +14,29 @@ const unsigned char SegDataTemp[10] 	= {0xFA,0x0A,0xBC,0x9E,0x4E,0xD6,0xF6,0x8A,
 
 void MenuUpdate(BIKE_STATUS* bike)
 {
-  unsigned char i = 0;
+	unsigned char i = 0;
   
 	flashflag ++;
 	flashflag %= 10;
 	
-  for(i=0;i<18;i++)
-    BL_Data[i] = 0x00;
+	for(i=0;i<18;i++)
+		BL_Data[i] = 0x00;
    
-  if( bike->TurnLeft && flashflag <= 5 ) BL_Data[6] |= 0x08;	//S1
-  if( bike->TurnRight&& flashflag <= 5 ) BL_Data[15]|= 0x80;	//S9
-  if( bike->CRZLight	) BL_Data[5] |= 0x02;	//S4
-  if( bike->NearLight ) BL_Data[5] |= 0x01;	//S5
-  if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障
-  if( bike->WheelERR 	) BL_Data[5] |= 0x04;	//S3	手把故障
-  if( bike->ECUERR 		) BL_Data[15]|= 0x20;	//S7 	电机控制器故障
+	if( bike->TurnLeft  ) BL_Data[6] |= 0x08;	//S1
+	if( bike->TurnRight ) BL_Data[15]|= 0x80;	//S9
+	if( bike->CRZLight	) BL_Data[5] |= 0x02;	//S4
+	if( bike->NearLight ) BL_Data[5] |= 0x01;	//S5
+	if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障
+	if( bike->WheelERR 	) BL_Data[5] |= 0x04;	//S3	手把故障
+	if( bike->ECUERR 	) BL_Data[15]|= 0x20;	//S7 	电机控制器故障
 	if( bike->PhaseERR  ) BL_Data[15]|= 0x40;	//S8 	电机缺相故障
 
   /***************************Battery Area Display**********************************/
 	BL_Data[16] |= 0x10;
-  switch ( bike->BatStatus ){
+	switch ( bike->BatStatus ){
     case 0:
-			if ( flashflag > 5 ) BL_Data[16] &= 0xEF; 
-      break;
+		if ( flashflag > 5 ) BL_Data[16] &= 0xEF; 
+			break;
     case 1: BL_Data[3] |= 0x10;break;
     case 2: BL_Data[3] |= 0x30;break;
     case 3: BL_Data[3] |= 0x70;break;

@@ -490,7 +490,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>LCD_V2.04_LC904010_DG55_HT.hex</state>
+          <state>LCD_V2.04.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
