@@ -7,17 +7,10 @@
   * @brief   
   ******************************************************************************
   * @Changlog
-  * V2.04
+  * V2.02
   * 统一各版本采用release进行定义
-  *
-  * V2.03
   * 增加金彭产品支持，JINPENG_4060、JINPENG_6072
-  *
-  * LC904011
   * 删除对老PCB版本的支持，
-  *
-  * LC904010
-  * 等同于V2.01
   *
   * V2.01
   * 一线通改为多协议同时支持；
@@ -48,11 +41,11 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-//#define LCD9040
+#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
-#define DENGGUAN_XUNYING	//DG55,BLSP55
-#define DENGGUAN_XUNYING_T	//TDG55
+//#define DENGGUAN_XUNYING	//DG55,BLSP55
+//#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG	//BL60_72
 //#define BENLING_BL48_60	//BL48_60
 //#define BENLING_ZHONGSHA	//BLV72

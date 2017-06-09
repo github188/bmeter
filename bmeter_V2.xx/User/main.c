@@ -230,44 +230,44 @@ unsigned char GetSpeed(void)
 	speed /= ContainOf(speed_buf);
 	
 	if ( config.SysVoltage	== 48 ){	// speed*5V*21/1024/24V*45 KM/H
-	#ifdef JINPENG_4860
-		speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
-	#elif defined DENGGUAN_XUNYING
-		speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
-	#else
 		if ( bike.SpeedMode == 0 )
+		#ifdef JINPENG_4860
+			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+		#elif defined DENGGUAN_XUNYING
+			speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
+		#else
 			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
+		#endif
 		else if ( bike.SpeedMode == 3 )
-			speed = (unsigned long)speed*15UL/64UL;			//24.5V->56KM/H
+			speed = (unsigned long)speed*15UL/64UL;		//24.5V->56KM/H
 		else
 			speed = (unsigned long)speed*1645UL/8192UL;	//24V->47KM/H
-	#endif
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
-	#if ( defined JINPENG_4860 ) || ( defined JINPENG_6072 )
-		speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
-	#elif defined DENGGUAN_XUNYING
-		speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
-	#else
 		if ( bike.SpeedMode == 0 )
-			speed = (unsigned long)speed*350/2048;			//30V->50KM/H
+		#if ( defined JINPENG_4860 ) || ( defined JINPENG_6072 )
+			speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
+		#elif defined DENGGUAN_XUNYING
+			speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
+		#else
+			speed = (unsigned long)speed*350/2048;		//30V->50KM/H
+		#endif
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/32256UL;//31.5V->56KM/H
 		else
 			speed = (unsigned long)speed*4935UL/31744UL;//31V->47KM/H
-	#endif
 	} else if ( config.SysVoltage	== 72 )	{// speed*5V*21/1024/36V*45 KM/H
-	#if defined JINPENG_6072
-		speed = (unsigned long)speed*1505UL/12288UL;	//36V->43KM/H
-	#elif defined DENGGUAN_XUNYING
-		speed = (unsigned long)speed*1925UL/12288UL;	//36V->55KM/H
-	#else
 		if ( bike.SpeedMode == 0 )
+		#if defined JINPENG_6072
+			speed = (unsigned long)speed*1505UL/12288UL;//36V->43KM/H
+		#elif defined DENGGUAN_XUNYING
+			speed = (unsigned long)speed*1925UL/12288UL;//36V->55KM/H
+		#else
 			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
+		#endif
 		else if ( bike.SpeedMode == 3 )
 			speed = (unsigned long)speed*5880UL/37376UL;//36.5V->56KM/H
 		else 
 			speed = (unsigned long)speed*4935UL/36864UL;//36V->47KM/H
-	#endif
 	}
 	if ( speed > 99 )
 		speed = 99;
