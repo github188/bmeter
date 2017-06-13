@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=-1821305281
+Checksum=230073243
 [Stack]
 FillEnabled=0
 OverflowWarningsEnabled=1
@@ -23,40 +23,8 @@ Sort=4 0
 Sort=0
 [BreakpointUsageDialog]
 Placement=_ 461 223 906 505
-[DataSample]
-LogEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
-[struct_types]
-Fmt0=BIKE_STATUS-CRZLight	4	0
-Fmt1=BIKE_STATUS-Hour	3	0
-Fmt2=BIKE_STATUS-Minute	3	0
-Fmt3=BIKE_STATUS-NearLight	4	0
-Fmt4=BIKE_STATUS-Speed	3	0
-Fmt5=BIKE_STATUS-TurnLeft	4	0
-Fmt6=BIKE_STATUS-TurnRight	4	0
-[array_types]
-Fmt0=char[12]	4	0
-Fmt1=char[16]	4	0
-Fmt2=char[36]	4	0
-Fmt3=char[8]	4	0
-Fmt4=char[9]	4	0
-Fmt5=unsigned char[18]	4	0
-Fmt6=unsigned int[10]	3	0
-[watch_formats]
-Fmt0={W}1:YXT_Buf	4	2
-Fmt1={W}1:YXT_RxBit	3	0
-Fmt2={W}1:bike->Speed	3	0
 [CallStackLog]
 Enabled=0
-[Log file]
-LoggingEnabled=_ 0
-LogFile=_ ""
-Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
 [DriverProfiling]
 Enabled=0
 Mode=1
@@ -102,12 +70,47 @@ Enabled=0
 ShowSource=1
 [Simulator]
 Freq=16000000
+[struct_types]
+Fmt0=BIKE_STATUS-CRZLight	4	0
+Fmt1=BIKE_STATUS-Hour	3	0
+Fmt2=BIKE_STATUS-Minute	3	0
+Fmt3=BIKE_STATUS-NearLight	4	0
+Fmt4=BIKE_STATUS-Speed	3	0
+Fmt5=BIKE_STATUS-TurnLeft	4	0
+Fmt6=BIKE_STATUS-TurnRight	4	0
+[array_types]
+Fmt0=char[12]	4	0
+Fmt1=char[16]	4	0
+Fmt2=char[36]	4	0
+Fmt3=char[8]	4	0
+Fmt4=char[9]	4	0
+Fmt5=unsigned char[18]	4	0
+Fmt6=unsigned int[10]	3	0
+[watch_formats]
+Fmt0={W}1:YXT_Buf	4	2
+Fmt1={W}1:YXT_RxBit	3	0
+Fmt2={W}1:bike->Speed	3	0
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 1 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.704.2" 1 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.253.3" 1 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.278.1" 1 0 0 0 "" 0 ""
-Count=4
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.162.2" 1 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.171.2" 1 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.134.5" 1 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.136.4" 1 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.130.4" 1 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.842.4" 1 0 0 0 "" 0 ""
+Count=7
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
 [Aliases]
 A0=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_gpio.c" ""
 A1=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_i2c.c" ""

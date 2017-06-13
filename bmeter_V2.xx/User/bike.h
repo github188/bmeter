@@ -41,15 +41,15 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-#define LCD9040
+//#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
-//#define DENGGUAN_XUNYING	//DG55,BLSP55
+#define DENGGUAN_XUNYING		//DG55,BLSP55
 //#define DENGGUAN_XUNYING_T	//TDG55
-//#define BENLING_OUSHANG	//BL60_72
-//#define BENLING_BL48_60	//BL48_60
-//#define BENLING_ZHONGSHA	//BLV72
-//#define OUJUN				//M2_60_72
+//#define BENLING_OUSHANG		//BL60_72
+//#define BENLING_BL48_60		//BL48_60
+//#define BENLING_ZHONGSHA		//BLV72
+//#define OUJUN					//M2_60_72
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100

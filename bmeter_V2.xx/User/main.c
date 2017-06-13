@@ -105,45 +105,43 @@ void Init_timer(void)
 	TIM2_Cmd(ENABLE);     
 }
 
-// const int NTC332[][2] = 
-// {
-	// 16469	,-500	,11885,-450	,8678	,-400	,6406	,-350	,4778	,-300,
-	// 3598	,-250	,2737	,-200	,2099	,-150	,1624	,-100	,1263	,-50,
-	// 991		,0		,785	,50		,626	,100	,502	,150	,405	,200,
-	// 330		,250	,267	,300	,222	,350	,184	,400	,153	,450,
-	// 128		,500	,107	,550	,90		,600	,76		,650	,65		,700,
-	// 55		,750	,47		,800	,41		,850	,35		,900	,31		,950,
-	// 27		,1000
-// };
+const int32_t NTC_B3950[][2] = 
+{
+	401860,	-400,	281577,	-350,	200204,	-300,	144317,	-250,	105385,	-200,
+	77898,	-150,	58246,	-100,	44026,	-50,	33621,	0,		25925,	50,
+	20175,	100,	15837,	150,	12535,	200,	10000,	250,	8037,	300,
+	6506,	350,	5301,	400,	4348,	450,	3588,	500,	2978,	550,
+	2978,	600,	2086,	650,	1760,	700,	1492,	750,	1270,	800,
+	1087,	850,	934,	900,	805,	950,	698,	1000
+};
 
-// int NTCtoTemp(unsigned int ntc)
-// {
-	// int i,j;
+int32_t NTCtoTemp(int32_t ntc)
+{
+	unsigned char i,j;
 
-	// if ( ntc > NTC332[0][0] ){
-		// return -999;
-	// } else {
-		// for(i=0;i<sizeof(NTC332)/sizeof(NTC332[0][0])/2-1;i++){
-			// if ( ntc <= NTC332[i][0] && ntc > NTC332[i+1][0] )
-				// break;
-		// }
-		// if ( i == sizeof(NTC332)/sizeof(NTC332[0][0])/2-1 ){
-			// return 999;
-		// } else {
-			// for(j=0;j<50;j++){
-				// if ( NTC332[i][0] - (j*(NTC332[i][0] - NTC332[i+1][0])/50) <= ntc )
-					// return NTC332[i][1] + j;
-			// }
-			// return NTC332[i+1][1];
-		// }
-	// }
-// }
-
+	if ( ntc > NTC_B3950[0][0] ){
+		return -999;
+	} else {
+		for(i=0;i<sizeof(NTC_B3950)/sizeof(NTC_B3950[0][0])/2-1;i++){
+			if ( ntc <= NTC_B3950[i][0] && ntc > NTC_B3950[i+1][0] )
+				break;
+		}
+		if ( i == sizeof(NTC_B3950)/sizeof(NTC_B3950[0][0])/2-1 ){
+			return 999;
+		} else {
+			for(j=0;j<50;j++){
+				if ( NTC_B3950[i][0] - (j*(NTC_B3950[i][0] - NTC_B3950[i+1][0])/50) <= ntc )
+					return NTC_B3950[i][1] + j;
+			}
+			return NTC_B3950[i+1][1];
+		}
+	}
+}
 
 int GetTemp(void)
 {
 	static unsigned char index = 0;
-	int temp;
+	int32_t temp;
 	unsigned char i;
 
 	GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
@@ -167,8 +165,10 @@ int GetTemp(void)
 
 	//temp = 470UL*1024/(1024-temp)-470;
 	//temp = NTCtoTemp(temp)/10;
-	
-	temp = ((3600- (long)temp * 2905/1024)/10);
+	//temp = ((3600- (long)temp * 2905/1024)/10);
+
+	temp = 10000*1024UL/(1024-temp)-10000;
+	temp = NTCtoTemp(temp);
 	
 	return temp;
 }
@@ -284,7 +284,6 @@ BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
 void Light_Task(void)
 {
 	unsigned char speed_mode=0;
-	static unsigned char left_count=0,right_count=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
 	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
@@ -306,6 +305,18 @@ void Light_Task(void)
 			default:	bike.SpeedMode = 0; break;
 		}
 		bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
+	}
+}
+
+void HotReset(void)
+{
+	if (config.bike[0] == 'b' &&
+		config.bike[1] == 'i' && 
+		config.bike[2] == 'k' && 
+		config.bike[3] == 'e' ){
+		bike.HotReset = 1;
+	} else {
+		bike.HotReset = 0;
 	}
 }
 
@@ -336,20 +347,7 @@ void InitConfig(void)
 {
 	unsigned char *cbuf = (unsigned char *)&config;
 	unsigned char i,sum;
-	
-	FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-	FLASH_Unlock(FLASH_MEMTYPE_DATA);  
-	Delay(5000);
 
-	if (config.bike[0] == 'b' &&
-		config.bike[1] == 'i' && 
-		config.bike[2] == 'k' && 
-		config.bike[3] == 'e' ){
-		bike.HotReset = 1;
-	} else {
-		bike.HotReset = 0;
-	}
-		
 	for(i=0;i<sizeof(BIKE_CONFIG);i++)
 		cbuf[i] = FLASH_ReadByte(0x4000 + i);
 
@@ -367,8 +365,6 @@ void InitConfig(void)
 		config.Mile				= 0;
 		config.SysVoltage = 60;
 	}
-	Delay(5000); 
-	FLASH_Lock(FLASH_MEMTYPE_DATA);
 
 #ifdef LCD6040
  	bike.Mile = 0; 
@@ -382,7 +378,7 @@ void InitConfig(void)
 #if ( PCB_VER == 0041 )
 	config.SysVoltage = 60;
 #else
-	#if (defined BENLING_OUSHANG) || (defined BENLING_BL48_60)
+	#if defined BENLING_OUSHANG
 		unsigned int vol;
 		for(i=0;i<64;i++){
 			vol = GetVol();
@@ -391,13 +387,23 @@ void InitConfig(void)
 		if ( 720 <= vol && vol <= 870 ){
 			config.SysVoltage = 72;
 			WriteConfig();
-		}	else if ( 480 <= vol && vol <= 600 ){
+		} else if ( 480 <= vol && vol <= 600 ){
 			config.SysVoltage = 60;
 			WriteConfig();
-		//}	else if ( 480 <= vol && vol <= 600 ){
-		//	config.SysVoltage = 48;
-		//	WriteConfig();
 		}
+	#elif defined BENLING_BL48_60
+		unsigned int vol;
+		for(i=0;i<64;i++){
+			vol = GetVol();
+			IWDG_ReloadCounter();  
+		}
+		if ( 610 <= vol && vol <= 720 ){
+			config.SysVoltage = 60;
+			WriteConfig();
+		}	else if ( 360 <= vol && vol <= 500 ){
+			config.SysVoltage = 48;
+			WriteConfig();
+		}		
 	#elif defined BENLING_ZHONGSHA
 		config.SysVoltage = 72;
 	#elif defined OUJUN
@@ -675,7 +681,7 @@ void UartTask(void)
 			PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
 		} else if ( uart1_index >= 5 && uart1_buf[0] == 'C' /*&& uart1_buf[1] == 'a' && uart1_buf[2] == 'l' && uart1_buf[3] == 'i' */){
 			bike.Voltage 		= GetVol();
-			bike.Temperature= GetTemp();
+			bike.Temperature	= GetTemp();
 			bike.Speed			= GetSpeed();
 
 			config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					
@@ -718,6 +724,7 @@ void Calibration(void)
 		//config.Mile = 0;
 		WriteConfig();
 	}
+	
 	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
@@ -742,10 +749,10 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-  //IWDG_Config();
+	//IWDG_Config();
 
 	Init_timer();  
-	InitConfig();
+	HotReset();
 	if ( bike.HotReset == 0 ) {
 		BL55072_Config(1);
 
@@ -761,6 +768,7 @@ void main(void)
 	} else
 		BL55072_Config(0);
 
+	InitConfig();
 	Calibration();
 	if ( bike.HotReset == 0 ) {
 	#if ( PCB_VER == 0041 )
