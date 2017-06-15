@@ -2,11 +2,12 @@
   ******************************************************************************
   * @file    
   * @author  ahzzc@sina.com
-  * @version V2.00
+  * @version V2.xx
   * @date    
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.04
   * V2.02
   * 统一各版本采用release进行定义
   * 增加金彭产品支持，JINPENG_4060、JINPENG_6072
@@ -44,12 +45,12 @@
 //#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
-#define DENGGUAN_XUNYING		//DG55,BLSP55
+//#define DENGGUAN_XUNYING		//DG55,BLSP55
 //#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG		//BL60_72
 //#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
-//#define OUJUN					//M2_60_72
+#define OUJUN					//M2_60_72
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100

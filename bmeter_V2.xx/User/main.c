@@ -39,7 +39,7 @@ volatile unsigned int  sys_tick = 0;
 unsigned int tick_100ms=0,tick_1s=0;
 unsigned int speed_buf[16];
 unsigned int vol_buf[32];
-int temp_buf[4];
+unsigned int temp_buf[4];
 unsigned char uart1_buf[16];
 unsigned char uart1_index=0;
 const unsigned int* BatStatus;
@@ -105,7 +105,7 @@ void Init_timer(void)
 	TIM2_Cmd(ENABLE);     
 }
 
-const int32_t NTC_B3950[][2] = 
+const int32_t NTC_B3950[29][2] = 
 {
 	401860,	-400,	281577,	-350,	200204,	-300,	144317,	-250,	105385,	-200,
 	77898,	-150,	58246,	-100,	44026,	-50,	33621,	0,		25925,	50,
@@ -120,14 +120,14 @@ int32_t NTCtoTemp(int32_t ntc)
 	unsigned char i,j;
 
 	if ( ntc > NTC_B3950[0][0] ){
-		return -999;
+		return NTC_B3950[0][1];
 	} else {
 		for(i=0;i<sizeof(NTC_B3950)/sizeof(NTC_B3950[0][0])/2-1;i++){
 			if ( ntc <= NTC_B3950[i][0] && ntc > NTC_B3950[i+1][0] )
 				break;
 		}
 		if ( i == sizeof(NTC_B3950)/sizeof(NTC_B3950[0][0])/2-1 ){
-			return 999;
+			return NTC_B3950[28][1];
 		} else {
 			for(j=0;j<50;j++){
 				if ( NTC_B3950[i][0] - (j*(NTC_B3950[i][0] - NTC_B3950[i+1][0])/50) <= ntc )
@@ -169,6 +169,8 @@ int GetTemp(void)
 
 	temp = 10000*1024UL/(1024-temp)-10000;
 	temp = NTCtoTemp(temp);
+	if ( temp > 999  ) temp =  999;
+	if ( temp < -999 ) temp = -999;
 	
 	return temp;
 }
@@ -380,7 +382,7 @@ void InitConfig(void)
 #else
 	#if defined BENLING_OUSHANG
 		unsigned int vol;
-		for(i=0;i<64;i++){
+		for(i=0;i<16;i++){
 			vol = GetVol();
 			IWDG_ReloadCounter();  
 		}
@@ -393,7 +395,7 @@ void InitConfig(void)
 		}
 	#elif defined BENLING_BL48_60
 		unsigned int vol;
-		for(i=0;i<64;i++){
+		for(i=0;i<16;i++){
 			vol = GetVol();
 			IWDG_ReloadCounter();  
 		}
@@ -709,14 +711,11 @@ void Calibration(void)
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
 		Delay(1000);
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
-		GetVol();
-		GetTemp();
-		GetSpeed();
 	}
 	if ( i == 32 ){
 		bike.Voltage 		= GetVol();
-		//bike.Temperature= GetTemp();
-		//bike.Speed			= GetSpeed();
+		//bike.Temperature	= GetTemp();
+		//bike.Speed		= GetSpeed();
 
 		config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					//60.00V
 		//config.TempScale= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
@@ -745,6 +744,7 @@ void main(void)
 {
 	unsigned char i;
 	unsigned int tick;
+	unsigned char count=0;
 
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
@@ -768,26 +768,26 @@ void main(void)
 	} else
 		BL55072_Config(0);
 
-	InitConfig();
+	for(i=0;i<32;i++){	GetVol();	IWDG_ReloadCounter();  }
+	for(i=0;i<16;i++){	GetSpeed();	IWDG_ReloadCounter();  }
+	for(i=0;i<4;i++){	GetTemp();	IWDG_ReloadCounter();  }
+	bike.Temperature = 	GetTemp();
+
 	Calibration();
 	if ( bike.HotReset == 0 ) {
 	#if ( PCB_VER == 0041 )
 		GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
 	#endif
 	}
-	
-	for(i=0;i<32;i++){
-		GetVol();
-		GetTemp();
-		GetSpeed();
-		IWDG_ReloadCounter();  
-	}
-	bike.Temperature= GetTemp();
+
+	InitConfig();
 	
 #if ( TIME_ENABLE == 1 )	
 	//bike.HasTimer = !PCF8563_Check();
 	bike.HasTimer = PCF8563_GetTime(PCF_Format_BIN,&RtcTime);
+	#ifndef DENGGUAN_XUNYING_T
 	InitUART();
+	#endif
 #endif
 
 #if ( YXT_ENABLE == 1 )
@@ -804,7 +804,7 @@ void main(void)
 		GPIO_WriteHigh (TurnRightOut_PORT	,TurnRightOut_PIN);
 		GPIO_WriteHigh (NearLightOut_PORT	,NearLightOut_PIN);
 	#endif
-	}	
+	}
 	
 	while(1){
 		tick = Get_SysTick();
@@ -850,8 +850,10 @@ void main(void)
 		if ( bike.uart == 0 )
 			bike.Temperature= GetTemp();
 		}
-	#if ( TIME_ENABLE == 1 )	
+	#if ( TIME_ENABLE == 1 )
+		#ifndef DENGGUAN_XUNYING_T
 		UartTask();
+		#endif
 	#endif
 	}
 }
