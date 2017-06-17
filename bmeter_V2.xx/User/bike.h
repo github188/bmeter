@@ -7,6 +7,8 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.05
+  * 改正温度显示
   * V2.04
   * V2.02
   * 统一各版本采用release进行定义
@@ -40,7 +42,7 @@
 /******************************************************************************/
 //release define
 //#define JINPENG_4860
-//#define JINPENG_6072
+#define JINPENG_6072
 //#define LCD6040
 //#define LCD9040
 //#define LCD9040T
@@ -50,7 +52,7 @@
 //#define BENLING_OUSHANG		//BL60_72
 //#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
-#define OUJUN					//M2_60_72
+//#define OUJUN					//M2_60_72
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100
