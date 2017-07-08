@@ -7,8 +7,12 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.06
+  * 改正标定时的异常
+  *
   * V2.05
   * 改正温度显示
+  *
   * V2.04
   * V2.02
   * 统一各版本采用release进行定义
@@ -42,9 +46,9 @@
 /******************************************************************************/
 //release define
 //#define JINPENG_4860
-#define JINPENG_6072
+//#define JINPENG_6072
 //#define LCD6040
-//#define LCD9040
+#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
