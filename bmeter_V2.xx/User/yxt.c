@@ -85,8 +85,8 @@ void YXT_Tim_Receive(uint16_t duty)
 			PlusCode = PlusCode & 0x7F;
 		} else if ( YXT_Buf[0] == 0x08 ){	//英科尔、晶汇本铃
 			PlusCode = 0;
-		}	else {
-			return ;
+		} else {
+			PlusCode = YXT_Buf[10];
 		}
 		
 		YXT_Status[0] = YXT_Buf[2] - (((YXT_Buf[2] >> 4))*0x10);

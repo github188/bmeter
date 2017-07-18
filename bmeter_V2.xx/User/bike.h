@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.07
+  * 增加一线通支持类型，支持型号以外的，直接从Status9中恢复PlusCode;
+  *
   * V2.06
   * 改正电压标定时里程出错的问题；
   *
@@ -46,8 +49,8 @@
 //release define
 //#define JINPENG_4860
 //#define JINPENG_6072
-#define LCD6040
-//#define LCD9040
+//#define LCD6040
+#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
