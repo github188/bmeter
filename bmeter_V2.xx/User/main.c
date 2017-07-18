@@ -364,8 +364,8 @@ void InitConfig(void)
 		config.VolScale  	= 1000;
 		config.TempScale 	= 1000;
 		config.SpeedScale	= 1000;
-		config.Mile				= 0;
-		config.SysVoltage = 60;
+		config.Mile			= 0;
+		config.SysVoltage 	= 60;
 	}
 
 #ifdef LCD6040
@@ -713,6 +713,7 @@ void Calibration(void)
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
 	}
 	if ( i == 32 ){
+		for(i=0;i<32;i++){ GetVol(); IWDG_ReloadCounter(); }
 		bike.Voltage 		= GetVol();
 		//bike.Temperature	= GetTemp();
 		//bike.Speed		= GetSpeed();
@@ -770,17 +771,16 @@ void main(void)
 
 	for(i=0;i<32;i++){	GetVol();	IWDG_ReloadCounter();  }
 	for(i=0;i<16;i++){	GetSpeed();	IWDG_ReloadCounter();  }
-	for(i=0;i<4;i++){	GetTemp();	IWDG_ReloadCounter();  }
+	for(i=0;i<4;i++) {	GetTemp();	IWDG_ReloadCounter();  }
 	bike.Temperature = 	GetTemp();
 
+	InitConfig();
 	Calibration();
 	if ( bike.HotReset == 0 ) {
 	#if ( PCB_VER == 0041 )
 		GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN);
 	#endif
 	}
-
-	InitConfig();
 	
 #if ( TIME_ENABLE == 1 )	
 	//bike.HasTimer = !PCF8563_Check();
