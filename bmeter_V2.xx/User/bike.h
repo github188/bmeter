@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.07
+  * 修正对一线通吉详方案的支持，数据高电平采空比放宽到15-42
+  *
   * V2.06
   * 改正标定时的异常
   *
@@ -48,13 +51,13 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-#define LCD9040
+//#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
 //#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG		//BL60_72
-//#define BENLING_BL48_60		//BL48_60
+#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
 //#define OUJUN					//M2_60_72
 
