@@ -463,21 +463,37 @@ unsigned char GetBatEnergy(unsigned int vol)
 void MileTask(void)
 {
 	static unsigned int Fmile = 0;
+	static unsigned int time = 0;
 	unsigned char speed;
 	
 	speed = bike.Speed;
 	if ( speed > DISPLAY_MAX_SPEED ) speed = DISPLAY_MAX_SPEED;
-	
-	Fmile = Fmile + speed;
-	if(Fmile > 36000)
-	{
-		Fmile = 0;
-		bike.Mile++;
-		if ( bike.Mile > 99999 )
+
+#ifdef SINGLE_TRIP
+	time ++;
+	if ( time < 20 ) {	//2s
+		bike.Mile = config.Mile;
+	} else if ( time < 50 ) { 	//5s
+		if ( speed ) {
+			time = 50;
 			bike.Mile = 0;
-		config.Mile = bike.Mile;
-		WriteConfig();
-	}  
+		}
+	} else 
+#endif	
+	{
+		time = 50;
+		
+		Fmile = Fmile + speed;
+		if(Fmile >= 36000)
+		{
+			Fmile = 0;
+			bike.Mile++;
+			if ( bike.Mile > 99999 )	bike.Mile = 0;
+			config.Mile ++;
+			if ( config.Mile > 99999 )	config.Mile = 0;
+			WriteConfig();
+		}  
+	}
 }
 
 #if ( TIME_ENABLE == 1 )

@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.08
+  * 增加开机显示累计里程5秒，如果2秒后有速度则跳到显示单次里程
+  * 
   * V2.07
   * 修正对一线通吉详方案的支持，数据高电平采空比放宽到15-42
   *
@@ -60,6 +63,9 @@
 #define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
 //#define OUJUN					//M2_60_72
+
+#define SINGLE_TRIP
+
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100
