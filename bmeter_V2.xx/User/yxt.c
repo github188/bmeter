@@ -15,8 +15,8 @@ void YXT_Init(void)
 	//TIM1_DeInit();
 	TIM1_TimeBaseInit(31,TIM1_COUNTERMODE_UP,0xFFFF,0);
 	TIM1_PWMIConfig(TIM1_CHANNEL_1,TIM1_ICPOLARITY_FALLING,TIM1_ICSELECTION_DIRECTTI,TIM1_ICPSC_DIV1,0x0F);
-  TIM1_SelectSlaveMode(TIM1_SLAVEMODE_RESET);
-  TIM1_SelectInputTrigger(TIM1_TS_TI1FP1);
+	TIM1_SelectSlaveMode(TIM1_SLAVEMODE_RESET);
+	TIM1_SelectInputTrigger(TIM1_TS_TI1FP1);
 	TIM1_ClearFlag(TIM1_FLAG_UPDATE | TIM1_FLAG_CC2);
 	TIM1_ITConfig(TIM1_IT_CC2,ENABLE);
 	TIM1_Cmd(ENABLE);
@@ -29,12 +29,12 @@ void YXT_Init(void)
 
 void YXT_Tim_Receive(uint16_t duty)
 {
-  int8_t PlusCode;
-  uint8_t checksum;
-  uint8_t i;
+	int8_t PlusCode;
+	uint8_t checksum;
+	uint8_t i;
   	
 	YXT_RxData <<= 1;
-	if ( duty > 25 && duty < 42 ) {
+	if ( duty > 15 && duty < 42 ) {
 		YXT_RxData |= 0x01;
 	}
   
@@ -101,10 +101,10 @@ void YXT_Tim_Receive(uint16_t duty)
 		
 		YXT_Update = 1;
 	}
-  if ( duty > 2560 ) {
+	if ( duty > 2560 ) {
 		YXT_RxBit  = 0;
 		YXT_RxData = 0;
-	}	
+	}
 }
 
 void YXT_Task(BIKE_STATUS *bike)

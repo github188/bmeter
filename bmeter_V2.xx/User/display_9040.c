@@ -46,9 +46,9 @@ void MenuUpdate(BIKE_STATUS* bike)
     case 7: BL_Data[3] |= 0xF0;BL_Data[ 9] |= 0xE0;break;
     case 8: BL_Data[3] |= 0xF0;BL_Data[ 9] |= 0xF0;break;          
     default:break; 
-  }
+	}
 
-  /***************************Temp Area Display**********************************/
+	/***************************Temp Area Display**********************************/
 	BL_Data[3] |= (SegDataTemp[abs(bike->Temperature/10)%10] & 0xF);
 	BL_Data[4] |= (SegDataTemp[abs(bike->Temperature/10)%10] & 0xF0);
 	BL_Data[4] |= (SegDataTemp[abs(bike->Temperature/10)/10] & 0xF);       
@@ -83,41 +83,41 @@ void MenuUpdate(BIKE_STATUS* bike)
 		} else if ( flashflag <= 5 ) BL_Data[7] |= 0x08;	//col
 	}
 	
-  /*************************** Voltage Display**********************************/
-  BL_Data[2] |= (SegDataVoltage[ bike->Voltage		 %10]) | 0x8;
-  BL_Data[1] |= (SegDataVoltage[(bike->Voltage/10	)%10]) | 0x8;
-  BL_Data[0] |= (SegDataVoltage[(bike->Voltage/100)%10]); 
-  // BL_Data[2] |= (SegDataVoltage[ bike->Voltage/10	%10]) | 0x8;
-  // BL_Data[1] |= (SegDataVoltage[(bike->Voltage/100)%10]);
-  
-  /*************************** Mile Display**********************************/  
-  BL_Data[12] |= (SegDataMile [ bike->Mile			 %10]) | 0x1;
-  BL_Data[11] |= (SegDataMile [(bike->Mile/10   )%10]);
-  BL_Data[10] |= (SegDataMile [(bike->Mile/100  )%10]); 
-  BL_Data[ 9] |= (SegDataMile [(bike->Mile/1000 )%10] & 0x0F); 
-  BL_Data[15] |= (SegDataMile [(bike->Mile/1000 )%10] >> 4);
-  BL_Data[16] |= (SegDataMile2[(bike->Mile/10000)%10]); 
-  
-  /*************************** Speed Display**********************************/
-  BL_Data[14] |= (SegDataSpeed[ bike->Speed		 %10]);
-  BL_Data[13] |= (SegDataSpeed[(bike->Speed/10)%10]); 
-  BL_Data[14] |= 0x80;
-  
-  /*************************** Mode Display**********************************/ 
-  switch (bike->SpeedMode){
+	/*************************** Voltage Display**********************************/
+	BL_Data[2] |= (SegDataVoltage[ bike->Voltage		 %10]) | 0x8;
+	BL_Data[1] |= (SegDataVoltage[(bike->Voltage/10	)%10]) | 0x8;
+	BL_Data[0] |= (SegDataVoltage[(bike->Voltage/100)%10]); 
+	// BL_Data[2] |= (SegDataVoltage[ bike->Voltage/10	%10]) | 0x8;
+	// BL_Data[1] |= (SegDataVoltage[(bike->Voltage/100)%10]);
+
+	/*************************** Mile Display**********************************/  
+	BL_Data[12] |= (SegDataMile [ bike->Mile			 %10]) | 0x1;
+	BL_Data[11] |= (SegDataMile [(bike->Mile/10   )%10]);
+	BL_Data[10] |= (SegDataMile [(bike->Mile/100  )%10]); 
+	BL_Data[ 9] |= (SegDataMile [(bike->Mile/1000 )%10] & 0x0F); 
+	BL_Data[15] |= (SegDataMile [(bike->Mile/1000 )%10] >> 4);
+	BL_Data[16] |= (SegDataMile2[(bike->Mile/10000)%10]); 
+
+	/*************************** Speed Display**********************************/
+	BL_Data[14] |= (SegDataSpeed[ bike->Speed		 %10]);
+	BL_Data[13] |= (SegDataSpeed[(bike->Speed/10)%10]); 
+	BL_Data[14] |= 0x80;
+
+	/*************************** Mode Display**********************************/ 
+	switch (bike->SpeedMode){
     case 1: BL_Data[11] |= 0x01;break;
     case 2: BL_Data[10] |= 0x01;break;
     case 3: BL_Data[9 ] |= 0x01;break;
-		case 4: BL_Data[13] |= 0x80;break;
+	case 4: BL_Data[13] |= 0x80;break;
     default:
 			BL_Data[11] &= ~0x01;
 			BL_Data[10] &= ~0x01;
 			BL_Data[ 9] &= ~0x01;
 			BL_Data[13] &= ~0x80;
 			break;
-  }
+	}
   
-  BL_Write_Data(0,18,BL_Data);
+	BL_Write_Data(0,18,BL_Data);
 }
 
 
