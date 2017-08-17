@@ -118,11 +118,11 @@ void YXT_Task(BIKE_STATUS *bike)
 
 		if ( (YXT_Status[1] & (1<<6)) )	bike->HallERR = 1; else bike->HallERR = 0;
 		if ( (YXT_Status[1] & (1<<5)) ) bike->WheelERR= 1; else bike->WheelERR= 0; 
-		if ( (YXT_Status[1] & (1<<4)) )	bike->ECUERR 	= 1; else bike->ECUERR 	= 0;
-	//if ( (YXT_Status[1] & (1<<2)) )	bike->Cruise 	= 1; else bike->Cruise 	= 0;
-		if ( (YXT_Status[1] & (1<<0)) )	bike->PhaseERR= 1; else bike->PhaseERR= 0;
+		if ( (YXT_Status[1] & (1<<4)) )	bike->ECUERR  = 1; else bike->ECUERR  = 0;
+	//	if ( (YXT_Status[1] & (1<<2)) )	bike->Cruise  = 1; else bike->Cruise  = 0;
+	//	if ( (YXT_Status[1] & (1<<0)) )	bike->PhaseERR= 1; else bike->PhaseERR= 0;
 
-		if ( (YXT_Status[2] & (1<<5)) )	bike->Braked 	= 1; else bike->Braked 	= 0;
+		if ( (YXT_Status[2] & (1<<5)) )	bike->Braked  = 1; else bike->Braked  = 0;
 	
 		bike->SpeedMode = ((YXT_Status[2]>>5)&0x04)|(YXT_Status[2]&0x03);
 		speed = ((unsigned int )YXT_Status[5]<<8) | YXT_Status[6];
@@ -132,7 +132,7 @@ void YXT_Task(BIKE_STATUS *bike)
 	} else if ( Get_ElapseTick(pre_tick) > 3000 ){
 		bike->YXTERR 		= 1;
 		bike->HallERR 	= 0;
-		bike->PhaseERR 	= 0;
+		//bike->PhaseERR 	= 0;
 		bike->WheelERR 	= 0;
 		bike->ECUERR 		= 0;
 	}	

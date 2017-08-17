@@ -29,7 +29,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障
 	if( bike->WheelERR 	) BL_Data[5] |= 0x04;	//S3	手把故障
 	if( bike->ECUERR 	) BL_Data[15]|= 0x20;	//S7 	电机控制器故障
-	if( bike->PhaseERR  ) BL_Data[15]|= 0x40;	//S8 	电机缺相故障
+	//if( bike->PhaseERR  ) BL_Data[15]|= 0x40;	//S8 	电机缺相故障
+	if( bike->Braked  	) BL_Data[15]|= 0x40;	//S8 	刹车
 
   /***************************Battery Area Display**********************************/
 	BL_Data[16] |= 0x10;

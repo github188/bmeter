@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.08 - 20170817
+  * 修改刹车图标显示方式，当YXT DATA2 BIT5 为1时显示刹车灯
+  *
   * V2.07
   * 增加开机显示累计里程5秒，如果2秒后有速度则跳到显示单次里程
   * 修正对一线通吉详方案的支持，数据高电平占空比放宽到15-42
@@ -52,11 +55,11 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-#define LCD9040
+//#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
-//#define DENGGUAN_XUNYING_T	//TDG55
+#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG		//BL60_72
 //#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
