@@ -9,6 +9,8 @@
   * @Changlog
   * V2.08 - 20170817
   * 修改刹车图标显示方式，当YXT DATA2 BIT5 为1时显示刹车灯
+  * 改正DENGGUAN_XUNYING_T、JINPENG_6072的速度标定
+  * 优化程序空间
   *
   * V2.07
   * 增加开机显示累计里程5秒，如果2秒后有速度则跳到显示单次里程
@@ -55,17 +57,17 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-//#define LCD9040
+#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
-#define DENGGUAN_XUNYING_T	//TDG55
+//#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG		//BL60_72
 //#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
 //#define OUJUN					//M2_60_72
 
-#define SINGLE_TRIP
+//#define SINGLE_TRIP
 
 
 #ifdef JINPENG_4860
@@ -87,7 +89,7 @@
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
-	#define YXT_ENABLE  1				
+	#define YXT_ENABLE  0				
 #elif defined LCD6040
 	#define PCB_VER		0100
 	#define LCD6040

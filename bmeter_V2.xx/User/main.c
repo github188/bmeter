@@ -31,10 +31,6 @@ const unsigned int BatStatus60[8] = {520,531,544,556,568,579,590,605};
 const unsigned int BatStatus72[8] = {630,644,658,671,684,698,711,724};
 #endif
 
-const unsigned int BatEnergy48[8] = {420,490};
-const unsigned int BatEnergy60[8] = {520,620};
-const unsigned int BatEnergy72[8] = {630,740};
-
 volatile unsigned int  sys_tick = 0;
 unsigned int tick_100ms=0,tick_1s=0;
 unsigned int speed_buf[16];
@@ -43,7 +39,6 @@ unsigned int temp_buf[4];
 unsigned char uart1_buf[16];
 unsigned char uart1_index=0;
 const unsigned int* BatStatus;
-const unsigned int* BatEnergy;
 
 BIKE_STATUS bike;
 __no_init BIKE_CONFIG config;
@@ -235,7 +230,7 @@ unsigned char GetSpeed(void)
 		if ( bike.SpeedMode == 0 )
 		#ifdef JINPENG_4860
 			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
-		#elif defined DENGGUAN_XUNYING
+		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
 		#else
 			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
@@ -246,9 +241,11 @@ unsigned char GetSpeed(void)
 			speed = (unsigned long)speed*1645UL/8192UL;	//24V->47KM/H
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
 		if ( bike.SpeedMode == 0 )
-		#if ( defined JINPENG_4860 ) || ( defined JINPENG_6072 )
+		#if ( defined JINPENG_4860 ) 
 			speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
-		#elif defined DENGGUAN_XUNYING
+		#elif defined JINPENG_6072
+			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
 		#else
 			speed = (unsigned long)speed*350/2048;		//30V->50KM/H
@@ -261,7 +258,7 @@ unsigned char GetSpeed(void)
 		if ( bike.SpeedMode == 0 )
 		#if defined JINPENG_6072
 			speed = (unsigned long)speed*1505UL/12288UL;//36V->43KM/H
-		#elif defined DENGGUAN_XUNYING
+		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*1925UL/12288UL;//36V->55KM/H
 		#else
 			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
@@ -432,10 +429,10 @@ void InitConfig(void)
 #endif
 
 	switch ( config.SysVoltage ){
-	case 48:BatStatus = BatStatus48;BatEnergy = BatEnergy48;break;
-	case 60:BatStatus = BatStatus60;BatEnergy = BatEnergy60;break;
-	case 72:BatStatus = BatStatus72;BatEnergy = BatEnergy72;break;
-	default:BatStatus = BatStatus60;BatEnergy = BatEnergy60;break;
+	case 48:BatStatus = BatStatus48;break;
+	case 60:BatStatus = BatStatus60;break;
+	case 72:BatStatus = BatStatus72;break;
+	default:BatStatus = BatStatus60;break;
 	}
 }
 
@@ -448,9 +445,23 @@ unsigned char GetBatStatus(unsigned int vol)
 	return i;
 }
 
+#ifdef LCD8794GCT
+
+const unsigned int BatEnergy48[8] = {420,490};
+const unsigned int BatEnergy60[8] = {520,620};
+const unsigned int BatEnergy72[8] = {630,740};
+const unsigned int* BatEnergy;
+
 unsigned char GetBatEnergy(unsigned int vol)
 {
 	unsigned int energy ;
+	
+	switch ( config.SysVoltage ){
+	case 48:BatEnergy = BatEnergy48;break;
+	case 60:BatEnergy = BatEnergy60;break;
+	case 72:BatEnergy = BatEnergy72;break;
+	default:BatEnergy = BatEnergy60;break;
+	}
 
 	if ( bike.Voltage <= BatEnergy[0] ) energy = 0;
 	else if ( bike.Voltage >= BatEnergy[1] ) energy = 100;
@@ -459,6 +470,7 @@ unsigned char GetBatEnergy(unsigned int vol)
 	}
 	return energy;
 }
+#endif
 
 void MileTask(void)
 {
@@ -816,7 +828,7 @@ void main(void)
   
 	enableInterrupts();
 	
-	if ( bike.HotReset == 0 ){
+	if ( bike.HotReset == 0 ) {
 		while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
 		BL55072_Config(0);
 	#if ( PCB_VER == 0041 )
@@ -837,8 +849,10 @@ void main(void)
 			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
 			//bike.Temperature= GetTemp();
 			bike.BatStatus 	= GetBatStatus(bike.Voltage);
+		#ifdef LCD8794GCT
 			bike.Energy 	= GetBatEnergy(bike.Voltage);
-
+		#endif
+		
 			Light_Task();
 			MileTask();    
 		#if ( YXT_ENABLE == 1 )

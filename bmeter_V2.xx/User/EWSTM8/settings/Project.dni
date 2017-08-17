@@ -104,8 +104,8 @@ LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\yxt.c}.123.3" 1 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.437.10" 1 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.437.10" 1 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.437.2" 1 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.437.2" 1 0 0 0 "" 0 ""
 Count=3
 [Aliases]
 A0=_ "C:\Users\root\Desktop\新建文件夹\Dis_Code\STM8S_StdPeriph_Driver\src\stm8s_gpio.c" ""
