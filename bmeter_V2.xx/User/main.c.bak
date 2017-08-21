@@ -285,8 +285,8 @@ void Light_Task(void)
 	unsigned char speed_mode=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
-	if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
-	if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
+	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
+	//if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
 	//if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
 	if ( bike.YXTERR ){
@@ -472,39 +472,6 @@ unsigned char GetBatEnergy(unsigned int vol)
 }
 #endif
 
-unsigned char MileResetTask(void)
-{
-	static unsigned char TaskFlag = 0;
-	static unsigned char lastLight = 0;
-	static unsigned char count = 0;
-	
-	if ( TaskFlag == 2 ){
-		return 0;
-	}
-
-	if ( bike.TurnRight == 0 ){
-		TaskFlag = 2;
-	} else if ( TaskFlag == 0 ){
-		if ( Get_SysTick() < 3000 ){
-			TaskFlag = 1;
-			count = 0;
-		} else {
-			TaskFlag = 2;
-		}
-	}
-	if ( TaskFlag == 1 ) {
-		if ( lastLight == 0 && bike.NearLight){
-			count ++;
-			if ( count >= 8 ){
-				TaskFlag = 2;
-				return 1;
-			}
-		}
-		lastLight = bike.NearLight;
-	}	
-	return 0;
-}
-
 void MileTask(void)
 {
 	static unsigned int Fmile = 0;
@@ -541,14 +508,6 @@ void MileTask(void)
 			WriteConfig();
 		}  
 	}
-#ifdef ENABLE_RESET_MILE	
-	if ( MileResetTask() ){
-		Fmile = 0;
-		bike.Mile = 0;
-		config.Mile = 0;
-		WriteConfig();
-	}
-#endif
 }
 
 #if ( TIME_ENABLE == 1 )
@@ -816,7 +775,7 @@ void main(void)
 {
 	unsigned char i;
 	unsigned int tick;
-	unsigned int count=0;
+	unsigned char count=0;
 
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
@@ -885,7 +844,6 @@ void main(void)
 		if ( (tick >= tick_100ms && (tick - tick_100ms) > 100 ) || \
 			 (tick <  tick_100ms && (0xFFFF - tick_100ms + tick) > 100 ) ) {
 			tick_100ms = tick;
-			count ++;
 
 			bike.Voltage 	= (unsigned long)GetVol()*1000UL/config.VolScale;
 			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
@@ -894,15 +852,11 @@ void main(void)
 		#ifdef LCD8794GCT
 			bike.Energy 	= GetBatEnergy(bike.Voltage);
 		#endif
-			if ( (count % 10) == 0 ){
-				if ( bike.uart == 0 )
-					bike.Temperature= GetTemp();
-			}
 		
 			Light_Task();
 			MileTask();    
 		#if ( YXT_ENABLE == 1 )
-			//YXT_Task(&bike);  
+			YXT_Task(&bike);  
 		#endif
 		#if ( TIME_ENABLE == 1 )	
 			TimeTask();   
@@ -924,12 +878,12 @@ void main(void)
 			/* Reload IWDG counter */
 			IWDG_ReloadCounter();  
 		} 
-		// if ( (tick >= tick_1s && (tick - tick_1s) > 1000 ) || \
-			 // (tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
-			// tick_1s = tick;
-			// if ( bike.uart == 0 )
-				// bike.Temperature= GetTemp();
-		// }
+		if ( (tick >= tick_1s && (tick - tick_1s) > 1000 ) || \
+			 (tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
+			tick_1s = tick;
+		if ( bike.uart == 0 )
+			bike.Temperature= GetTemp();
+		}
 	#if ( TIME_ENABLE == 1 )
 		#ifndef DENGGUAN_XUNYING_T
 		UartTask();

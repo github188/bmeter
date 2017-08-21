@@ -18,14 +18,15 @@ void MenuUpdate(BIKE_STATUS* bike)
 	for(i=0;i<18;i++)
 		BL_Data[i] = 0x00;
    
-	if( bike->TurnLeft  ) BL_Data[ 7] |= 0x20;	//S1
-	if( bike->TurnRight ) BL_Data[ 3] |= 0x01;	//S7
+	if( bike->TurnLeft  && (flashflag%10) < 5 ) BL_Data[ 7] |= 0x20;	//S1
+	if( bike->TurnRight && (flashflag%10) < 5 ) BL_Data[ 3] |= 0x01;	//S7
 	//if( bike->CRZLight) BL_Data[ 5] |= 0x02;	//S?
 	if( bike->NearLight ) BL_Data[ 7] |= 0x10;	//S2
 	if( bike->HallERR 	) BL_Data[ 7] |= 0x40;	//S3	电机霍尔故障
 	if( bike->WheelERR 	) BL_Data[ 7] |= 0x80;	//S5	手把故障
 	if( bike->ECUERR 	) BL_Data[ 1] |= 0x80;	//S6 	电机控制器故障
-	if( bike->PhaseERR  ) BL_Data[ 0] |= 0x80;	//S4 	电机缺相故障
+//	if( bike->PhaseERR  ) BL_Data[ 0] |= 0x80;	//S4 	电机缺相故障
+	if( bike->Braked  	) BL_Data[ 0] |= 0x80;	//S4 	电机缺相故障
 
   /***************************Battery Area Display**********************************/
 	BL_Data[ 4] |= 0x80;  //S19

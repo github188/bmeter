@@ -190,7 +190,7 @@
         <option>
           <name>CCDefines</name>
           <state>STM8S003</state>
-          <state>LCD9040</state>
+          <state>BENLING_OUSHANG</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -491,7 +491,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>LCD.hex</state>
+          <state>LCD_V2.08.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

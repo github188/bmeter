@@ -21,9 +21,9 @@ void MenuUpdate(BIKE_STATUS* bike)
 	
 	for(i=0;i<18;i++)
 		BL_Data[i] = 0x00;
-   
-	if( bike->TurnLeft  ) BL_Data[6] |= 0x08;	//S1
-	if( bike->TurnRight ) BL_Data[15]|= 0x80;	//S9
+	
+	if( bike->TurnLeft  && (flashflag%10) < 5 )	BL_Data[6] |= 0x08;	//S1
+	if( bike->TurnRight && (flashflag%10) < 5 ) BL_Data[15]|= 0x80;	//S9
 	if( bike->CRZLight	) BL_Data[5] |= 0x02;	//S4
 	if( bike->NearLight ) BL_Data[5] |= 0x01;	//S5
 	if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障

@@ -7,9 +7,6 @@
   * @brief   
   ******************************************************************************
   * @Changlog
-  * V2.09 - 20170821
-  * 增加了开机3秒内开关8次大灯对总里程进行复位的方法；
-  *
   * V2.08 - 20170817
   * 修改刹车图标显示方式，当YXT DATA2 BIT5 为1时显示刹车灯
   * 改正DENGGUAN_XUNYING_T、JINPENG_6072的速度标定
@@ -60,7 +57,7 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
-//#define LCD9040
+#define LCD9040
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
@@ -78,73 +75,61 @@
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define ENABLE_RESET_MILE
 #elif defined JINPENG_6072
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define ENABLE_RESET_MILE
 #elif defined LCD9040
 	#define PCB_VER		0100
-	//#define LCD9040
+	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define ENABLE_RESET_MILE
 #elif defined LCD9040T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
-	#define YXT_ENABLE  1				
-	#undef ENABLE_RESET_MILE
+	#define YXT_ENABLE  0				
 #elif defined LCD6040
 	#define PCB_VER		0100
 	#define LCD6040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define ENABLE_RESET_MILE
 #elif defined DENGGUAN_XUNYING
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #elif defined DENGGUAN_XUNYING_T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  0
-	#undef  ENABLE_RESET_MILE
 #elif defined BENLING_OUSHANG
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #elif defined BENLING_BL48_60
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #elif defined BENLING_ZHONGSHA
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #elif defined OUJUN
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #elif defined LCD8794GCT
 	#define PCB_VER		0041
 	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define ENABLE_RESET_MILE
 #else
 	#error "Please select release type!!!"
 #endif

@@ -26,12 +26,12 @@ void MenuUpdate(BIKE_STATUS* bike)
 		BL_Data[i] = 0x00;
 	}
 
-	if( bike->TurnLeft ) BL_Data[0x08] |= 0x01;	//S1
+	if( bike->TurnLeft  && (flashflag%10) < 5 ) BL_Data[0x08] |= 0x01;	//S1
 	#ifdef TurnLeftOut_PIN
 	GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
 	if( bike->TurnLeft ) GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); else GPIO_WriteHigh (TurnLeftOut_PORT,TurnLeftOut_PIN);
 	#endif
-	if( bike->TurnRight ) BL_Data[0x0F] |= 0x04;	//S12
+	if( bike->TurnRight && (flashflag%10) < 5 ) BL_Data[0x0F] |= 0x04;	//S12
 	#ifdef TurnRightOut_PIN
 	GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
 	if( bike->TurnRight ) GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); else GPIO_WriteHigh (TurnRightOut_PORT,TurnRightOut_PIN);
@@ -47,10 +47,11 @@ void MenuUpdate(BIKE_STATUS* bike)
 	#endif
 	if( bike->HallERR 	) BL_Data[0x0B] |= 0x80;	//S2	电机霍尔故障
 	if( bike->WheelERR 	) BL_Data[0x0B] |= 0x40;	//S3	手把故障
-	if( bike->ECUERR 		) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障
-	if( bike->PhaseERR  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
-	//if( bike->YXTERR	  ) BL_Data[0x0E] |= 0x80;	//S6	ECO
-	//if( bike->YXTERR	  ) BL_Data[0x0F] |= 0x80;	//S7	R
+	if( bike->ECUERR 	) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障
+//	if( bike->PhaseERR  ) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
+	if( bike->Braked  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
+//	if( bike->YXTERR	) BL_Data[0x0E] |= 0x80;	//S6	ECO
+//	if( bike->YXTERR	) BL_Data[0x0F] |= 0x80;	//S7	R
 
 	/***************************Battery Area Display**********************************/
 	BL_Data[0x06] |=  0x80; //T
