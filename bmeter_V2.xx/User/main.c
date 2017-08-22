@@ -32,7 +32,7 @@ const unsigned int BatStatus72[8] = {630,644,658,671,684,698,711,724};
 #endif
 
 volatile unsigned int  sys_tick = 0;
-unsigned int tick_100ms=0,tick_1s=0;
+unsigned int tick_100ms=0;
 unsigned int speed_buf[16];
 unsigned int vol_buf[32];
 unsigned int temp_buf[4];
@@ -541,7 +541,7 @@ void MileTask(void)
 			WriteConfig();
 		}  
 	}
-#ifdef ENABLE_RESET_MILE	
+#ifdef RESET_MILE_ENABLE	
 	if ( MileResetTask() ){
 		Fmile = 0;
 		bike.Mile = 0;
@@ -821,7 +821,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 
 	Init_timer();  
 	HotReset();
@@ -900,15 +900,17 @@ void main(void)
 			}
 		
 			Light_Task();
-			MileTask();    
+			MileTask(); 
+			
 		#if ( YXT_ENABLE == 1 )
-			//YXT_Task(&bike);  
+			YXT_Task(&bike);  
 		#endif
+		
 		#if ( TIME_ENABLE == 1 )	
 			TimeTask();   
 		#endif
       
-		#if 0
+		#ifdef LCD_SEG_TEST
 			if ( ++count >= 100 ) count = 0;
 			bike.Voltage 	= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL;
 			bike.Temperature= count/10 + count/10*10UL + count/10*100UL;
@@ -924,12 +926,7 @@ void main(void)
 			/* Reload IWDG counter */
 			IWDG_ReloadCounter();  
 		} 
-		// if ( (tick >= tick_1s && (tick - tick_1s) > 1000 ) || \
-			 // (tick <  tick_1s && (0xFFFF - tick_1s + tick) > 1000 ) ) {
-			// tick_1s = tick;
-			// if ( bike.uart == 0 )
-				// bike.Temperature= GetTemp();
-		// }
+
 	#if ( TIME_ENABLE == 1 )
 		#ifndef DENGGUAN_XUNYING_T
 		UartTask();

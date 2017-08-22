@@ -26,12 +26,12 @@ void MenuUpdate(BIKE_STATUS* bike)
 		BL_Data[i] = 0x00;
 	}
 
-	if( bike->TurnLeft  && (flashflag%10) < 5 ) BL_Data[0x08] |= 0x01;	//S1
+	if( bike->TurnLeft  && flashflag >= 5 ) BL_Data[0x08] |= 0x01;	//S1
 	#ifdef TurnLeftOut_PIN
 	GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
 	if( bike->TurnLeft ) GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); else GPIO_WriteHigh (TurnLeftOut_PORT,TurnLeftOut_PIN);
 	#endif
-	if( bike->TurnRight && (flashflag%10) < 5 ) BL_Data[0x0F] |= 0x04;	//S12
+	if( bike->TurnRight && flashflag >= 5 ) BL_Data[0x0F] |= 0x04;	//S12
 	#ifdef TurnRightOut_PIN
 	GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
 	if( bike->TurnRight ) GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); else GPIO_WriteHigh (TurnRightOut_PORT,TurnRightOut_PIN);
@@ -57,7 +57,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[0x06] |=  0x80; //T
 	switch ( bike->BatStatus ){
 	case 0:
-		if ( flashflag > 5 ) 
+		if ( flashflag >= 5 ) 
 			BL_Data[0x06] &= ~0x80; 
 		break;
 	case 1: BL_Data[0x07] = 0x80;break;
@@ -81,25 +81,25 @@ void MenuUpdate(BIKE_STATUS* bike)
 	/***************************Time Area Display**********************************/
 	if ( bike->HasTimer ){
 		if(bike->Hour > 9) BL_Data[0x0A] |= 0x01;	//S13  
-		BL_Data[0x08] |= ( SegDataTime[bike->Hour%10]);			//D5
+		BL_Data[0x08] |= ( SegDataTime[bike->Hour%10]);		//D5
 		BL_Data[0x09] |= ( SegDataTime[bike->Minute/10] );	//D4
 		BL_Data[0x0A] |= ( SegDataTime[bike->Minute%10] );	//D3    
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-			if ( flashflag > 5  ) { 
+			if ( flashflag >= 5  ) { 
 				BL_Data[0x08] &= 0x01; 
 				BL_Data[0x09] &= 0x01; 
 				BL_Data[0x0A] &= 0x01; 
 			}
 			break;			
-			case 1:if ( flashflag > 5  ) BL_Data[0x08] &= 0x01; break;
-			case 2:if ( flashflag > 5  ) BL_Data[0x09] &= 0x01; break;
-			case 3:if ( flashflag > 5  ) BL_Data[0x0A] &= 0x01; break;
+			case 1:if ( flashflag >= 5  ) BL_Data[0x08] &= 0x01; break;
+			case 2:if ( flashflag >= 5  ) BL_Data[0x09] &= 0x01; break;
+			case 3:if ( flashflag >= 5  ) BL_Data[0x0A] &= 0x01; break;
 			default:break;		
 		}
 		BL_Data[0x09] |= 0x01;	//col
-	} else if ( flashflag <= 5 ) BL_Data[9] |= 0x01;	//col
+	} else if ( flashflag >= 5 ) BL_Data[9] |= 0x01;	//col
 	}
 
 	/*************************** Voltage Display**********************************/

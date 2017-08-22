@@ -18,8 +18,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	for(i=0;i<18;i++)
 		BL_Data[i] = 0x00;
    
-	if( bike->TurnLeft  && (flashflag%10) < 5 ) BL_Data[ 7] |= 0x20;	//S1
-	if( bike->TurnRight && (flashflag%10) < 5 ) BL_Data[ 3] |= 0x01;	//S7
+	if( bike->TurnLeft  && flashflag >= 5 ) BL_Data[ 7] |= 0x20;	//S1
+	if( bike->TurnRight && flashflag >= 5 ) BL_Data[ 3] |= 0x01;	//S7
 	//if( bike->CRZLight) BL_Data[ 5] |= 0x02;	//S?
 	if( bike->NearLight ) BL_Data[ 7] |= 0x10;	//S2
 	if( bike->HallERR 	) BL_Data[ 7] |= 0x40;	//S3	电机霍尔故障
@@ -33,7 +33,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[ 4] |= 0x01;  //S14
 	switch ( bike->BatStatus ){
     case 0:
-		if ( flashflag > 5 ) BL_Data[ 4] &= ~0x01;   //S14
+		if ( flashflag >= 5 ) BL_Data[ 4] &= ~0x01;   //S14
     break;
     case 1: BL_Data[ 4] |= 0x01;break; //S14
     case 2: BL_Data[ 4] |= 0x03;break; //S15
