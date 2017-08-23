@@ -232,6 +232,8 @@ unsigned char GetSpeed(void)
 			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
+		#elif (defined OUPAINONG_4860)
+			speed = (unsigned long)speed*57750UL/242688UL;	//23.7V->55KM/H
 		#else
 			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
 		#endif
@@ -247,6 +249,10 @@ unsigned char GetSpeed(void)
 			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
+		#elif (defined OUPAINONG_4860)
+			speed = (unsigned long)speed*63000UL/258048UL;	//25.2V->60KM/H
+		#elif (defined OUPAINONG_6072)
+			speed = (unsigned long)speed*68250UL/339968UL;	//33.2V->65KM/H
 		#else
 			speed = (unsigned long)speed*350/2048;		//30V->50KM/H
 		#endif
@@ -260,6 +266,8 @@ unsigned char GetSpeed(void)
 			speed = (unsigned long)speed*1505UL/12288UL;//36V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
 			speed = (unsigned long)speed*1925UL/12288UL;//36V->55KM/H
+		#elif (defined OUPAINONG_6072)
+			speed = (unsigned long)speed*68250UL/339968UL;//33.2V->65KM/H
 		#else
 			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
 		#endif
@@ -285,8 +293,8 @@ void Light_Task(void)
 	unsigned char speed_mode=0;
 
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
-	if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
-	if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
+	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
+	//if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
 	//if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
 	if ( bike.YXTERR ){

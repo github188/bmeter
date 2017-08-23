@@ -71,6 +71,8 @@
 //#define BENLING_BL48_60		//BL48_60
 //#define BENLING_ZHONGSHA		//BLV72
 //#define OUJUN					//M2_60_72
+//#define OUPAINONG_4860		//LCD9040_4860
+//#define OUPAINONG_6072		//LCD9040_6072
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
@@ -147,6 +149,18 @@
 	//#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
+	#define RESET_MILE_ENABLE
+#elif defined OUPAINONG_4860
+	#define PCB_VER		0100
+	#define LCD5535
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define RESET_MILE_ENABLE
+#elif defined OUPAINONG_6072
+	#define PCB_VER		0100
+	#define LCD5535
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #else
 	#error "Please select release type!!!"
