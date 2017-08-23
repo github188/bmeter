@@ -199,13 +199,46 @@ unsigned int GetVol(void)
 	return vol;
 }
 
+#if ( PCB_VER == 0013 )
+unsigned char GetSpeedAdj(void)
+{
+	static unsigned char index = 0;
+	unsigned int adj;
+	unsigned char i;
+
+	ADC1_DeInit();  
+	ADC1_Init(	ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADJ_CH, ADC1_PRESSEL_FCPU_D2,\
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADJ_SCH,DISABLE);
+
+	ADC1_Cmd(ENABLE);
+	Delay(1000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	adj = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+  	
+	speed_buf[index++] = adj;
+	if ( index >= ContainOf(speed_buf) )
+		index = 0;
+
+	for(i=0,adj=0;i<ContainOf(speed_buf);i++)
+		adj += speed_buf[i];
+	adj /= ContainOf(speed_buf);
+	
+	if ( adj > 99 )
+		adj = 99;
+	
+  return adj;
+}
+#endif
+
 unsigned char GetSpeed(void)
 {
 	static unsigned char index = 0;
 	unsigned int speed;
 	unsigned char i;
 
-	GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
+	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
 	ADC1_DeInit();  
 	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
 			ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
@@ -295,15 +328,16 @@ void Light_Task(void)
 	if( GPIO_Read(NearLight_PORT, NearLight_PIN	) ) bike.NearLight = 1; else bike.NearLight = 0;
 	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN	) ) bike.TurnRight = 1; else bike.TurnRight = 0;
 	//if( GPIO_Read(TurnLeft_PORT	, TurnLeft_PIN	) ) bike.TurnLeft  = 1; else bike.TurnLeft  = 0;
-	//if( GPIO_Read(Braked_PORT		, Braked_PIN		) ) bike.Braked    = 1; else bike.Braked  	= 0;
+	//if( GPIO_Read(Braked_PORT		, Braked_PIN	) ) bike.Braked    = 1; else bike.Braked  	= 0;
 	
 	if ( bike.YXTERR ){
 		speed_mode = 0;
 		if( GPIO_Read(SPMODE1_PORT,SPMODE1_PIN) ) speed_mode |= 1<<0;
 		if( GPIO_Read(SPMODE2_PORT,SPMODE2_PIN) ) speed_mode |= 1<<1;
 		if( GPIO_Read(SPMODE3_PORT,SPMODE3_PIN) ) speed_mode |= 1<<2;
+	#ifdef SPMODE4_PORT
 		if( GPIO_Read(SPMODE4_PORT,SPMODE4_PIN) ) speed_mode |= 1<<3;
-		
+	#endif
 		switch(speed_mode){
 			case 0x01: 	bike.SpeedMode = 1; break;
 			case 0x02: 	bike.SpeedMode = 2; break;

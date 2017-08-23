@@ -49,7 +49,11 @@ del STM8S208\Exe\LCD.HEX
 copy STM8S208\Exe\LCD.HEX HEX\LCD9040_4860.HEX
 
 del STM8S208\Exe\LCD.HEX
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\common\bin\iarbuild" "Project - OUPAINONG_6072.ewp" -build "STM8S208" -log errors
-copy STM8S208\Exe\LCD.HEX HEX\LCD9040_6072.HEX
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\common\bin\iarbuild" "Project - OUPAINONG_ADJ_6072.ewp" -build "STM8S208" -log errors
+copy STM8S208\Exe\LCD.HEX HEX\LCD9040ADJ_6072.HEX
+
+del STM8S208\Exe\LCD.HEX
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 7.0\common\bin\iarbuild" "Project - OUPAINONG_ADJ_6072.ewp" -build "STM8S208" -log errors
+copy STM8S208\Exe\LCD.HEX HEX\LCD9040ADJ_6072.HEX
 
 PAUSE

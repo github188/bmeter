@@ -79,67 +79,67 @@
 
 
 #ifdef JINPENG_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined JINPENG_6072
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined LCD9040
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	//#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined LCD9040T
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  1				
 	#undef RESET_MILE_ENABLE
 #elif defined LCD6040
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	//#define LCD6040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined DENGGUAN_XUNYING
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined DENGGUAN_XUNYING_T
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  0
 	#undef  RESET_MILE_ENABLE
 #elif defined BENLING_OUSHANG
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined BENLING_BL48_60
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined BENLING_ZHONGSHA
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined OUJUN
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
@@ -151,30 +151,41 @@
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined OUPAINONG_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0010
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined OUPAINONG_6072
-	#define PCB_VER		0100
+	#define PCB_VER		0010
+	#define LCD5535
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define RESET_MILE_ENABLE
+#elif defined OUPAINONG_ADJ_4860
+	#define PCB_VER		0013
+	#define LCD5535
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define RESET_MILE_ENABLE
+#elif defined OUPAINONG_ADJ_6072
+	#define PCB_VER		0013
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #else
-	#error "Please select release type!!!"
+	#error "Please select a release!!!"
 #endif
 
 /******************************************************************************/
 #if (defined LCD9040) || (defined LCD5535) || (defined LCD8794GCT) || (defined LCD6040 )
 #else
-#error Not defined LCD_TYPE
+#error "Not defined LCD_TYPE"
 #endif
     
 #ifndef PCB_VER
-	#define PCB_VER	0100
-//	#define PCB_VER	0041
+	#define PCB_VER	0010
 #endif
 
 #ifndef TIME_ENABLE
@@ -219,6 +230,7 @@ typedef struct {
 	unsigned char BatStatus;
 	unsigned char Energy;
 	unsigned char Speed;
+	unsigned char SpeedAdj;
 	unsigned long Mile;
 	
 	unsigned char Hour;
@@ -230,7 +242,7 @@ typedef struct {
 	
 typedef struct {
 	unsigned char bike[4];
-	unsigned int  SysVoltage	;
+	unsigned int  SysVoltage;
 	unsigned int  VolScale	;
 	unsigned int  TempScale	;
 	unsigned int  SpeedScale;
@@ -247,7 +259,7 @@ unsigned int Get_ElapseTick(unsigned int pre_tick);
 
 /******************************************************************************/
 
-#if ( PCB_VER == 0100 )
+#if ( PCB_VER == 0010 )
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
@@ -273,6 +285,33 @@ unsigned int Get_ElapseTick(unsigned int pre_tick);
 	#define TurnLeft_PIN	GPIO_PIN_5
 //	#define CRZLight_PORT	GPIOA
 //	#define CRZLight_PIN	GPIO_PIN_3
+#elif ( PCB_VER == 0013 )
+	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
+	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
+
+	#define SPEEDV_ADJ_CH	ADC1_CHANNEL_4
+	#define SPEEDV_ADJ_SCH	ADC1_SCHMITTTRIG_CHANNEL4
+
+	#define VMODE1_PORT		GPIOA
+	#define VMODE1_PIN		GPIO_PIN_3
+	#define VMODE2_PORT		GPIOA
+	#define VMODE2_PIN		GPIO_PIN_2
+
+	#define SPMODE1_PORT	GPIOD
+	#define SPMODE1_PIN		GPIO_PIN_4
+	#define SPMODE2_PORT	GPIOD
+	#define SPMODE2_PIN		GPIO_PIN_5
+	#define SPMODE3_PORT	GPIOA
+	#define SPMODE3_PIN		GPIO_PIN_1
+//	#define SPMODE4_PORT	GPIOA
+//	#define SPMODE4_PIN		GPIO_PIN_3
+	
+	#define NearLight_PORT	GPIOC
+	#define NearLight_PIN	GPIO_PIN_7
+	#define TurnRight_PORT	GPIOC
+	#define TurnRight_PIN	GPIO_PIN_3
+	#define TurnLeft_PORT	GPIOC
+	#define TurnLeft_PIN	GPIO_PIN_5
 #elif ( PCB_VER == 0041 )
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_5
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL5
