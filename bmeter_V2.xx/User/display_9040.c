@@ -35,7 +35,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[16] |= 0x10;
 	switch ( bike->BatStatus ){
     case 0:
-		if ( bike->FlashCount < 5 ) BL_Data[16] &= 0xEF; 
+		if ( bike->FlashCount >= 5 ) BL_Data[16] &= 0xEF; 
 			break;
     case 1: BL_Data[3] |= 0x10;break;
     case 2: BL_Data[3] |= 0x30;break;
@@ -67,16 +67,16 @@ void MenuUpdate(BIKE_STATUS* bike)
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-				if ( bike->FlashCount < 5  ) { 
+				if ( bike->FlashCount >= 5  ) { 
 					BL_Data[8] &= 0xF7; 
 					BL_Data[8] &= 0x08; 
 					BL_Data[7] &= 0x08; 
 					BL_Data[6] &= 0x08;
 				}
 				break;			
-			case 1:if ( bike->FlashCount < 5  ) BL_Data[8] &= 0x08; break;
-			case 2:if ( bike->FlashCount < 5  ) BL_Data[7] &= 0x08; break;
-			case 3:if ( bike->FlashCount < 5  ) BL_Data[6] &= 0x08; break;
+			case 1:if ( bike->FlashCount >= 5  ) BL_Data[8] &= 0x08; break;
+			case 2:if ( bike->FlashCount >= 5  ) BL_Data[7] &= 0x08; break;
+			case 3:if ( bike->FlashCount >= 5  ) BL_Data[6] &= 0x08; break;
 			default:break;		
 			}
 			BL_Data[7] |= 0x08;
@@ -84,14 +84,14 @@ void MenuUpdate(BIKE_STATUS* bike)
 	}
 	
 	/*************************** Voltage Display**********************************/
-	BL_Data[2] |= (SegDataVoltage[ bike->Voltage		 %10]) | 0x8;
+	BL_Data[2] |= (SegDataVoltage[ bike->Voltage	 %10]) | 0x8;
 	BL_Data[1] |= (SegDataVoltage[(bike->Voltage/10	)%10]) | 0x8;
 	BL_Data[0] |= (SegDataVoltage[(bike->Voltage/100)%10]); 
 	// BL_Data[2] |= (SegDataVoltage[ bike->Voltage/10	%10]) | 0x8;
 	// BL_Data[1] |= (SegDataVoltage[(bike->Voltage/100)%10]);
 
 	/*************************** Mile Display**********************************/  
-	BL_Data[12] |= (SegDataMile [ bike->Mile			 %10]) | 0x1;
+	BL_Data[12] |= (SegDataMile [ bike->Mile	   %10]) | 0x1;
 	BL_Data[11] |= (SegDataMile [(bike->Mile/10   )%10]);
 	BL_Data[10] |= (SegDataMile [(bike->Mile/100  )%10]); 
 	BL_Data[ 9] |= (SegDataMile [(bike->Mile/1000 )%10] & 0x0F); 
@@ -99,7 +99,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[16] |= (SegDataMile2[(bike->Mile/10000)%10]); 
 
 	/*************************** Speed Display**********************************/
-	BL_Data[14] |= (SegDataSpeed[ bike->Speed		 %10]);
+	BL_Data[14] |= (SegDataSpeed[ bike->Speed	 %10]);
 	BL_Data[13] |= (SegDataSpeed[(bike->Speed/10)%10]); 
 	BL_Data[14] |= 0x80;
 

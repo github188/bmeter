@@ -55,7 +55,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[0x06] |=  0x80; //T
 	switch ( bike->BatStatus ){
 	case 0:
-		if ( bike->FlashCount < 5 ) 
+		if ( bike->FlashCount >= 5 ) 
 			BL_Data[0x06] &= ~0x80; 
 		break;
 	case 1: BL_Data[0x07] = 0x80;break;
@@ -85,15 +85,15 @@ void MenuUpdate(BIKE_STATUS* bike)
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-			if ( bike->FlashCount < 5  ) { 
+			if ( bike->FlashCount >= 5  ) { 
 				BL_Data[0x08] &= 0x01; 
 				BL_Data[0x09] &= 0x01; 
 				BL_Data[0x0A] &= 0x01; 
 			}
 			break;			
-			case 1:if ( bike->FlashCount < 5  ) BL_Data[0x08] &= 0x01; break;
-			case 2:if ( bike->FlashCount < 5  ) BL_Data[0x09] &= 0x01; break;
-			case 3:if ( bike->FlashCount < 5  ) BL_Data[0x0A] &= 0x01; break;
+			case 1:if ( bike->FlashCount >= 5  ) BL_Data[0x08] &= 0x01; break;
+			case 2:if ( bike->FlashCount >= 5  ) BL_Data[0x09] &= 0x01; break;
+			case 3:if ( bike->FlashCount >= 5  ) BL_Data[0x0A] &= 0x01; break;
 			default:break;		
 		}
 		BL_Data[0x09] |= 0x01;	//col
@@ -106,14 +106,14 @@ void MenuUpdate(BIKE_STATUS* bike)
 
 	/*************************** Voltage Energy**********************************/
 	BL_Data[0x0D] |= 0x80; //S15
-	BL_Data[0x0C] |= (SegDataEnergy[ bike->Energy%10]		 )&0x0F;
-	BL_Data[0x0D] |= (SegDataEnergy[ bike->Energy%10]		 )&0xF0;
+	BL_Data[0x0C] |= (SegDataEnergy[ bike->Energy%10]	 )&0x0F;
+	BL_Data[0x0D] |= (SegDataEnergy[ bike->Energy%10]	 )&0xF0;
 	BL_Data[0x0B] |= (SegDataEnergy[(bike->Energy/10)%10])&0x0F; 
 	BL_Data[0x0C] |= (SegDataEnergy[(bike->Energy/10)%10])&0xF0; 
 	if ( bike->Energy == 100 ) BL_Data[0x0C] |= 0x80; //S14
 
 	/*************************** Mile Display**********************************/  
-	BL_Data[0x00] |= (SegDataMile2[ bike->Mile			 %10]) | 0x80;	//S17
+	BL_Data[0x00] |= (SegDataMile2[ bike->Mile		 %10]) | 0x80;	//S17
 	BL_Data[0x01] |= (SegDataMile [(bike->Mile/10   )%10]);
 	BL_Data[0x02] |= (SegDataMile [(bike->Mile/100  )%10]); 
 	BL_Data[0x03] |= (SegDataMile [(bike->Mile/1000 )%10]);
@@ -121,8 +121,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 
 	/*************************** Speed Display**********************************/
 	BL_Data[0x0F] |= 0x08;	//S16
-	BL_Data[0x0E] |= (SegDataSpeed[ bike->Speed%10]		 )&0x0F;
-	BL_Data[0x0F] |= (SegDataSpeed[ bike->Speed%10]		 )&0xF0;
+	BL_Data[0x0E] |= (SegDataSpeed[ bike->Speed%10]	   )&0x0F;
+	BL_Data[0x0F] |= (SegDataSpeed[ bike->Speed%10]	   )&0xF0;
 	BL_Data[0x0D] |= (SegDataSpeed[(bike->Speed/10)%10])&0x0F; 
 	BL_Data[0x0E] |= (SegDataSpeed[(bike->Speed/10)%10])&0xF0; 
 

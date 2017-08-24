@@ -32,7 +32,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[ 4] |= 0x01;  //S14
 	switch ( bike->BatStatus ){
     case 0:
-		if ( bike->FlashCount < 5 ) BL_Data[ 4] &= ~0x01;   //S14
+		if ( bike->FlashCount >= 5 ) BL_Data[ 4] &= ~0x01;   //S14
     break;
     case 1: BL_Data[ 4] |= 0x01;break; //S14
     case 2: BL_Data[ 4] |= 0x03;break; //S15
@@ -48,13 +48,13 @@ void MenuUpdate(BIKE_STATUS* bike)
 	//BL_Data[0] |= (SegDataVoltage[(bike->Voltage/100)%10]); 
 
 	/*************************** Mile Display**********************************/  
-	BL_Data[ 5] |= (SegDataMile [ bike->Mile			 %10]);
-	BL_Data[ 6] |= (SegDataMile [(bike->Mile/10   )%10]);
+	BL_Data[ 5] |= (SegDataMile [ bike->Mile	 %10]);
+	BL_Data[ 6] |= (SegDataMile [(bike->Mile/10	)%10]);
 	if ( bike->Mile >= 100 )  BL_Data[ 6] |= 0x08;  //S20
 	BL_Data[ 4] |= 0x10;  //S13
 
 	/*************************** Speed Display**********************************/
-	BL_Data[ 1] |= (SegDataSpeed[ bike->Speed		 %10]);
+	BL_Data[ 1] |= (SegDataSpeed[ bike->Speed	 %10]);
 	BL_Data[ 0] |= (SegDataSpeed[(bike->Speed/10)%10]); 
 
 	/*************************** Mode Display**********************************/ 

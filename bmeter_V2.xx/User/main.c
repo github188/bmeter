@@ -534,13 +534,12 @@ unsigned char MileResetTask(void)
 	if ( bike.TurnRight == 0 ){
 		TaskFlag = 2;
 	} else if ( TaskFlag == 0 ){
-		if ( Get_SysTick() < 3000 ){
-			TaskFlag = 1;
-			count = 0;
-		} else {
-			TaskFlag = 2;
-		}
+		TaskFlag = 1;
+		count = 0;
 	}
+	if ( Get_SysTick() > 10000 )
+		TaskFlag = 2;
+		
 	if ( TaskFlag == 1 ) {
 		if ( lastLight == 0 && bike.NearLight){
 			count ++;
@@ -870,7 +869,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	IWDG_Config();
+	//IWDG_Config();
 
 	Init_timer();  
 	HotReset();

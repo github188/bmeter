@@ -6,34 +6,34 @@
   <configuration>
     <name>STM8S208</name>
     <outputs>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_adc1.c</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_clk.c</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_flash.c</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_i2c.c</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_itc.c</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_rst.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_flash.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_clk.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_i2c.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_adc1.c</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_iwdg.c</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_tim1.c</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_rst.c</file>
+      <file>$PROJ_DIR$\..\display.c</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_uart1.c</file>
       <file>$PROJ_DIR$\..\bl55072.c</file>
-      <file>$PROJ_DIR$\..\display.c</file>
       <file>$PROJ_DIR$\..\display_6040.c</file>
-      <file>$PROJ_DIR$\..\main.c</file>
       <file>$PROJ_DIR$\..\pcf8563.c</file>
+      <file>$PROJ_DIR$\..\main.c</file>
       <file>$PROJ_DIR$\..\stm8s_it.c</file>
       <file>$PROJ_DIR$\..\yxt.c</file>
-      <file>$PROJ_DIR$\..\stm8s_conf.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_awu.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_flash.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_rst.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_gpio.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_exti.h</file>
+      <file>$PROJ_DIR$\..\stm8s_conf.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_itc.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_clk.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_spi.h</file>
       <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_spi.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_clk.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_gpio.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_rst.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_flash.h</file>
       <file>$PROJ_DIR$\..\bike.h</file>
       <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
       <file>$PROJ_DIR$\..\bl55072.h</file>
@@ -43,18 +43,18 @@
       <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
       <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_beep.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
       <file>$PROJ_DIR$\..\yxt.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_iwdg.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim1.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_iwdg.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim2.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim4.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_uart1.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_wwdg.h</file>
-      <file>$PROJ_DIR$\..\pcf8563.h</file>
       <file>$PROJ_DIR$\..\stm8s_it.h</file>
+      <file>$PROJ_DIR$\..\pcf8563.h</file>
       <file>$PROJ_DIR$\..\display.h</file>
       <file>$PROJ_DIR$\STM8S208\Obj\stm8s_flash.o</file>
       <file>$PROJ_DIR$\STM8S208\Obj\stm8s_adc1.o</file>
@@ -94,47 +94,17 @@
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_adc1.c</name>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_itc.c</name>
       <outputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 51</file>
+          <file> 53</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 76 73 18 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_clk.c</name>
-      <outputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 52</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 25 73 18 76 19 37 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_flash.c</name>
-      <outputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 50</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 20 73 18 76 19 37 25 23 22 74 24 41 21 26 42 43 44 45 46 27</file>
+          <file> 21 73 20 76 18 38 24 19 27 25 74 42 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
@@ -149,7 +119,37 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 22 73 18 76 19 37 25 23 20 74 24 41 21 26 42 43 44 45 46 27</file>
+          <file> 25 73 20 76 18 38 24 19 27 74 21 42 26 23 41 43 44 45 46 22</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_flash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 50</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 27 73 20 76 18 38 24 19 25 74 21 42 26 23 41 43 44 45 46 22</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_clk.c</name>
+      <outputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 52</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 24 73 20 76 18 38 19 27 25 74 21 42 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
@@ -164,37 +164,22 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 74 73 18 76 19 37 25 23 20 22 24 41 21 26 42 43 44 45 46 27</file>
+          <file> 74 73 20 76 18 38 24 19 27 25 21 42 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_itc.c</name>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_adc1.c</name>
       <outputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 53</file>
+          <file> 51</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 24 73 18 76 19 37 25 23 20 22 74 41 21 26 42 43 44 45 46 27</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_rst.c</name>
-      <outputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 59</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 21 73 18 76 19 37 25 23 20 22 74 24 41 26 42 43 44 45 46 27</file>
+          <file> 76 73 20 18 38 24 19 27 25 74 21 42 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
@@ -209,7 +194,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 41 73 18 76 19 37 25 23 20 22 74 24 21 26 42 43 44 45 46 27</file>
+          <file> 42 73 20 76 18 38 24 19 27 25 74 21 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
@@ -224,52 +209,22 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 42 73 18 76 19 37 25 23 20 22 74 24 41 21 26 43 44 45 46 27</file>
+          <file> 41 73 20 76 18 38 24 19 27 25 74 21 42 26 23 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</name>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_rst.c</name>
       <outputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 58</file>
+          <file> 59</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 43 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 44 45 46 27</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_uart1.c</name>
-      <outputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 60</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 45 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 46 27</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\bl55072.c</name>
-      <outputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 62</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>ICCSTM8</name>
-          <file> 74 73 18 76 19 37 25 23 20 22 24 41 21 26 42 43 44 45 46 27 30 28</file>
+          <file> 26 73 20 76 18 38 24 19 27 25 74 21 42 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
@@ -284,22 +239,52 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 28 13 31 29 34 33 32 35 36 38 39 30</file>
+          <file> 28 13 31 29 34 33 32 35 36 39 37 30</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\main.c</name>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_tim2.c</name>
       <outputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 63</file>
+          <file> 58</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 30 49 28 47 40</file>
+          <file> 43 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 44 45 46 22</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_uart1.c</name>
+      <outputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 60</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 45 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 43 44 46 22</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\bl55072.c</name>
+      <outputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 62</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 74 73 20 76 18 38 24 19 27 25 21 42 26 23 41 43 44 45 46 22 30 28</file>
         </tool>
       </inputs>
     </file>
@@ -314,7 +299,22 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 47 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 30</file>
+          <file> 48 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 43 44 45 46 22 30</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\main.c</name>
+      <outputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 63</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCSTM8</name>
+          <file> 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 43 44 45 46 22 30 49 28 48 40</file>
         </tool>
       </inputs>
     </file>
@@ -329,7 +329,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 48 40 28</file>
+          <file> 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 43 44 45 46 22 47 40 28</file>
         </tool>
       </inputs>
     </file>
@@ -344,7 +344,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 40 28 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
+          <file> 40 28 73 20 76 18 38 24 19 27 25 74 21 42 26 23 41 43 44 45 46 22</file>
         </tool>
       </inputs>
     </file>
