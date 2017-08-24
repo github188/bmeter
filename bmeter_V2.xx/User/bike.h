@@ -7,6 +7,11 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.10 - 20170824
+  * 左右转信号改回中断方式，适应闪光器；
+  * 增加OUPAINONG四个版本的支持；
+  * 改正OUPAINONG_6072版本的电压识别；
+  *
   * V2.09 - 20170821
   * 增加了开机3秒内开关8次大灯对总里程进行复位的方法；
   * 左右转信号由中断改为程序扫描方式；
@@ -73,6 +78,8 @@
 //#define OUJUN					//M2_60_72
 //#define OUPAINONG_4860		//LCD9040_4860
 //#define OUPAINONG_6072		//LCD9040_6072
+//#define OUPAINONG_ADJ_4860	//LCD9040ADJ_4860
+//#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
@@ -232,6 +239,7 @@ typedef struct {
 	unsigned char Speed;
 	unsigned char SpeedAdj;
 	unsigned long Mile;
+	unsigned char FlashCount;		
 	
 	unsigned char Hour;
 	unsigned char Minute;

@@ -2,24 +2,23 @@
 #include "bike.h"
 #include "bl55072.h"
 
-unsigned char flashflag = 0;
 unsigned char BL_Data[19];
 
 const unsigned char SegDataMile[10] 	= {0xF5,0x60,0xD3,0xF2,0x66,0xB6,0xB7,0xE0,0xF7,0xF6};
-const unsigned char SegDataSpeed[10]  = {0x5F,0x06,0x6B,0x2F,0x36,0x3D,0x7D,0x07,0x7F,0x3F};
+const unsigned char SegDataSpeed[10] 	= {0x5F,0x06,0x6B,0x2F,0x36,0x3D,0x7D,0x07,0x7F,0x3F};
 
 void MenuUpdate(BIKE_STATUS* bike)
 {
 	unsigned char i = 0;
 
-	flashflag ++;
-	flashflag %= 10;
+	bike->FlashCount ++;
+	bike->FlashCount %= 10;
 
 	for(i=0;i<18;i++)
 		BL_Data[i] = 0x00;
    
-	if( bike->TurnLeft  && flashflag >= 5 ) BL_Data[ 7] |= 0x20;	//S1
-	if( bike->TurnRight && flashflag >= 5 ) BL_Data[ 3] |= 0x01;	//S7
+	if( bike->TurnLeft  && bike->FlashCount < 5 ) BL_Data[ 7] |= 0x20;	//S1
+	if( bike->TurnRight && bike->FlashCount < 5 ) BL_Data[ 3] |= 0x01;	//S7
 	//if( bike->CRZLight) BL_Data[ 5] |= 0x02;	//S?
 	if( bike->NearLight ) BL_Data[ 7] |= 0x10;	//S2
 	if( bike->HallERR 	) BL_Data[ 7] |= 0x40;	//S3	电机霍尔故障
@@ -33,7 +32,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[ 4] |= 0x01;  //S14
 	switch ( bike->BatStatus ){
     case 0:
-		if ( flashflag >= 5 ) BL_Data[ 4] &= ~0x01;   //S14
+		if ( bike->FlashCount < 5 ) BL_Data[ 4] &= ~0x01;   //S14
     break;
     case 1: BL_Data[ 4] |= 0x01;break; //S14
     case 2: BL_Data[ 4] |= 0x03;break; //S15

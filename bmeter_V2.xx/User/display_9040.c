@@ -2,7 +2,6 @@
 #include "bike.h"
 #include "bl55072.h"
 
-unsigned char flashflag = 0;
 unsigned char BL_Data[19];
 
 const unsigned char SegDataTime[10]     = {0xF5,0x60,0xD3,0xF2,0x66,0xB6,0xB7,0xE0,0xF7,0xF6};
@@ -16,14 +15,14 @@ void MenuUpdate(BIKE_STATUS* bike)
 {
 	unsigned char i = 0;
   
-	flashflag ++;
-	flashflag %= 10;
+	bike->FlashCount ++;
+	bike->FlashCount %= 10;
 	
 	for(i=0;i<18;i++)
 		BL_Data[i] = 0x00;
 	
-	if( bike->TurnLeft  && flashflag >= 5 )	BL_Data[6] |= 0x08;	//S1
-	if( bike->TurnRight && flashflag >= 5 ) BL_Data[15]|= 0x80;	//S9
+	if( bike->TurnLeft  && bike->FlashCount < 5 ) BL_Data[6] |= 0x08;	//S1
+	if( bike->TurnRight && bike->FlashCount < 5 ) BL_Data[15]|= 0x80;	//S9
 	if( bike->CRZLight	) BL_Data[5] |= 0x02;	//S4
 	if( bike->NearLight ) BL_Data[5] |= 0x01;	//S5
 	if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障
@@ -36,7 +35,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[16] |= 0x10;
 	switch ( bike->BatStatus ){
     case 0:
-		if ( flashflag >= 5 ) BL_Data[16] &= 0xEF; 
+		if ( bike->FlashCount < 5 ) BL_Data[16] &= 0xEF; 
 			break;
     case 1: BL_Data[3] |= 0x10;break;
     case 2: BL_Data[3] |= 0x30;break;
@@ -68,20 +67,20 @@ void MenuUpdate(BIKE_STATUS* bike)
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-				if ( flashflag >= 5  ) { 
+				if ( bike->FlashCount < 5  ) { 
 					BL_Data[8] &= 0xF7; 
 					BL_Data[8] &= 0x08; 
 					BL_Data[7] &= 0x08; 
 					BL_Data[6] &= 0x08;
 				}
 				break;			
-			case 1:if ( flashflag >= 5  ) BL_Data[8] &= 0x08; break;
-			case 2:if ( flashflag >= 5  ) BL_Data[7] &= 0x08; break;
-			case 3:if ( flashflag >= 5  ) BL_Data[6] &= 0x08; break;
+			case 1:if ( bike->FlashCount < 5  ) BL_Data[8] &= 0x08; break;
+			case 2:if ( bike->FlashCount < 5  ) BL_Data[7] &= 0x08; break;
+			case 3:if ( bike->FlashCount < 5  ) BL_Data[6] &= 0x08; break;
 			default:break;		
 			}
 			BL_Data[7] |= 0x08;
-		} else if ( flashflag >= 5 ) BL_Data[7] |= 0x08;	//col
+		} else if ( bike->FlashCount < 5 ) BL_Data[7] |= 0x08;	//col
 	}
 	
 	/*************************** Voltage Display**********************************/

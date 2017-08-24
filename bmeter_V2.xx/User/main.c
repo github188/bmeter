@@ -447,11 +447,18 @@ void InitConfig(void)
 		}		
 	#elif defined BENLING_ZHONGSHA
 		config.SysVoltage = 72;
-	#elif defined OUJUN
-		GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
+	#elif (defined OUJUN) || (defined OUPAINONG_6072)
+		//GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
 		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
 		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
 			config.SysVoltage = 72;
+		} else {
+			config.SysVoltage = 60;
+		}
+	#elif defined OUPAINONG_4860
+		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+			config.SysVoltage = 48;
 		} else {
 			config.SysVoltage = 60;
 		}
@@ -928,7 +935,7 @@ void main(void)
 			 (tick <  tick_100ms && (0xFFFF - tick_100ms + tick) > 100 ) ) {
 			tick_100ms = tick;
 			count ++;
-
+			
 			bike.Voltage 	= (unsigned long)GetVol()*1000UL/config.VolScale;
 			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
 			//bike.Temperature= GetTemp();
@@ -960,7 +967,9 @@ void main(void)
 			bike.Mile		= count/10 + count/10*10UL + count/10*100UL + count/10*1000UL + count/10*10000UL;
 			bike.Hour       = count/10 + count/10*10;
 			bike.Minute     = count/10 + count/10*10;
+			#ifdef LCD8794GCT
 			bike.Energy     = count/10 + count/10*10UL;
+			#endif
 		#endif
        
 			MenuUpdate(&bike);

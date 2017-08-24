@@ -26,11 +26,11 @@
       <file>$PROJ_DIR$\..\yxt.c</file>
       <file>$PROJ_DIR$\..\stm8s_conf.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_awu.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_flash.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_rst.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_gpio.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_itc.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_flash.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_exti.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_itc.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_clk.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_spi.h</file>
       <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
@@ -41,13 +41,13 @@
       <file>$TOOLKIT_DIR$\lib\dlstm8ssn.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
       <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_beep.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
       <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_beep.h</file>
       <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_iwdg.h</file>
       <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
       <file>$PROJ_DIR$\..\yxt.h</file>
+      <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_iwdg.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim1.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim2.h</file>
       <file>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\inc\stm8s_tim4.h</file>
@@ -104,7 +104,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 76 73 18 19 35 25 24 23 21 74 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 76 73 18 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -119,7 +119,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 25 73 18 76 19 35 24 23 21 74 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 25 73 18 76 19 37 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -134,7 +134,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 23 73 18 76 19 35 25 24 21 74 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 20 73 18 76 19 37 25 23 22 74 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -149,7 +149,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 21 73 18 76 19 35 25 24 23 74 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 22 73 18 76 19 37 25 23 20 74 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -164,7 +164,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 74 73 18 76 19 35 25 24 23 21 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 74 73 18 76 19 37 25 23 20 22 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -179,7 +179,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 22 73 18 76 19 35 25 24 23 21 74 39 20 26 42 43 44 45 46 27</file>
+          <file> 24 73 18 76 19 37 25 23 20 22 74 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -194,7 +194,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 20 73 18 76 19 35 25 24 23 21 74 22 39 26 42 43 44 45 46 27</file>
+          <file> 21 73 18 76 19 37 25 23 20 22 74 24 41 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -209,7 +209,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 39 73 18 76 19 35 25 24 23 21 74 22 20 26 42 43 44 45 46 27</file>
+          <file> 41 73 18 76 19 37 25 23 20 22 74 24 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -224,7 +224,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 42 73 18 76 19 35 25 24 23 21 74 22 39 20 26 43 44 45 46 27</file>
+          <file> 42 73 18 76 19 37 25 23 20 22 74 24 41 21 26 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -239,7 +239,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 43 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 44 45 46 27</file>
+          <file> 43 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -254,7 +254,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 45 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 43 44 46 27</file>
+          <file> 45 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 46 27</file>
         </tool>
       </inputs>
     </file>
@@ -269,7 +269,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 74 73 18 76 19 35 25 24 23 21 22 39 20 26 42 43 44 45 46 27 30 28</file>
+          <file> 74 73 18 76 19 37 25 23 20 22 24 41 21 26 42 43 44 45 46 27 30 28</file>
         </tool>
       </inputs>
     </file>
@@ -284,7 +284,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 28 13 31 29 34 33 32 36 37 38 40 30</file>
+          <file> 28 13 31 29 34 33 32 35 36 38 39 30</file>
         </tool>
       </inputs>
     </file>
@@ -299,7 +299,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 43 44 45 46 27 30 49 28 47 41</file>
+          <file> 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 30 49 28 47 40</file>
         </tool>
       </inputs>
     </file>
@@ -314,7 +314,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 47 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 43 44 45 46 27 30</file>
+          <file> 47 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 30</file>
         </tool>
       </inputs>
     </file>
@@ -329,7 +329,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 43 44 45 46 27 48 41 28</file>
+          <file> 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27 48 40 28</file>
         </tool>
       </inputs>
     </file>
@@ -344,7 +344,7 @@
       <inputs>
         <tool>
           <name>ICCSTM8</name>
-          <file> 41 28 73 18 76 19 35 25 24 23 21 74 22 39 20 26 42 43 44 45 46 27</file>
+          <file> 40 28 73 18 76 19 37 25 23 20 22 74 24 41 21 26 42 43 44 45 46 27</file>
         </tool>
       </inputs>
     </file>
