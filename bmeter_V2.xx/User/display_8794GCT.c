@@ -24,25 +24,32 @@ void MenuUpdate(BIKE_STATUS* bike)
 		BL_Data[i] = 0x00;
 	}
 
-	if( bike->TurnLeft  && bike->FlashCount < 5 ) BL_Data[0x08] |= 0x01;	//S1
-	#ifdef TurnLeftOut_PIN
+	if( bike->TurnLeft && bike->FlashCount < 5 ) BL_Data[0x08] |= 0x01;	//S1
+#ifdef TurnLeftOut_PIN
 	GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	if( bike->TurnLeft ) GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); else GPIO_WriteHigh (TurnLeftOut_PORT,TurnLeftOut_PIN);
-	#endif
+	if( bike->TurnLeft && bike->FlashCount < 5 ) 
+			GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); 
+	else 	GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+#endif
+	
 	if( bike->TurnRight && bike->FlashCount < 5 ) BL_Data[0x0F] |= 0x04;	//S12
-	#ifdef TurnRightOut_PIN
+#ifdef TurnRightOut_PIN
 	GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	if( bike->TurnRight ) GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); else GPIO_WriteHigh (TurnRightOut_PORT,TurnRightOut_PIN);
-	#endif
+	if( bike->TurnRight && bike->FlashCount < 5 ) 
+			GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); 
+	else 	GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+#endif
+	
 	if( bike->CRZLight 	) BL_Data[0x0B] |= 0x20;	//S4
 	if( bike->NearLight	) BL_Data[0x0B] |= 0x10;	//S5
-	#ifdef NearLightOut_PIN
+#ifdef NearLightOut_PIN
 	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
 	CFG->GCR = CFG_GCR_SWD;
 	#endif
 	GPIO_Init(NearLightOut_PORT, NearLightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
 	if( bike->NearLight ) GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN); else GPIO_WriteHigh (NearLightOut_PORT,NearLightOut_PIN);
-	#endif
+#endif
+	
 	if( bike->HallERR 	) BL_Data[0x0B] |= 0x80;	//S2	电机霍尔故障
 	if( bike->WheelERR 	) BL_Data[0x0B] |= 0x40;	//S3	手把故障
 	if( bike->ECUERR 	) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障

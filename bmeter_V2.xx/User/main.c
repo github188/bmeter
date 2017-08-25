@@ -531,13 +531,12 @@ unsigned char MileResetTask(void)
 		return 0;
 	}
 
-	if ( bike.TurnRight == 0 ){
-		TaskFlag = 2;
-	} else if ( TaskFlag == 0 ){
-		TaskFlag = 1;
-		count = 0;
-	}
-	if ( Get_SysTick() > 10000 )
+	if ( Get_SysTick() < 3000 ){
+		if ( bike.TurnRight == 1 && TaskFlag == 0 ){
+			TaskFlag = 1;
+			count = 0;
+		}			
+	} else if ( Get_SysTick() > 10000 )
 		TaskFlag = 2;
 		
 	if ( TaskFlag == 1 ) {
