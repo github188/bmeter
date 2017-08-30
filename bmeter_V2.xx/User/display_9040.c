@@ -3,6 +3,9 @@
 #include "bl55072.h"
 
 unsigned char BL_Data[19];
+unsigned char flashflag = 0;
+unsigned char TL_Flash = 0;
+unsigned char TR_Flash = 0;
 
 const unsigned char SegDataTime[10]     = {0xF5,0x60,0xD3,0xF2,0x66,0xB6,0xB7,0xE0,0xF7,0xF6};
 const unsigned char SegDataVoltage[10]  = {0xF5,0x05,0xD3,0x97,0x27,0xB6,0xF6,0x15,0xF7,0xB7};
@@ -15,14 +18,25 @@ void MenuUpdate(BIKE_STATUS* bike)
 {
 	unsigned char i = 0;
   
-	bike->FlashCount ++;
-	bike->FlashCount %= 10;
+	flashflag++;
+	flashflag %= 10;
 	
-	for(i=0;i<18;i++)
-		BL_Data[i] = 0x00;
+	for(i=0;i<18;i++)	BL_Data[i] = 0x00;
 	
-	if( bike->TurnLeft  && bike->FlashCount < 5 ) BL_Data[6] |= 0x08;	//S1
-	if( bike->TurnRight && bike->FlashCount < 5 ) BL_Data[15]|= 0x80;	//S9
+	if( bike->TurnLeft	){
+		TL_Flash++;
+		TL_Flash %= 10;
+		if ( TL_Flash < 5 ) BL_Data[6] |= 0x08;	//S1
+	} else 
+		TL_Flash = 0;
+	
+	if( bike->TurnRight	){
+		TL_Flash++;
+		TR_Flash %= 10;
+		if ( TR_Flash < 5 ) BL_Data[15]|= 0x80;	//S9
+	} else 
+		TR_Flash = 0;
+	
 	if( bike->CRZLight	) BL_Data[5] |= 0x02;	//S4
 	if( bike->NearLight ) BL_Data[5] |= 0x01;	//S5
 	if( bike->HallERR 	) BL_Data[5] |= 0x08;	//S2	电机霍尔故障
@@ -35,8 +49,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[16] |= 0x10;
 	switch ( bike->BatStatus ){
     case 0:
-		if ( bike->FlashCount >= 5 ) BL_Data[16] &= 0xEF; 
-			break;
+		if ( flashflag < 5 ) 
+			BL_Data[16]&= 0xEF;break;
     case 1: BL_Data[3] |= 0x10;break;
     case 2: BL_Data[3] |= 0x30;break;
     case 3: BL_Data[3] |= 0x70;break;
@@ -67,20 +81,20 @@ void MenuUpdate(BIKE_STATUS* bike)
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-				if ( bike->FlashCount >= 5  ) { 
+				if ( flashflag < 5  ) { 
 					BL_Data[8] &= 0xF7; 
 					BL_Data[8] &= 0x08; 
 					BL_Data[7] &= 0x08; 
 					BL_Data[6] &= 0x08;
 				}
 				break;			
-			case 1:if ( bike->FlashCount >= 5  ) BL_Data[8] &= 0x08; break;
-			case 2:if ( bike->FlashCount >= 5  ) BL_Data[7] &= 0x08; break;
-			case 3:if ( bike->FlashCount >= 5  ) BL_Data[6] &= 0x08; break;
+			case 1:if ( flashflag < 5  ) BL_Data[8] &= 0x08; break;
+			case 2:if ( flashflag < 5  ) BL_Data[7] &= 0x08; break;
+			case 3:if ( flashflag < 5  ) BL_Data[6] &= 0x08; break;
 			default:break;		
 			}
 			BL_Data[7] |= 0x08;
-		} else if ( bike->FlashCount < 5 ) BL_Data[7] |= 0x08;	//col
+		} else if ( flashflag < 5 ) BL_Data[7] |= 0x08;	//col
 	}
 	
 	/*************************** Voltage Display**********************************/

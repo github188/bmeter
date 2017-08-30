@@ -2,9 +2,110 @@
 
 <workspace>
   <project>
-    <path>$WS_DIR$\Project.ewp</path>
+    <path>$WS_DIR$\Project - BENLING_BL48_60.ewp</path>
   </project>
-  <batchBuild/>
+  <project>
+    <path>$WS_DIR$\Project - BENLING_OUSHANG.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - BENLING_ZHONGSHA.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - DENGGUAN_XUNYING.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - DENGGUAN_XUNYING_T.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - JINPENG_4860.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - JINPENG_6072.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - LCD6040.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - LCD8794GCT.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - LCD9040.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - LCD9040T.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - OUJUN.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - OUPAINONG_4860.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - OUPAINONG_6072.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - OUPAINONG_ADJ_4860.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - OUPAINONG_ADJ_6072.ewp</path>
+  </project>
+  <batchBuild>
+    <batchDefinition>
+      <name>build all</name>
+      <member>
+        <project>Project - BENLING_BL48_60</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - BENLING_OUSHANG</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - BENLING_ZHONGSHA</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - DENGGUAN_XUNYING</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - DENGGUAN_XUNYING_T</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - JINPENG_4860</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - JINPENG_6072</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD6040</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD8794GCT</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - OUJUN</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - OUPAINONG_4860</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - OUPAINONG_6072</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD9040</project>
+        <configuration>STM8S208</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
 </workspace>
 
 

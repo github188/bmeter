@@ -91,7 +91,6 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 		} else if ( left_count == 100 ){
 			left_count++;
 			bike.TurnLeft   = 1;
-			bike.FlashCount = 0;
 		} 
 	} else if ( left_count-- == 0 ){
 		bike.TurnLeft = 0; 
@@ -104,7 +103,6 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 		} else if ( right_count == 100 ){
 			right_count++;
 			bike.TurnRight  = 1;
-			bike.FlashCount = 1;
 		}
 	} else if ( right_count-- == 0 ){
 		bike.TurnRight = 0; 
@@ -112,7 +110,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 	}	
 }
 
- 
+#if ( YXT_ENABLE == 1 )
 /**
   * @brief  Timer1 Capture/Compare Interrupt routine
   * @param  None
@@ -131,6 +129,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   
   YXT_Tim_Receive(duty);
 }
+#endif
 
 /**
   * @brief  UART1 RX Interrupt routine

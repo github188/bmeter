@@ -4,6 +4,9 @@
 #include "stm8s.h"
 
 unsigned char BL_Data[19];
+unsigned char flashflag = 0;
+unsigned char TL_Flash = 0;
+unsigned char TR_Flash = 0;
 
 const unsigned char SegDataTime[10] 	= {0xFA,0x60,0xD6,0xF4,0x6C,0xBC,0xBE,0xE0,0xFE,0xFC};
 const unsigned char SegDataVoltage[10]	= {0x5F,0x50,0x3D,0x79,0x72,0x6B,0x6F,0x51,0x7F,0x7B};
@@ -17,29 +20,40 @@ void MenuUpdate(BIKE_STATUS* bike)
 {
 	unsigned char i = 0;
 
-	bike->FlashCount ++;
-	bike->FlashCount %= 10;
+	flashflag++;
+	flashflag %= 10;
 
-	for(i=0;i<18;i++){
-		BL_Data[i] = 0x00;
-	}
+	for(i=0;i<18;i++) BL_Data[i] = 0x00;
 
-	if( bike->TurnLeft && bike->FlashCount < 5 ) BL_Data[0x08] |= 0x01;	//S1
-#ifdef TurnLeftOut_PIN
 	GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	if( bike->TurnLeft && bike->FlashCount < 5 ) 
+	if( bike->TurnLeft ){
+		TL_Flash++;
+		TL_Flash %= 10;
+		if ( TL_Flash < 5 ) {
+			BL_Data[0x08] |= 0x01;	//S1
 			GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); 
-	else 	GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
-#endif
+		} else {
+			GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+		}
+	} else {
+		TL_Flash = 0;
+		GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+	}
 	
-	if( bike->TurnRight && bike->FlashCount < 5 ) BL_Data[0x0F] |= 0x04;	//S12
-#ifdef TurnRightOut_PIN
 	GPIO_Init(TurnRightOut_PORT, TurnRightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	if( bike->TurnRight && bike->FlashCount < 5 ) 
+	if( bike->TurnRight ){
+		TR_Flash++;
+		TR_Flash %= 10;
+		if ( TR_Flash < 5 ) {
+			BL_Data[0x0F] |= 0x04;	//S12
 			GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); 
-	else 	GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
-#endif
-	
+		} else 
+			GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+	} else {
+		TR_Flash = 0;
+		GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+	}
+			
 	if( bike->CRZLight 	) BL_Data[0x0B] |= 0x20;	//S4
 	if( bike->NearLight	) BL_Data[0x0B] |= 0x10;	//S5
 #ifdef NearLightOut_PIN
@@ -62,9 +76,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[0x06] |=  0x80; //T
 	switch ( bike->BatStatus ){
 	case 0:
-		if ( bike->FlashCount >= 5 ) 
-			BL_Data[0x06] &= ~0x80; 
-		break;
+		if ( flashflag < 5 ) 
+			BL_Data[0x06]&=~0x80;break;
 	case 1: BL_Data[0x07] = 0x80;break;
 	case 2: BL_Data[0x07] = 0xC0;break;
 	case 3: BL_Data[0x07] = 0xE0;break;
@@ -92,19 +105,19 @@ void MenuUpdate(BIKE_STATUS* bike)
 		if ( bike->time_set ){
 			switch ( bike->time_pos ){
 			case 0:
-			if ( bike->FlashCount >= 5  ) { 
+			if ( flashflag < 5  ) { 
 				BL_Data[0x08] &= 0x01; 
 				BL_Data[0x09] &= 0x01; 
 				BL_Data[0x0A] &= 0x01; 
 			}
 			break;			
-			case 1:if ( bike->FlashCount >= 5  ) BL_Data[0x08] &= 0x01; break;
-			case 2:if ( bike->FlashCount >= 5  ) BL_Data[0x09] &= 0x01; break;
-			case 3:if ( bike->FlashCount >= 5  ) BL_Data[0x0A] &= 0x01; break;
+			case 1:if ( flashflag < 5  ) BL_Data[0x08] &= 0x01; break;
+			case 2:if ( flashflag < 5  ) BL_Data[0x09] &= 0x01; break;
+			case 3:if ( flashflag < 5  ) BL_Data[0x0A] &= 0x01; break;
 			default:break;		
 		}
 		BL_Data[0x09] |= 0x01;	//col
-	} else if ( bike->FlashCount < 5 ) BL_Data[9] |= 0x01;	//col
+	} else if ( flashflag < 5 ) BL_Data[9] |= 0x01;	//col
 	}
 
 	/*************************** Voltage Display**********************************/

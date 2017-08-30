@@ -7,6 +7,10 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.10 - 20170830
+  * 修改左右转灯为独立闪烁
+  * 修改工程结构
+  *
   * V2.10 - 20170824
   * 修改总里程进行复位的方法：打右转灯，开机后10秒内开关大灯8次；
   * 左右转信号改回中断方式，适应闪光器；
@@ -240,7 +244,6 @@ typedef struct {
 	unsigned char Speed;
 	unsigned char SpeedAdj;
 	unsigned long Mile;
-	unsigned char FlashCount;		
 	
 	unsigned char Hour;
 	unsigned char Minute;
