@@ -31,7 +31,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 		TL_Flash = 0;
 	
 	if( bike->TurnRight	){
-		TL_Flash++;
+		TR_Flash++;
 		TR_Flash %= 10;
 		if ( TR_Flash < 5 ) BL_Data[15]|= 0x80;	//S9
 	} else 
