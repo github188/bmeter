@@ -27,8 +27,8 @@ const unsigned int BatStatus60[] = {525,537,553,566,578};
 const unsigned int BatStatus72[] = {630,641,661,681,701};
 #else
 const unsigned int BatStatus48[8] = {420,427,435,444,453,462,471,481};
-const unsigned int BatStatus60[8] = {520,531,544,556,568,579,590,605};
-const unsigned int BatStatus72[8] = {630,644,658,671,684,698,711,724};
+const unsigned int BatStatus60[8] = {520,531,544,556,568,577,587,595};
+const unsigned int BatStatus72[8] = {630,642,653,664,675,687,700,715};
 #endif
 
 volatile unsigned int  sys_tick = 0;
@@ -260,57 +260,78 @@ unsigned char GetSpeed(void)
 	speed /= ContainOf(speed_buf);
 	
 	if ( config.SysVoltage	== 48 ){	// speed*5V*21/1024/24V*45 KM/H
-		if ( bike.SpeedMode == 0 )
+		switch( bike.SpeedMode ){
+		case 0:
 		#ifdef JINPENG_4860
-			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+			speed = (unsigned long)speed*1505UL/8192UL;		//24V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
-			speed = (unsigned long)speed*1925UL/8192UL;	//24V->55KM/H
+			speed = (unsigned long)speed*1925UL/8192UL;		//24V->55KM/H
 		#elif (defined OUPAINONG_4860)
 			speed = (unsigned long)speed*57750UL/242688UL;	//23.7V->55KM/H
 		#else
-			speed = (unsigned long)speed*875UL/4096UL;	//24V->50KM/H
+			speed = (unsigned long)speed*1925UL/8192UL;		//24V->555KM/H
 		#endif
-		else if ( bike.SpeedMode == 3 )
-			speed = (unsigned long)speed*15UL/64UL;		//24.5V->56KM/H
-		else
-			speed = (unsigned long)speed*1645UL/8192UL;	//24V->47KM/H
+			break;
+		case 1:
+		case 2:
+			speed = (unsigned long)speed*1645UL/8192UL;		//24V->47KM/H
+			break;
+		case 3:
+			speed = (unsigned long)speed*15UL/64UL;			//24.5V->56KM/H
+			break;
+		default: break;
+		}
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
-		if ( bike.SpeedMode == 0 )
+		switch( bike.SpeedMode ){
+		case 0:
 		#if ( defined JINPENG_4860 ) 
-			speed = (unsigned long)speed*301UL/2048UL;	//30V->43KM/H
+			speed = (unsigned long)speed*301UL/2048UL;		//30V->43KM/H
 		#elif defined JINPENG_6072
-			speed = (unsigned long)speed*1505UL/8192UL;	//24V->43KM/H
+			speed = (unsigned long)speed*1505UL/8192UL;		//24V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
-			speed = (unsigned long)speed*385UL/2048UL;	//30V->55KM/H
+			speed = (unsigned long)speed*385UL/2048UL;		//30V->55KM/H
 		#elif (defined OUPAINONG_4860)
 			speed = (unsigned long)speed*63000UL/258048UL;	//25.2V->60KM/H
 		#elif (defined OUPAINONG_6072)
 			speed = (unsigned long)speed*68250UL/339968UL;	//33.2V->65KM/H
 		#else
-			speed = (unsigned long)speed*350/2048;		//30V->50KM/H
+			speed = (unsigned long)speed*385/2048;			//30V->55KM/H
 		#endif
-		else if ( bike.SpeedMode == 3 )
-			speed = (unsigned long)speed*5880UL/32256UL;//31.5V->56KM/H
-		else
-			speed = (unsigned long)speed*4935UL/31744UL;//31V->47KM/H
+			break;
+		case 1:
+		case 2:
+			speed = (unsigned long)speed*4935UL/31744UL;	//31V->47KM/H
+			break;
+		case 3:
+			speed = (unsigned long)speed*5880UL/32256UL;	//31.5V->56KM/H
+			break;
+		default: break;
+		}
 	} else if ( config.SysVoltage	== 72 )	{// speed*5V*21/1024/36V*45 KM/H
-		if ( bike.SpeedMode == 0 )
+		switch( bike.SpeedMode ){
+		case 0:
 		#if defined JINPENG_6072
-			speed = (unsigned long)speed*1505UL/12288UL;//36V->43KM/H
+			speed = (unsigned long)speed*1505UL/12288UL;	//36V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
-			speed = (unsigned long)speed*1925UL/12288UL;//36V->55KM/H
+			speed = (unsigned long)speed*1925UL/12288UL;	//36V->55KM/H
 		#elif (defined OUPAINONG_6072)
-			speed = (unsigned long)speed*68250UL/339968UL;//33.2V->65KM/H
+			speed = (unsigned long)speed*68250UL/339968UL;	//33.2V->65KM/H
 		#else
-			speed = (unsigned long)speed*875UL/6144UL;	//36V->50KM/H
+			speed = (unsigned long)speed*1925UL/12288UL;	//36V->55KM/H
 		#endif
-		else if ( bike.SpeedMode == 3 )
-			speed = (unsigned long)speed*5880UL/37376UL;//36.5V->56KM/H
-		else 
-			speed = (unsigned long)speed*4935UL/36864UL;//36V->47KM/H
+			break;
+		case 1:
+		case 2:
+			speed = (unsigned long)speed*4935UL/36864UL;	//36V->47KM/H
+			break;
+		case 3:
+			speed = (unsigned long)speed*5880UL/37376UL;	//36.5V->56KM/H
+			break;
+		default: break;
+		}
 	}
-	if ( speed > 99 )
-		speed = 99;
+	if ( speed > DISPLAY_MAX_SPEED )
+		speed = DISPLAY_MAX_SPEED;
 	
   return speed;
 }
@@ -559,7 +580,6 @@ void MileTask(void)
 	unsigned char speed;
 	
 	speed = bike.Speed;
-	if ( speed > DISPLAY_MAX_SPEED ) speed = DISPLAY_MAX_SPEED;
 
 #ifdef SINGLE_TRIP
 	time ++;
