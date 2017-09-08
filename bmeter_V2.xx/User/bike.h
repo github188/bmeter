@@ -7,11 +7,12 @@
   * @brief   
   ******************************************************************************
   * @Changlog
-  * V2.11 - 20170908
+  * V2.11 - 20170909
   * 按9040_5535型仪表软件设置要求-0908.doc进行更改：
   * 1.	60/72V系统，电池图标对应电压值
   * 2.	无挡位输入时，相电压对应速度
   * 3.	计算累积里程时，设定的最高速度
+  * 增加LCD9040_4860版本
   * 修改左右转灯为独立闪烁
   * 修改工程结构
   *
@@ -77,6 +78,7 @@
 //#define JINPENG_6072
 //#define LCD6040
 //#define LCD9040
+//#define LCD9040_4860
 //#define LCD9040T
 //#define LCD8794GCT
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
@@ -112,6 +114,13 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
+#elif defined LCD9040_4860
+	#define PCB_VER		0100
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define RESET_MILE_ENABLE
+	#define SINGLE_TRIP
 #elif defined LCD9040T
 	#define PCB_VER		0100
 	#define LCD9040

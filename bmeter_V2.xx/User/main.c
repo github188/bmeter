@@ -483,6 +483,13 @@ void InitConfig(void)
 		} else {
 			config.SysVoltage = 60;
 		}
+	#elif defined LCD9040_4860
+		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+			config.SysVoltage = 60;
+		} else {
+			config.SysVoltage = 48;
+		}
 	#else
 		GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
 		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
