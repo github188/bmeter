@@ -330,8 +330,8 @@ unsigned char GetSpeed(void)
 		default: break;
 		}
 	}
-	if ( speed > DISPLAY_MAX_SPEED )
-		speed = DISPLAY_MAX_SPEED;
+	if ( speed > 99 )
+		speed = 99;
 	
   return speed;
 }
@@ -587,7 +587,9 @@ void MileTask(void)
 	unsigned char speed;
 	
 	speed = bike.Speed;
-
+	if ( speed > DISPLAY_MAX_SPEED )
+		speed = DISPLAY_MAX_SPEED;
+	
 #ifdef SINGLE_TRIP
 	time ++;
 	if ( time < 20 ) {	//2s
