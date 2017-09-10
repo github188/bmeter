@@ -16,6 +16,8 @@
   * 修改左右转灯为独立闪烁
   * 修改工程结构
   * 修正最高速度限制
+  * 更改ＧetVol函数和程序结构使用电源快速开关过程中，仪表显示不变．
+  * 开机全显时间改为２秒．
   *
   * V2.10 - 20170824
   * 修改总里程进行复位的方法：打右转灯，开机后10秒内开关大灯8次；
@@ -227,7 +229,7 @@
 #define TEMP_CALIBRATIOIN	250UL	//25.0C
 #define SPEED_CALIBRATIOIN	30UL	//30km/h
 
-#define PON_ALLON_TIME		1000UL	//1000ms
+#define PON_ALLON_TIME		2000UL	//1000ms
 
 #define DISPLAY_MAX_SPEED	45UL	//40km/h
 #define SPEEDMODE_DEFAULT	1		//1档

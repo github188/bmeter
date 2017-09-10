@@ -169,7 +169,7 @@ int GetTemp(void)
 	
 	return temp;
 }
-
+#if 0
 unsigned int GetVol(void)
 {
 	static unsigned char index = 0;
@@ -198,6 +198,41 @@ unsigned int GetVol(void)
 	
 	return vol;
 }
+#else
+unsigned char GetVolStabed(unsigned int* vol)
+{
+	unsigned long mid;
+	int buf[32];
+	unsigned char i;
+	
+	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+				DISABLE);
+
+	ADC1_Cmd(ENABLE);
+	for(i=0;i<32;i++){
+		Delay(500);  
+		ADC1_StartConversion(); 
+		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+		buf[i] = ADC1_GetConversionValue();
+	}
+	ADC1_Cmd(DISABLE);
+	
+	*vol = (unsigned long)buf[0]*1050UL/1024UL;
+
+	for(i=0,mid=0;i<32;i++)	mid += buf[i];
+	mid /= 32;
+	for( i=0;i<32;i++){
+		if ( mid > 5 && ((mid *100 / buf[i]) > 101 ||  (mid *100 / buf[i]) < 99) )
+			return 0;
+	}
+	
+	return 1;
+}
+
+#endif
 
 #if ( PCB_VER == 0013 )
 unsigned char GetSpeedAdj(void)
@@ -442,8 +477,8 @@ void InitConfig(void)
 #else
 	#if defined BENLING_OUSHANG
 		unsigned int vol;
-		for(i=0;i<16;i++){
-			vol = GetVol();
+		for(i=0;i<0xFF;i++){
+			if ( GetVolStabed(&vol) && (vol > 120) ) break;
 			IWDG_ReloadCounter();  
 		}
 		if ( 720 <= vol && vol <= 870 ){
@@ -455,8 +490,8 @@ void InitConfig(void)
 		}
 	#elif defined BENLING_BL48_60
 		unsigned int vol;
-		for(i=0;i<16;i++){
-			vol = GetVol();
+		for(i=0;i<0xFF;i++){
+			if ( GetVolStabed(&vol) && (vol > 120) ) break;
 			IWDG_ReloadCounter();  
 		}
 		if ( 610 <= vol && vol <= 720 ){
@@ -820,6 +855,8 @@ void InitUART(void)
 
 void UartTask(void)
 {   
+	unsigned int vol,i;
+	
 	if ( bike.uart == 0 )
 		return ;
 	
@@ -829,13 +866,17 @@ void UartTask(void)
 			RtcTime.RTC_Minutes = (uart1_buf[8]-'0')*10 + (uart1_buf[9] - '0');
 			PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
 		} else if ( uart1_index >= 5 && uart1_buf[0] == 'C' /*&& uart1_buf[1] == 'a' && uart1_buf[2] == 'l' && uart1_buf[3] == 'i' */){
-			bike.Voltage 		= GetVol();
-			bike.Temperature	= GetTemp();
-			bike.Speed			= GetSpeed();
+			for(i=0;i<0xFF;i++){
+				if ( GetVolStabed(&vol) && (vol > 120) ) break;
+				IWDG_ReloadCounter();  
+			}
+			bike.Voltage	 = vol;
+			bike.Temperature = GetTemp();
+			bike.Speed		 = GetSpeed();
 
-			config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					
-			//config.TempScale= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	
-			config.SpeedScale = (unsigned long)bike.Speed*1000UL/SPEED_CALIBRATIOIN;				
+			config.VolScale	 = (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					
+		//	config.TempScale = (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	
+			config.SpeedScale= (unsigned long)bike.Speed*1000UL/SPEED_CALIBRATIOIN;				
 			WriteConfig();
 		}
 		uart1_index = 0;
@@ -846,6 +887,7 @@ void UartTask(void)
 void Calibration(void)
 {
 	unsigned char i;
+	unsigned int vol;
 	
 	CFG->GCR = CFG_GCR_SWD;
 	//¶Ì½ÓµÍËÙ¡¢SWIMÐÅºÅ
@@ -860,13 +902,16 @@ void Calibration(void)
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
 	}
 	if ( i == 32 ){
-		for(i=0;i<64;i++){	GetVol();	IWDG_ReloadCounter();  }
-		bike.Voltage 		= GetVol();
+		for(i=0;i<0xFF;i++){
+			if ( GetVolStabed(&vol) && (vol > 120) ) break;
+			IWDG_ReloadCounter();  
+		}
+		bike.Voltage		= vol;
 		//bike.Temperature	= GetTemp();
 		//bike.Speed		= GetSpeed();
 
-		config.VolScale	= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					//60.00V
-		//config.TempScale= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
+		config.VolScale		= (unsigned long)bike.Voltage*1000UL/VOL_CALIBRATIOIN;					//60.00V
+		//config.TempScale	= (long)bike.Temperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
 		//config.SpeedScale = (unsigned long)bike.Speed*1000UL/SPEED_CALIBRATIOIN;				//30km/h
 		//config.Mile = 0;
 		WriteConfig();
@@ -893,7 +938,8 @@ void main(void)
 	unsigned char i;
 	unsigned int tick;
 	unsigned int count=0;
-
+	unsigned int vol=0,vol_index=0,temp;
+	
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
@@ -916,10 +962,9 @@ void main(void)
 	} else
 		BL55072_Config(0);
 
-	for(i=0;i<32;i++){	GetVol();	IWDG_ReloadCounter();  }
+//	for(i=0;i<32;i++){	GetVol();	IWDG_ReloadCounter();  }
 	for(i=0;i<16;i++){	GetSpeed();	IWDG_ReloadCounter();  }
 	for(i=0;i<4;i++) {	GetTemp();	IWDG_ReloadCounter();  }
-	bike.Temperature = 	GetTemp();
 
 	InitConfig();
 	Calibration();
@@ -955,6 +1000,10 @@ void main(void)
 	#endif
 	}
 	
+	GetVolStabed(&vol);
+	bike.Voltage = (unsigned long)vol*1000UL/config.VolScale;
+	bike.Temperature = GetTemp();
+	
 	while(1){
 		tick = Get_SysTick();
 		
@@ -963,17 +1012,20 @@ void main(void)
 			tick_100ms = tick;
 			count ++;
 			
-			bike.Voltage 	= (unsigned long)GetVol()*1000UL/config.VolScale;
-			//bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
-			//bike.Temperature= GetTemp();
+			if ( (count % 4 ) == 0 ){
+				if ( GetVolStabed(&vol) )
+					bike.Voltage = (unsigned long)vol*1000UL/config.VolScale;
+			}
+			if ( (count % 10) == 0 ){
+				if ( bike.uart == 0 ){
+				//	bike.Temperature= (long)GetTemp()	*1000UL/config.TempScale;
+					bike.Temperature= GetTemp();
+				}
+			}
 			bike.BatStatus 	= GetBatStatus(bike.Voltage);
 		#ifdef LCD8794GCT
 			bike.Energy 	= GetBatEnergy(bike.Voltage);
 		#endif
-			if ( (count % 10) == 0 ){
-				if ( bike.uart == 0 )
-					bike.Temperature= GetTemp();
-			}
 		
 			Light_Task();
 			MileTask(); 
