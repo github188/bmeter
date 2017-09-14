@@ -249,6 +249,8 @@ typedef struct {
 	unsigned char time_set	:1;
 	unsigned char uart		:1;	
 	unsigned char HotReset	:1;	
+	unsigned char MileFlash	:1;	
+	unsigned char SpeedFlash:1;	
 	
 	unsigned char TurnLeft;
 	unsigned char TurnRight;
@@ -260,6 +262,7 @@ typedef struct {
 	unsigned char Speed;
 	unsigned char SpeedAdj;
 	unsigned long Mile;
+	unsigned long FMile;
 	
 	unsigned char Hour;
 	unsigned char Minute;
@@ -274,6 +277,7 @@ typedef struct {
 	unsigned int  VolScale	;
 	unsigned int  TempScale	;
 	unsigned int  SpeedScale;
+	unsigned int  YXT_SpeedScale;
 	unsigned long Mile;
 	unsigned char Sum;
 } BIKE_CONFIG,*pBIKE_CONFIG;

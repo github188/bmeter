@@ -111,11 +111,27 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[ 9] |= (SegDataMile [(bike->Mile/1000 )%10] & 0x0F); 
 	BL_Data[15] |= (SegDataMile [(bike->Mile/1000 )%10] >> 4);
 	BL_Data[16] |= (SegDataMile2[(bike->Mile/10000)%10]); 
+	if ( bike->MileFlash ){
+		if ( flashflag < 5  ) {
+			BL_Data[12]  = 0x1;
+			BL_Data[11]  = 0;
+			BL_Data[10]  = 0; 
+			BL_Data[ 9] &= 0x0F; 
+			BL_Data[15] &= 0xF0;
+			BL_Data[16]  = 0; 
+		}
+	}		
 
 	/*************************** Speed Display**********************************/
 	BL_Data[14] |= (SegDataSpeed[ bike->Speed	 %10]);
 	BL_Data[13] |= (SegDataSpeed[(bike->Speed/10)%10]); 
 	BL_Data[14] |= 0x80;
+	if ( bike->SpeedFlash ){
+		if ( flashflag < 5  ) {
+			BL_Data[14] = 0x80;
+			BL_Data[13] = 0; 
+		}
+	}
 
 	/*************************** Mode Display**********************************/ 
 	switch (bike->SpeedMode){

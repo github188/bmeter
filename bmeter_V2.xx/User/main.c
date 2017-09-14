@@ -295,8 +295,6 @@ unsigned char GetSpeed(void)
 	speed /= ContainOf(speed_buf);
 	
 	if ( config.SysVoltage	== 48 ){	// speed*5V*21/1024/24V*45 KM/H
-		switch( bike.SpeedMode ){
-		case 0:
 		#ifdef JINPENG_4860
 			speed = (unsigned long)speed*1505UL/8192UL;		//24V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
@@ -306,19 +304,7 @@ unsigned char GetSpeed(void)
 		#else
 			speed = (unsigned long)speed*1925UL/8192UL;		//24V->555KM/H
 		#endif
-			break;
-		case 1:
-		case 2:
-			speed = (unsigned long)speed*1645UL/8192UL;		//24V->47KM/H
-			break;
-		case 3:
-			speed = (unsigned long)speed*15UL/64UL;			//24.5V->56KM/H
-			break;
-		default: break;
-		}
 	} else if ( config.SysVoltage	== 60 ) {	// speed*5V*21/1024/30V*45 KM/H
-		switch( bike.SpeedMode ){
-		case 0:
 		#if ( defined JINPENG_4860 ) 
 			speed = (unsigned long)speed*301UL/2048UL;		//30V->43KM/H
 		#elif defined JINPENG_6072
@@ -332,19 +318,7 @@ unsigned char GetSpeed(void)
 		#else
 			speed = (unsigned long)speed*385/2048;			//30V->55KM/H
 		#endif
-			break;
-		case 1:
-		case 2:
-			speed = (unsigned long)speed*4935UL/31744UL;	//31V->47KM/H
-			break;
-		case 3:
-			speed = (unsigned long)speed*5880UL/32256UL;	//31.5V->56KM/H
-			break;
-		default: break;
-		}
 	} else if ( config.SysVoltage	== 72 )	{// speed*5V*21/1024/36V*45 KM/H
-		switch( bike.SpeedMode ){
-		case 0:
 		#if defined JINPENG_6072
 			speed = (unsigned long)speed*1505UL/12288UL;	//36V->43KM/H
 		#elif (defined DENGGUAN_XUNYING) || (defined DENGGUAN_XUNYING_T)
@@ -354,16 +328,6 @@ unsigned char GetSpeed(void)
 		#else
 			speed = (unsigned long)speed*1925UL/12288UL;	//36V->55KM/H
 		#endif
-			break;
-		case 1:
-		case 2:
-			speed = (unsigned long)speed*4935UL/36864UL;	//36V->47KM/H
-			break;
-		case 3:
-			speed = (unsigned long)speed*5880UL/37376UL;	//36.5V->56KM/H
-			break;
-		default: break;
-		}
 	}
 	if ( speed > 99 )
 		speed = 99;
@@ -584,40 +548,121 @@ unsigned char GetBatEnergy(unsigned int vol)
 }
 #endif
 
+#define TASK_INIT	0
+#define TASK_STEP1	1
+#define TASK_STEP2	2
+#define TASK_STEP3	3
+#define TASK_STEP4	4
+#define TASK_EXIT	5
+
 unsigned char MileResetTask(void)
 {
-	static unsigned char TaskFlag = 0;
+	static unsigned char TaskFlag = TASK_INIT;
 	static unsigned char lastLight = 0;
 	static unsigned char count = 0;
 	
-	if ( TaskFlag == 2 ){
-		return 0;
-	}
+	if ( Get_SysTick() > 10000 | bike.Breaked | bike.Speed )
+		TaskFlag = TASK_EXIT;
 
-	if ( Get_SysTick() < 3000 ){
-		if ( bike.TurnRight == 1 && TaskFlag == 0 ){
-			TaskFlag = 1;
+	switch( TaskFlag ){
+	case TASK_INIT:
+		if ( Get_SysTick() < 3000 && bike.TurnRight == 1 ){
+			TaskFlag = TASK_STEP1;
 			count = 0;
-		}			
-	} else if ( Get_SysTick() > 10000 )
-		TaskFlag = 2;
-		
-	if ( TaskFlag == 1 ) {
+		}
+		break;
+	case TASK_STEP1:
 		if ( lastLight == 0 && bike.NearLight){
 			count ++;
 			if ( count >= 8 ){
-				TaskFlag = 2;
-				return 1;
+				bike.MileFlash = 1;
+				TaskFlag = TASK_STEP2;
 			}
 		}
 		lastLight = bike.NearLight;
-	}	
+		break;
+	case TASK_STEP2:
+		if ( bike.TurnRight == 0 && bike.TurnLeft == 1 ) {
+			bike.MileFlash 	= 0;
+			bike.Fmile 		= 0;
+			bike.Mile 		= 0;
+			config.Mile 	= 0;
+			WriteConfig();
+		}
+		break;
+	case TASK_EXIT:
+	default:
+		bike.MileFlash = 0;
+		break;
+	}
+	return 0;
+}
+
+unsigned char YXT_SpeedCaltTask(void)
+{
+	static unsigned char TaskFlag = TASK_INIT;
+	static unsigned char lastLight = 0;
+	static unsigned char count = 0,SpeedScale;
+	
+	if ( Get_SysTick() > 10000 | bike.Breaked )
+		TaskFlag = TASK_EXIT;
+
+	switch( TaskFlag ){
+	case TASK_INIT:
+		if ( Get_SysTick() < 3000 && bike.TurnLeft == 1 ){
+			TaskFlag = TASK_STEP1;
+			count = 0;
+		}
+		break;
+	case TASK_STEP1:
+		if ( lastLight == 0 && bike.NearLight){
+			count ++;
+			if ( count >= 8 ){
+				bike.SpeedFlash = 1;
+				TaskFlag = TASK_STEP2;
+			}
+		}
+		lastLight = bike.NearLight;
+		break;
+	case TASK_STEP2:
+		if ( bike.TurnLeft == 0 ) {
+			TaskFlag = TASK_STEP3;
+			SpeedScale = bike.YXT_SpeedScale;
+			count = 0;
+		}
+		break;
+	case TASK_STEP3:
+		if ( lastLight == 0 && bike.NearLight){
+			count ++;
+			if ( count >= 5 ){
+				TaskFlag = TASK_EXIT;
+				bike.SpeedFlash = 0;
+				bike.YXT_SpeedScale = SpeedScale;
+				WriteConfig();
+			}
+		}
+		lastLight = bike.NearLight;
+		if ( lastSpeed && bike.Speed == 0 ){
+			TaskFlag = TASK_EXIT;
+		}
+		lastSpeed = bike.Speed;
+
+		if ( bike.TurnLeft == 1 ) {
+			config.YXT_SpeedScale = (unsigned long)bike.Speed*1000UL/(bike.Speed-1);
+		} else if ( bike.TurnRight == 1 ) {
+			config.YXT_SpeedScale = (unsigned long)bike.Speed*1000UL/(bike.Speed+1);		
+		}		
+		break;
+	case TASK_EXIT:
+	default:
+		bike.SpeedFlash = 0;
+		break;
+	}
 	return 0;
 }
 
 void MileTask(void)
 {
-	static unsigned int Fmile = 0;
 	static unsigned int time = 0;
 	unsigned char speed;
 	
@@ -641,10 +686,10 @@ void MileTask(void)
 	{
 		time = 51;
 		
-		Fmile = Fmile + speed;
-		if(Fmile >= 36000)
+		bike.Fmile = bike.Fmile + speed;
+		if(bike.Fmile >= 36000)
 		{
-			Fmile = 0;
+			bike.Fmile = 0;
 			bike.Mile++;
 			if ( bike.Mile > 99999 )	bike.Mile = 0;
 			config.Mile ++;
@@ -652,14 +697,6 @@ void MileTask(void)
 			WriteConfig();
 		}  
 	}
-#ifdef RESET_MILE_ENABLE	
-	if ( MileResetTask() ){
-		Fmile = 0;
-		bike.Mile = 0;
-		config.Mile = 0;
-		WriteConfig();
-	}
-#endif
 }
 
 #if ( TIME_ENABLE == 1 )
@@ -1030,6 +1067,10 @@ void main(void)
 			Light_Task();
 			MileTask(); 
 			
+		#ifdef RESET_MILE_ENABLE	
+			MileResetTask();
+		#endif	
+		
 		#if ( YXT_ENABLE == 1 )
 			YXT_Task(&bike);  
 		#endif
