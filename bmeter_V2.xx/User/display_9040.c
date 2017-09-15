@@ -116,7 +116,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 			BL_Data[12]  = 0x1;
 			BL_Data[11]  = 0;
 			BL_Data[10]  = 0; 
-			BL_Data[ 9] &= 0x0F; 
+			BL_Data[ 9] &= 0xF0; 
 			BL_Data[15] &= 0xF0;
 			BL_Data[16]  = 0; 
 		}

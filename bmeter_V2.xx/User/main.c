@@ -34,7 +34,7 @@ const unsigned int BatStatus72[8] = {630,642,653,664,675,687,700,715};
 volatile unsigned int  sys_tick = 0;
 unsigned int tick_100ms=0;
 unsigned int speed_buf[16];
-unsigned int vol_buf[32];
+unsigned int vol_buf[28];
 unsigned int temp_buf[4];
 unsigned char uart1_buf[16];
 unsigned char uart1_index=0;
@@ -435,6 +435,7 @@ void InitConfig(void)
 	bike.HasTimer = 0;
 	//bike.SpeedMode = SPEEDMODE_DEFAULT;
 	bike.YXTERR = 1;
+	bike.Speed_dec = 0;
 	
 #if ( PCB_VER == 0041 )
 	config.SysVoltage = 60;
@@ -443,7 +444,7 @@ void InitConfig(void)
 		unsigned int vol;
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&vol) && (vol > 120) ) break;
-			IWDG_ReloadCounter();  
+			//IWDG_ReloadCounter();  
 		}
 		if ( 720 <= vol && vol <= 870 ){
 			config.SysVoltage = 72;
@@ -456,7 +457,7 @@ void InitConfig(void)
 		unsigned int vol;
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&vol) && (vol > 120) ) break;
-			IWDG_ReloadCounter();  
+			//IWDG_ReloadCounter();  
 		}
 		if ( 610 <= vol && vol <= 720 ){
 			config.SysVoltage = 60;
@@ -557,11 +558,12 @@ unsigned char GetBatEnergy(unsigned int vol)
 
 unsigned char MileResetTask(void)
 {
+	static unsigned int pre_tick=0;
 	static unsigned char TaskFlag = TASK_INIT;
 	static unsigned char lastLight = 0;
 	static unsigned char count = 0;
 	
-	if ( Get_SysTick() > 10000 | bike.Breaked | bike.Speed )
+	if ( Get_ElapseTick(pre_tick) > 10000 | bike.Braked | bike.Speed )
 		TaskFlag = TASK_EXIT;
 
 	switch( TaskFlag ){
@@ -576,6 +578,8 @@ unsigned char MileResetTask(void)
 			count ++;
 			if ( count >= 8 ){
 				bike.MileFlash = 1;
+				pre_tick = Get_SysTick();
+				bike.Mile = config.Mile;
 				TaskFlag = TASK_STEP2;
 			}
 		}
@@ -583,8 +587,9 @@ unsigned char MileResetTask(void)
 		break;
 	case TASK_STEP2:
 		if ( bike.TurnRight == 0 && bike.TurnLeft == 1 ) {
+			TaskFlag = TASK_EXIT;
 			bike.MileFlash 	= 0;
-			bike.Fmile 		= 0;
+			bike.FMile 		= 0;
 			bike.Mile 		= 0;
 			config.Mile 	= 0;
 			WriteConfig();
@@ -600,11 +605,13 @@ unsigned char MileResetTask(void)
 
 unsigned char YXT_SpeedCaltTask(void)
 {
+	static unsigned int pre_tick=0;
 	static unsigned char TaskFlag = TASK_INIT;
-	static unsigned char lastLight = 0;
-	static unsigned char count = 0,SpeedScale;
+	static unsigned char lastLight = 0,lastSpeed = 0;
+	static unsigned char lastLeft = 0,lastRight = 0;
+	static unsigned char count = 0;
 	
-	if ( Get_SysTick() > 10000 | bike.Breaked )
+	if ( Get_ElapseTick(pre_tick) > 10000 | bike.Braked )
 		TaskFlag = TASK_EXIT;
 
 	switch( TaskFlag ){
@@ -619,6 +626,9 @@ unsigned char YXT_SpeedCaltTask(void)
 			count ++;
 			if ( count >= 8 ){
 				bike.SpeedFlash = 1;
+				bike.Speed_dec = 0;
+				config.YXT_SpeedScale = 1000;
+				pre_tick = Get_SysTick();
 				TaskFlag = TASK_STEP2;
 			}
 		}
@@ -627,31 +637,43 @@ unsigned char YXT_SpeedCaltTask(void)
 	case TASK_STEP2:
 		if ( bike.TurnLeft == 0 ) {
 			TaskFlag = TASK_STEP3;
-			SpeedScale = bike.YXT_SpeedScale;
+			pre_tick = Get_SysTick();
 			count = 0;
 		}
 		break;
 	case TASK_STEP3:
 		if ( lastLight == 0 && bike.NearLight){
+			pre_tick = Get_SysTick();
 			count ++;
 			if ( count >= 5 ){
 				TaskFlag = TASK_EXIT;
 				bike.SpeedFlash = 0;
-				bike.YXT_SpeedScale = SpeedScale;
+				config.YXT_SpeedScale = (unsigned int)bike.YXT_Speed*1000UL/(bike.YXT_Speed+bike.Speed_dec);
+				bike.Speed_dec = 0;
 				WriteConfig();
 			}
 		}
 		lastLight = bike.NearLight;
+    
 		if ( lastSpeed && bike.Speed == 0 ){
 			TaskFlag = TASK_EXIT;
 		}
 		lastSpeed = bike.Speed;
 
-		if ( bike.TurnLeft == 1 ) {
-			config.YXT_SpeedScale = (unsigned long)bike.Speed*1000UL/(bike.Speed-1);
-		} else if ( bike.TurnRight == 1 ) {
-			config.YXT_SpeedScale = (unsigned long)bike.Speed*1000UL/(bike.Speed+1);		
+		if ( bike.Speed == 0 )
+			break;
+			
+		if ( bike.TurnLeft == 0 && lastLeft == 1 ) {
+			pre_tick = Get_SysTick();
+			bike.Speed_dec --;
+		} 
+		lastLeft = bike.TurnLeft;
+    
+		if ( bike.TurnRight == 0  && lastRight == 1 ) {
+			pre_tick = Get_SysTick();
+			bike.Speed_dec ++;
 		}		
+		lastRight = bike.TurnRight;
 		break;
 	case TASK_EXIT:
 	default:
@@ -686,10 +708,10 @@ void MileTask(void)
 	{
 		time = 51;
 		
-		bike.Fmile = bike.Fmile + speed;
-		if(bike.Fmile >= 36000)
+		bike.FMile = bike.FMile + speed;
+		if(bike.FMile >= 36000)
 		{
-			bike.Fmile = 0;
+			bike.FMile = 0;
 			bike.Mile++;
 			if ( bike.Mile > 99999 )	bike.Mile = 0;
 			config.Mile ++;
@@ -905,7 +927,7 @@ void UartTask(void)
 		} else if ( uart1_index >= 5 && uart1_buf[0] == 'C' /*&& uart1_buf[1] == 'a' && uart1_buf[2] == 'l' && uart1_buf[3] == 'i' */){
 			for(i=0;i<0xFF;i++){
 				if ( GetVolStabed(&vol) && (vol > 120) ) break;
-				IWDG_ReloadCounter();  
+				//IWDG_ReloadCounter();  
 			}
 			bike.Voltage	 = vol;
 			bike.Temperature = GetTemp();
@@ -941,7 +963,7 @@ void Calibration(void)
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&vol) && (vol > 120) ) break;
-			IWDG_ReloadCounter();  
+			//IWDG_ReloadCounter();  
 		}
 		bike.Voltage		= vol;
 		//bike.Temperature	= GetTemp();
@@ -975,7 +997,7 @@ void main(void)
 	unsigned char i;
 	unsigned int tick;
 	unsigned int count=0;
-	unsigned int vol=0,vol_index=0,temp;
+	unsigned int vol=0;
 	
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
@@ -999,9 +1021,9 @@ void main(void)
 	} else
 		BL55072_Config(0);
 
-//	for(i=0;i<32;i++){	GetVol();	IWDG_ReloadCounter();  }
-	for(i=0;i<16;i++){	GetSpeed();	IWDG_ReloadCounter();  }
-	for(i=0;i<4;i++) {	GetTemp();	IWDG_ReloadCounter();  }
+//	for(i=0;i<32;i++){	GetVol();	/*IWDG_ReloadCounter(); */ }
+//	for(i=0;i<16;i++){	GetSpeed();	/*IWDG_ReloadCounter(); */ }
+	for(i=0;i<4;i++) {	GetTemp();	/*IWDG_ReloadCounter(); */ }
 
 	InitConfig();
 	Calibration();
@@ -1028,7 +1050,7 @@ void main(void)
 	enableInterrupts();
 	
 	if ( bike.HotReset == 0 ) {
-		while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
+		while ( Get_SysTick() < PON_ALLON_TIME ) /*IWDG_ReloadCounter()*/;
 		BL55072_Config(0);
 	#if ( PCB_VER == 0041 )
 		GPIO_WriteHigh (TurnLeftOut_PORT	,TurnLeftOut_PIN);
@@ -1072,8 +1094,10 @@ void main(void)
 		#endif	
 		
 		#if ( YXT_ENABLE == 1 )
-			YXT_Task(&bike);  
+			YXT_Task(&bike,&config);  
 		#endif
+			
+			YXT_SpeedCaltTask();
 		
 		#if ( TIME_ENABLE == 1 )	
 			TimeTask();   
@@ -1095,7 +1119,7 @@ void main(void)
 			MenuUpdate(&bike);
 			
 			/* Reload IWDG counter */
-			IWDG_ReloadCounter();  
+			//IWDG_ReloadCounter();  
 		} 
 
 	#if ( TIME_ENABLE == 1 )
