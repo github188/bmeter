@@ -36,9 +36,12 @@ unsigned int tick_100ms=0;
 unsigned int speed_buf[16];
 unsigned int vol_buf[28];
 unsigned int temp_buf[4];
+const unsigned int* BatStatus;
+
+#if ( TIME_ENABLE == 1 )
 unsigned char uart1_buf[16];
 unsigned char uart1_index=0;
-const unsigned int* BatStatus;
+#endif
 
 BIKE_STATUS bike;
 __no_init BIKE_CONFIG config;
@@ -365,7 +368,8 @@ void Light_Task(void)
 			case 0x08: 	bike.SpeedMode = 4; break;
 			default:	bike.SpeedMode = 0; break;
 		}
-		bike.Speed = (unsigned long)GetSpeed()*1000UL/config.SpeedScale;
+		bike.PHA_Speed = (unsigned long)GetSpeed();
+		bike.Speed = (unsigned long)bike.PHA_Speed*1000UL/config.SpeedScale + bike.Speed_dec;
 	}
 }
 
@@ -420,11 +424,12 @@ void InitConfig(void)
 		config.bike[2] != 'k' || 
 		config.bike[3] != 'e' || 
 		sum != config.Sum ){
+		config.SysVoltage 	= 60;
 		config.VolScale  	= 1000;
 		config.TempScale 	= 1000;
 		config.SpeedScale	= 1000;
+		config.YXT_SpeedScale= 1000;
 		config.Mile			= 0;
-		config.SysVoltage 	= 60;
 	}
 
 #ifdef LCD6040
@@ -432,7 +437,9 @@ void InitConfig(void)
 #else
 	bike.Mile = config.Mile;
 #endif
+#if ( TIME_ENABLE == 1 )
 	bike.HasTimer = 0;
+#endif
 	//bike.SpeedMode = SPEEDMODE_DEFAULT;
 	bike.YXTERR = 1;
 	bike.Speed_dec = 0;
@@ -627,7 +634,10 @@ unsigned char YXT_SpeedCaltTask(void)
 			if ( count >= 8 ){
 				bike.SpeedFlash = 1;
 				bike.Speed_dec = 0;
-				config.YXT_SpeedScale = 1000;
+				if ( bike.YXTERR )
+					config.SpeedScale = 1000;
+				else
+					config.YXT_SpeedScale = 1000;
 				pre_tick = Get_SysTick();
 				TaskFlag = TASK_STEP2;
 			}
@@ -648,7 +658,10 @@ unsigned char YXT_SpeedCaltTask(void)
 			if ( count >= 5 ){
 				TaskFlag = TASK_EXIT;
 				bike.SpeedFlash = 0;
-				config.YXT_SpeedScale = (unsigned int)bike.YXT_Speed*1000UL/(bike.YXT_Speed+bike.Speed_dec);
+				if ( bike.YXTERR )
+					config.SpeedScale = (unsigned int)bike.PHA_Speed*1000UL/(bike.PHA_Speed+bike.Speed_dec);
+				else
+					config.YXT_SpeedScale = (unsigned int)bike.YXT_Speed*1000UL/(bike.YXT_Speed+bike.Speed_dec);
 				bike.Speed_dec = 0;
 				WriteConfig();
 			}

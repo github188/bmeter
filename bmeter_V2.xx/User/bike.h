@@ -10,6 +10,7 @@
   * V2.12 - 20170916
   * 按9040_5535型仪表软件设置要求-0914.docx进行更改
   * 增加MileResetTask,YXT_SpeedCaltTask两个功能．
+  * 增加相电压速度时的调节功能，改下一线通电压时初始化的问题．
   * 
   * V2.11 - 20170909
   * 按9040_5535型仪表软件设置要求-0908.doc进行更改：
@@ -264,6 +265,7 @@ typedef struct {
 	unsigned char BatStatus;
 	unsigned char Energy;
 	unsigned char Speed;
+	unsigned char PHA_Speed;
 	unsigned char YXT_Speed;
 			 char Speed_dec;
 	unsigned char SpeedAdj;

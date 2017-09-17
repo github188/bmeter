@@ -66,10 +66,22 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[ 6] |= (SegDataMile [(bike->Mile/10	)%10]);
 	if ( bike->Mile >= 100 )  BL_Data[ 6] |= 0x08;  //S20
 	BL_Data[ 4] |= 0x10;  //S13
+	if ( bike->MileFlash ){
+		if ( flashflag < 5  ) {
+			BL_Data[ 5] = 0;
+			BL_Data[ 6] = 0;
+		}
+	}
 
 	/*************************** Speed Display**********************************/
 	BL_Data[ 1] |= (SegDataSpeed[ bike->Speed	 %10]);
 	BL_Data[ 0] |= (SegDataSpeed[(bike->Speed/10)%10]); 
+	if ( bike->SpeedFlash ){
+		if ( flashflag < 5  ) {
+			BL_Data[ 1] = 0;
+			BL_Data[ 0] = 0; 
+		}
+	}
 
 	/*************************** Mode Display**********************************/ 
 	switch (bike->SpeedMode){

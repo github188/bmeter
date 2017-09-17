@@ -131,6 +131,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 }
 #endif
 
+#if ( TIME_ENABLE == 1 )
 /**
   * @brief  UART1 RX Interrupt routine
   * @param  None
@@ -146,5 +147,6 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 	if ( uart1_index >= sizeof(uart1_buf) )
 		uart1_index = 0;
 }
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
