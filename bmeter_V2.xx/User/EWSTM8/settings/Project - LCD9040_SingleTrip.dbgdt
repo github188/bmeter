@@ -67,7 +67,7 @@
           
           
           
-        <item>SpeedScale</item><item>config.YXT_SpeedScale</item><item>bike.Speed</item><item>bike.Speed_dec</item><item>bike</item><item></item></expressions>
+        <item>SpeedScale</item><item>config.YXT_SpeedScale</item><item>bike.Speed</item><item>bike.Speed_dec</item><item>bike</item><item/></expressions>
         <col-names>
           
           

@@ -615,10 +615,9 @@ unsigned char YXT_SpeedCaltTask(void)
 	static unsigned int pre_tick=0;
 	static unsigned char TaskFlag = TASK_INIT;
 	static unsigned char lastLight = 0,lastSpeed = 0;
-	static unsigned char lastLeft = 0,lastRight = 0;
 	static unsigned char count = 0;
 	
-	if ( Get_ElapseTick(pre_tick) > 10000 | bike.Braked )
+	if ( Get_ElapseTick(pre_tick) > 5000 | bike.Braked )
 		TaskFlag = TASK_EXIT;
 
 	switch( TaskFlag ){
@@ -632,38 +631,48 @@ unsigned char YXT_SpeedCaltTask(void)
 		if ( lastLight == 0 && bike.NearLight){
 			count ++;
 			if ( count >= 8 ){
-				bike.SpeedFlash = 1;
-				bike.Speed_dec = 0;
-				if ( bike.YXTERR )
-					config.SpeedScale = 1000;
-				else
-					config.YXT_SpeedScale = 1000;
-				pre_tick = Get_SysTick();
 				TaskFlag = TASK_STEP2;
 			}
+			pre_tick = Get_SysTick();
 		}
 		lastLight = bike.NearLight;
 		break;
 	case TASK_STEP2:
-		if ( bike.TurnLeft == 0 ) {
+		if ( bike.TurnLeft == 0 && bike.TurnRight == 0 ) {
+			count = 0;
+			bike.SpeedFlash = 1;
+			bike.Speed_dec = 0;
+			if ( bike.YXTERR )
+				config.SpeedScale = 1000;
+			else
+				config.YXT_SpeedScale = 1000;
 			TaskFlag = TASK_STEP3;
 			pre_tick = Get_SysTick();
-			count = 0;
 		}
 		break;
 	case TASK_STEP3:
-		if ( lastLight == 0 && bike.NearLight){
+		if ( lastLight == 1 && bike.NearLight == 0 ){
 			pre_tick = Get_SysTick();
-			count ++;
-			if ( count >= 5 ){
-				TaskFlag = TASK_EXIT;
-				bike.SpeedFlash = 0;
-				if ( bike.YXTERR )
-					config.SpeedScale = (unsigned int)bike.PHA_Speed*1000UL/(bike.PHA_Speed+bike.Speed_dec);
-				else
-					config.YXT_SpeedScale = (unsigned int)bike.YXT_Speed*1000UL/(bike.YXT_Speed+bike.Speed_dec);
-				bike.Speed_dec = 0;
-				WriteConfig();
+			if ( bike.TurnLeft == 1 ) {
+				count = 0;
+				bike.Speed_dec --;
+			} else if ( bike.TurnRight == 1 ) {
+				count = 0;
+				bike.Speed_dec ++;
+			} else {
+				count ++;
+				if ( count >= 5 ){
+					TaskFlag = TASK_EXIT;
+					bike.SpeedFlash = 0;
+					if ( bike.Speed ){
+						if ( bike.YXTERR )
+							config.SpeedScale = (unsigned int)bike.PHA_Speed*1000UL/(bike.PHA_Speed+bike.Speed_dec);
+						else
+							config.YXT_SpeedScale = (unsigned int)bike.YXT_Speed*1000UL/(bike.YXT_Speed+bike.Speed_dec);
+						bike.Speed_dec = 0;
+						WriteConfig();
+					}
+				}
 			}
 		}
 		lastLight = bike.NearLight;
@@ -671,22 +680,9 @@ unsigned char YXT_SpeedCaltTask(void)
 		if ( lastSpeed && bike.Speed == 0 ){
 			TaskFlag = TASK_EXIT;
 		}
+		if ( bike.Speed )
+			pre_tick = Get_SysTick();
 		lastSpeed = bike.Speed;
-
-		if ( bike.Speed == 0 )
-			break;
-			
-		if ( bike.TurnLeft == 0 && lastLeft == 1 ) {
-			pre_tick = Get_SysTick();
-			bike.Speed_dec --;
-		} 
-		lastLeft = bike.TurnLeft;
-    
-		if ( bike.TurnRight == 0  && lastRight == 1 ) {
-			pre_tick = Get_SysTick();
-			bike.Speed_dec ++;
-		}		
-		lastRight = bike.TurnRight;
 		break;
 	case TASK_EXIT:
 	default:
@@ -1128,7 +1124,7 @@ void main(void)
 			bike.Energy     = count/10 + count/10*10UL;
 			#endif
 		#endif
-       
+	
 			MenuUpdate(&bike);
 			
 			/* Reload IWDG counter */

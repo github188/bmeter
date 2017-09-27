@@ -68,7 +68,7 @@ INTERRUPT_HANDLER(NonHandledInterrupt, 25)
 
 INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 {
-	static unsigned char  left_count=0,right_count=0;
+	static unsigned int left_count=0,right_count=0;
 
 	TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
 
@@ -86,27 +86,35 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 	// }
 	
 	if ( GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	) ){
-		if ( left_count < 100 ){
-			left_count++;
-		} else if ( left_count == 100 ){
-			left_count++;
-			bike.TurnLeft   = 1;
-		} 
-	} else if ( left_count-- == 0 ){
-		bike.TurnLeft = 0; 
-		left_count  = 0;
+		if ( left_count < 200 ){
+			left_count += 2;
+		} else if ( left_count < 1000 ){
+			left_count += 2;
+			bike.TurnLeft = 1;
+		} else {
+			left_count = 1000;
+		}
+	} else {
+		if ( left_count )
+			left_count --;
+		if ( left_count == 0 )
+			bike.TurnLeft = 0; 
 	}
 	
 	if ( GPIO_Read(TurnRight_PORT , TurnRight_PIN ) ){
-		if ( right_count < 100 ){
-			right_count++;
-		} else if ( right_count == 100 ){
-			right_count++;
-			bike.TurnRight  = 1;
+		if ( right_count < 200 ){
+			right_count += 2;
+		} else if ( right_count < 1000 ){
+			right_count += 2;
+			bike.TurnRight = 1;
+		} else {
+			right_count = 1000;
 		}
-	} else if ( right_count-- == 0 ){
-		bike.TurnRight = 0; 
-		right_count  = 0;
+	} else {
+		if ( right_count )
+			right_count --;
+		if ( right_count == 0 )
+			bike.TurnRight = 0; 
 	}	
 }
 
