@@ -1,3 +1,4 @@
+#include "stm8s.h"
 #include "bike.h"
 
 #if ( defined LCD9040 ) || ( defined LCD5535 )

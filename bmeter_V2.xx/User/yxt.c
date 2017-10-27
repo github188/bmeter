@@ -1,5 +1,5 @@
-#include "yxt.h"
 #include "stm8s.h"
+#include "yxt.h"
 
 
 unsigned char YXT_Buf[12];
@@ -89,15 +89,15 @@ void YXT_Tim_Receive(uint16_t duty)
 			PlusCode = YXT_Buf[10];
 		}
 		
-		YXT_Status[0] = YXT_Buf[2] - (((YXT_Buf[2] >> 4))*0x10);
+		//YXT_Status[0] = YXT_Buf[2] - (((YXT_Buf[2] >> 4))*0x10);
 		YXT_Status[1] = YXT_Buf[3] - PlusCode;
 		YXT_Status[2] = YXT_Buf[4] - PlusCode;
-		YXT_Status[3] = YXT_Buf[5] - PlusCode;
-		YXT_Status[4] = YXT_Buf[6];
+		//YXT_Status[3] = YXT_Buf[5] - PlusCode;
+		//YXT_Status[4] = YXT_Buf[6];
 		YXT_Status[5] = YXT_Buf[7] - PlusCode;
 		YXT_Status[6] = YXT_Buf[8] - PlusCode;
-		YXT_Status[7] = YXT_Buf[9] - PlusCode;
-		YXT_Status[8] = YXT_Buf[10]- PlusCode;
+		//YXT_Status[7] = YXT_Buf[9] - PlusCode;
+		//YXT_Status[8] = YXT_Buf[10]- PlusCode;
 		
 		YXT_Update = 1;
 	}
@@ -110,33 +110,33 @@ void YXT_Tim_Receive(uint16_t duty)
 void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 {
 	static unsigned int pre_tick=0;
-	unsigned long speed;
+	uint32_t speed;
 	
 	if ( YXT_Update ){
 		pre_tick = Get_SysTick();
-		bike->YXTERR = 0;
+		bike->bYXTERR = 0;
 
-		if ( (YXT_Status[1] & (1<<6)) )	bike->HallERR = 1; else bike->HallERR = 0;
-		if ( (YXT_Status[1] & (1<<5)) ) bike->WheelERR= 1; else bike->WheelERR= 0; 
-		if ( (YXT_Status[1] & (1<<4)) )	bike->ECUERR  = 1; else bike->ECUERR  = 0;
-	//	if ( (YXT_Status[1] & (1<<2)) )	bike->Cruise  = 1; else bike->Cruise  = 0;
-		if ( (YXT_Status[1] & (1<<0)) )	bike->PhaseERR= 1; else bike->PhaseERR= 0;
+		if ( (YXT_Status[1] & (1<<6)) )	bike->bHallERR = 1; else bike->bHallERR = 0;
+		if ( (YXT_Status[1] & (1<<5)) ) bike->bWheelERR= 1; else bike->bWheelERR= 0; 
+		if ( (YXT_Status[1] & (1<<4)) )	bike->bECUERR  = 1; else bike->bECUERR  = 0;
+	//	if ( (YXT_Status[1] & (1<<2)) )	bike->bCruise  = 1; else bike->bCruise  = 0;
+		if ( (YXT_Status[1] & (1<<0)) )	bike->bPhaseERR= 1; else bike->bPhaseERR= 0;
 
-		if ( (YXT_Status[2] & (1<<5)) )	bike->Braked  = 1; else bike->Braked  = 0;
+		if ( (YXT_Status[2] & (1<<5)) )	bike->bBraked  = 1; else bike->bBraked  = 0;
 	
-		bike->SpeedMode = ((YXT_Status[2]>>5)&0x04)|(YXT_Status[2]&0x03);
+		bike->ucSpeedMode = ((YXT_Status[2]>>5)&0x04)|(YXT_Status[2]&0x03);
 		speed = ((unsigned int )YXT_Status[5]<<8) | YXT_Status[6];
 		speed = speed*5/60;	//600->50Km/h
-		bike->YXT_Speed = speed;
-		bike->Speed = speed*1000UL/config->YXT_SpeedScale + bike->Speed_dec;
+		bike->ucYXT_Speed 	= speed;
+		bike->ucSpeed 		= speed*1000UL/config->uiYXT_SpeedScale;
 
 		YXT_Update = 0;  
 	} else if ( Get_ElapseTick(pre_tick) > 3000 ){
-		bike->YXTERR 	= 1;
-		bike->HallERR 	= 0;
-		bike->PhaseERR= 0;
-		bike->WheelERR 	= 0;
-		bike->ECUERR 	= 0;
+		bike->bYXTERR 	= 1;
+		bike->bHallERR 	= 0;
+		bike->bPhaseERR	= 0;
+		bike->bWheelERR = 0;
+		bike->bECUERR 	= 0;
 	}	
 }
 

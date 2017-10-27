@@ -44,9 +44,8 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
-extern volatile unsigned int    sys_tick;
-extern unsigned char uart1_buf[16];
-extern unsigned char uart1_index;
+extern unsigned char ucUart1Buf[16];
+extern unsigned char ucUart1Index;
 
 BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin);
 
@@ -68,12 +67,10 @@ INTERRUPT_HANDLER(NonHandledInterrupt, 25)
 
 INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 {
-	static unsigned int left_count=0,right_count=0;
-
 	TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
 
-	sys_tick++;
-	// if ( (sys_tick % 1000) == 0 ){
+	uiSysTick++;
+	// if ( (uiSysTick % 1000) == 0 ){
 		// //if ( ++bike.Second == 60 )
         // {
 			// bike.Second = 0;
@@ -85,37 +82,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 		// }
 	// }
 	
-	if ( GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	) ){
-		if ( left_count < 200 ){
-			left_count += 2;
-		} else if ( left_count < 1000 ){
-			left_count += 2;
-			bike.TurnLeft = 1;
-		} else {
-			left_count = 1000;
-		}
-	} else {
-		if ( left_count )
-			left_count --;
-		if ( left_count == 0 )
-			bike.TurnLeft = 0; 
-	}
-	
-	if ( GPIO_Read(TurnRight_PORT , TurnRight_PIN ) ){
-		if ( right_count < 200 ){
-			right_count += 2;
-		} else if ( right_count < 1000 ){
-			right_count += 2;
-			bike.TurnRight = 1;
-		} else {
-			right_count = 1000;
-		}
-	} else {
-		if ( right_count )
-			right_count --;
-		if ( right_count == 0 )
-			bike.TurnRight = 0; 
-	}	
+	LRFlashTask();
 }
 
 #if ( YXT_ENABLE == 1 )
@@ -151,9 +118,9 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 
   /* Read one byte from the receive data register and send it back */
   rx = (UART1_ReceiveData8() & 0x7F);
-  uart1_buf[uart1_index++] = rx;
-	if ( uart1_index >= sizeof(uart1_buf) )
-		uart1_index = 0;
+  ucUart1Buf[ucUart1Index++] = rx;
+	if ( ucUart1Index >= sizeof(ucUart1Buf) )
+		ucUart1Index = 0;
 }
 #endif
 
