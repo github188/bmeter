@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.21 - 20171102
+  * 增加参数设置单次里程功能，可以通过开关操作进行设置；
+  * 
   * V2.20 - 20171027
   * 统一清里程、速度设定的方法；兼容左右灯开关信号和闪光器信号；统一变量命名方式；
   * 
@@ -309,6 +312,7 @@ typedef struct {
 	uint16_t  	uiTempScale;
 	uint16_t  	uiSpeedScale;
 	uint16_t  	uiYXT_SpeedScale;
+	uint16_t  	uiSingleTrip;
 	uint32_t 	ulMile;
 	uint8_t 	ucSum;
 } BIKE_CONFIG,*pBIKE_CONFIG;

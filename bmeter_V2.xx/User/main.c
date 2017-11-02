@@ -424,12 +424,17 @@ void InitConfig(void)
 		//sConfig.ucBike[2] != 'k' || 
 		//sConfig.ucBike[3] != 'e' || 
 		sum != sConfig.ucSum ){
-		sConfig.uiSysVoltage = 60;
+		sConfig.uiSysVoltage 	= 60;
 		sConfig.uiVolScale  	= 1000;
 		sConfig.uiTempScale 	= 1000;
 		sConfig.uiSpeedScale	= 1000;
 		sConfig.uiYXT_SpeedScale= 1000;
-		sConfig.ulMile		= 0;
+#ifdef SINGLE_TRIP
+		sConfig.uiSingleTrip	= 1;
+#else
+		sConfig.uiSingleTrip	= 0;
+#endif
+		sConfig.ulMile			= 0;
 	}
 
 #ifdef LCD6040
@@ -440,6 +445,7 @@ void InitConfig(void)
 #if ( TIME_ENABLE == 1 )
 	sBike.bHasTimer = 0;
 #endif
+	sBike.ulFMile = 0;
 	//sBike.ucSpeedMode = SPEEDMODE_DEFAULT;
 	sBike.bYXTERR = 1;
 	
@@ -450,7 +456,7 @@ void InitConfig(void)
 		uint16_t uiVol;
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			//IWDG_ReloadCounter();  
+			IWDG_ReloadCounter();  
 		}
 		if ( 720 <= uiVol && uiVol <= 870 ){
 			sConfig.uiSysVoltage = 72;
@@ -463,7 +469,7 @@ void InitConfig(void)
 		uint16_t uiVol;
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			//IWDG_ReloadCounter();  
+			IWDG_ReloadCounter();  
 		}
 		if ( 610 <= uiVol && uiVol <= 720 ){
 			sConfig.uiSysVoltage = 60;
@@ -627,6 +633,7 @@ uint8_t MileResetTask(void)
 	static uint16_t uiPreTick=0;
 	static uint8_t TaskFlag = TASK_INIT;
 	static uint8_t ucCount = 0;
+	uint8_t ret = 1;
 	
    // if ( TaskFlag == TASK_EXIT )
    //     return 0;
@@ -642,31 +649,53 @@ uint8_t MileResetTask(void)
 		}
 		break;
 	case TASK_STEP1:
-		if ( sBike.bLastNear == 0 && sBike.bNearLight){
+		if ( sBike.bLastNear == 0 && sBike.bNearLight ){
 			uiPreTick = Get_SysTick();
 			if ( ++ucCount >= 8 ){
 				TaskFlag = TASK_STEP2;
 				sBike.bMileFlash = 1;
 				sBike.ulMile = sConfig.ulMile;
-			}
+			} 
 		}
 		sBike.bLastNear = sBike.bNearLight;
 		break;
 	case TASK_STEP2:
 		if ( sBike.bTurnRight == 0 && sBike.bTurnLeft == 1 ) {
+			ucCount = 0;
 			TaskFlag = TASK_EXIT;
 			sBike.ulFMile 	= 0;
 			sBike.ulMile 	= 0;
 			sConfig.ulMile 	= 0;
 			WriteConfig();
+		} else if ( sBike.bTurnRight == 0 && sBike.bTurnLeft == 0 ) {
+			if ( sBike.bLastNear == 0 && sBike.bNearLight){
+				uiPreTick = Get_SysTick();
+				if ( ++ucCount >= 4 ){
+					TaskFlag = TASK_EXIT;
+					if ( sConfig.uiSingleTrip ){
+						sConfig.uiSingleTrip = 0;
+						sBike.ulMile = 99999UL;
+					} else {
+						sConfig.uiSingleTrip = 1;
+						sBike.ulMile = 0;
+					}
+					WriteConfig();
+				}
+			}
 		}
+		sBike.bLastNear = sBike.bNearLight;
+		break;
+	case TASK_STEP3:
+		if ( Get_ElapseTick(uiPreTick) > 3000 )
+			TaskFlag = TASK_EXIT;
 		break;
 	case TASK_EXIT:
 	default:
 		sBike.bMileFlash = 0;
+		ret = 0;
 		break;
 	}
-	return 0;
+	return ret;
 }
 
 void MileTask(void)
@@ -674,13 +703,18 @@ void MileTask(void)
 	static uint16_t uiTime = 0;
 	uint8_t uiSpeed;
 	
+	if ( MileResetTask() )
+		return ;
+	
 	uiSpeed = sBike.ucSpeed;
 	if ( uiSpeed > DISPLAY_MAX_SPEED )
 		uiSpeed = DISPLAY_MAX_SPEED;
-	
-#ifdef SINGLE_TRIP
+
+//#ifdef SINGLE_TRIP
 	uiTime ++;
 	if ( uiTime < 20 ) {	//2s
+		if ( sConfig.uiSingleTrip == 0 )
+			uiTime = 51;
 		sBike.ulMile = sConfig.ulMile;
 	} else if ( uiTime < 50 ) { 	//5s
 		if ( uiSpeed ) {
@@ -690,7 +724,7 @@ void MileTask(void)
 	} else if ( uiTime == 50 ){
 		sBike.ulMile = 0;
 	} else 
-#endif	
+//#endif	
 	{
 		uiTime = 51;
 		
@@ -999,7 +1033,7 @@ void UartTask(void)
 		} else if ( ucUart1Index >= 5 && ucUart1Buf[0] == 'C' /*&& ucUart1Buf[1] == 'a' && ucUart1Buf[2] == 'l' && ucUart1Buf[3] == 'i' */){
 			for(i=0;i<0xFF;i++){
 				if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-				//IWDG_ReloadCounter();  
+				IWDG_ReloadCounter();  
 			}
 			sBike.uiVoltage	 = uiVol;
 			sBike.siTemperature = GetTemp();
@@ -1035,7 +1069,7 @@ void Calibration(void)
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			//IWDG_ReloadCounter();  
+			IWDG_ReloadCounter();  
 		}
 		sBike.uiVoltage		= uiVol;
 		//sBike.siTemperature= GetTemp();
@@ -1074,7 +1108,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 
 	Init_timer();  
 	HotReset();
@@ -1095,7 +1129,7 @@ void main(void)
 
 //	for(i=0;i<32;i++){	GetVol();	/*IWDG_ReloadCounter(); */ }
 //	for(i=0;i<16;i++){	GetSpeed();	/*IWDG_ReloadCounter(); */ }
-	for(i=0;i<4;i++) {	GetTemp();	/*IWDG_ReloadCounter(); */ }
+	for(i=0;i<4;i++) {	GetTemp();	IWDG_ReloadCounter(); }
 
 	InitConfig();
 	Calibration();
@@ -1122,7 +1156,7 @@ void main(void)
 	enableInterrupts();
 	
 	if ( sBike.bHotReset == 0 ) {
-		while ( Get_SysTick() < PON_ALLON_TIME ) /*IWDG_ReloadCounter()*/;
+		while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
 		BL55072_Config(0);
 	#if ( PCB_VER == 0041 )
 		GPIO_WriteHigh (TurnLeftOut_PORT	,TurnLeftOut_PIN);
@@ -1161,10 +1195,6 @@ void main(void)
 			Light_Task();
 			MileTask(); 
 			
-		#ifdef RESET_MILE_ENABLE	
-			MileResetTask();
-		#endif	
-		
 		#if ( YXT_ENABLE == 1 )
 			YXT_Task(&sBike,&sConfig);  
 		#endif
@@ -1191,7 +1221,7 @@ void main(void)
 			MenuUpdate(&sBike);
 			
 			/* Reload IWDG counter */
-			//IWDG_ReloadCounter();  
+			IWDG_ReloadCounter();  
 		} 
 
 	#if ( TIME_ENABLE == 1 )
