@@ -671,7 +671,7 @@ uint8_t MileResetTask(void)
 			if ( sBike.bLastNear == 0 && sBike.bNearLight){
 				uiPreTick = Get_SysTick();
 				if ( ++ucCount >= 4 ){
-					TaskFlag = TASK_EXIT;
+					TaskFlag = TASK_STEP3;
 					if ( sConfig.uiSingleTrip ){
 						sConfig.uiSingleTrip = 0;
 						sBike.ulMile = 99999UL;
@@ -775,36 +775,31 @@ uint8_t SpeedCaltTask(void)
 		sBike.bLastNear = sBike.bNearLight;
 		break;
 	case TASK_STEP2:
-        if ( sConfig.uiSysVoltage == 48 )
-			sBike.ucSpeed = 42;
-        else if ( sConfig.uiSysVoltage == 60 )
-			sBike.ucSpeed = 44;
-
-		if ( sBike.bLastLeft == 0 && sBike.bTurnLeft == 1 ) {
-			uiPreTick 	= Get_SysTick();
-			ucCount 	= 0;
-			if ( sBike.ucSpeed + ucSpeedInc )
-				ucSpeedInc --;
-		}
-        sBike.bLastLeft = sBike.bTurnLeft;
-
-        if ( sBike.bLastRight == 0 && sBike.bTurnRight == 1 ) {
-			uiPreTick 	= Get_SysTick();
-			ucCount 	= 0;
-			ucSpeedInc ++;
-        }
-        sBike.bLastRight = sBike.bTurnRight;
+        //if ( sConfig.uiSysVoltage == 48 )
+		//	sBike.ucSpeed = 42;
+        //else if ( sConfig.uiSysVoltage == 60 )
+		//	sBike.ucSpeed = 44;
         
 		if ( sBike.bLastNear == 0 && sBike.bNearLight == 1 ){
 			uiPreTick = Get_SysTick();
-			if ( ++ucCount >= 5 ){
-				TaskFlag = TASK_EXIT;
-				if ( sBike.ucSpeed ) {
-					if ( sBike.bYXTERR )
-						sConfig.uiSpeedScale 	 = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
-					else
-						sConfig.uiYXT_SpeedScale = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
-					WriteConfig();
+            if ( sBike.bTurnLeft == 1 ) {
+				count = 0;
+				if ( sBike.ucSpeed + ucSpeedInc > 1 )
+					ucSpeedInc --;
+	        } else if ( sBike.bTurnRight == 1 ) {
+				count = 0;
+                if ( sBike.ucSpeed + ucSpeedInc < 99 )
+					ucSpeedInc ++;
+            } else {
+				if ( ++ucCount >= 5 ){
+					TaskFlag = TASK_EXIT;
+					if ( sBike.ucSpeed ) {
+						if ( sBike.bYXTERR )
+							sConfig.uiSpeedScale 	 = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
+						else
+							sConfig.uiYXT_SpeedScale = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
+						WriteConfig();
+					}
 				}
 			}
 		}
