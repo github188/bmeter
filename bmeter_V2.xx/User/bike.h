@@ -7,6 +7,10 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.22 - 20171120
+  * 增加对9040基本版本2.0PCB的支持、JIKE13050版本的支持
+  * 增加相关设计文档
+  * 
   * V2.21 - 20171102
   * 增加参数设置单次里程功能，可以通过开关操作进行设置；
   * 
@@ -97,7 +101,7 @@
 //#define LCD9040
 //#define LCD9040_4860
 //#define LCD9040T
-//#define LCD8794GCT
+//#define JIKE13050
 //#define DENGGUAN_XUNYING		//DG55,BLSP55
 //#define DENGGUAN_XUNYING_T	//TDG55
 //#define BENLING_OUSHANG		//BL60_72
@@ -126,7 +130,8 @@
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined LCD9040
-	#define PCB_VER		0100
+	#define PCB_VER		0200
+	//#define PCB_VER		0100
 	//#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
@@ -186,9 +191,9 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
-#elif defined LCD8794GCT
+#elif defined JIKE13050
 	#define PCB_VER		0041
-	//#define LCD8794GCT
+	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
@@ -282,6 +287,8 @@ typedef struct {
 	uint8_t bHallERR	:1;
 	uint8_t bWheelERR	:1;
 	uint8_t bYXTERR		:1;
+	uint8_t bYXTECO		:1;
+	uint8_t bYXTRCHG	:1;
 	uint8_t bHasTimer	:1;
 	uint8_t bTimeSet	:1;
 	uint8_t bUart		:1;	
@@ -326,14 +333,41 @@ uint16_t Get_ElapseTick(uint16_t uiPreTick);
 void LRFlashTask(void);
 /******************************************************************************/
 
-#if ( PCB_VER == 0100 )
+#if ( PCB_VER == 0200 )
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
-	#define VMODE1_PORT		GPIOA
-	#define VMODE1_PIN		GPIO_PIN_2
-	#define VMODE2_PORT		GPIOD
-	#define VMODE2_PIN		GPIO_PIN_3
+	#define SPEEDV_ADJ_CH	ADC1_CHANNEL_4
+	#define SPEEDV_ADJ_SCH	ADC1_SCHMITTTRIG_CHANNEL4
+	
+	#define V72_PORT		GPIOD
+	#define V72_PIN			GPIO_PIN_5
+	#define V48_PORT		GPIOD
+	#define V48_PIN			GPIO_PIN_4
+
+	#define SPMODE1_PORT	GPIOA
+	#define SPMODE1_PIN		GPIO_PIN_3
+	#define SPMODE2_PORT	GPIOA
+	#define SPMODE2_PIN		GPIO_PIN_2
+	#define SPMODE3_PORT	GPIOA
+	#define SPMODE3_PIN		GPIO_PIN_1
+	//#define SPMODE4_PORT	GPIOA
+	//#define SPMODE4_PIN		GPIO_PIN_3
+	
+	#define NearLight_PORT	GPIOC
+	#define NearLight_PIN	GPIO_PIN_7
+	#define TurnRight_PORT	GPIOC
+	#define TurnRight_PIN	GPIO_PIN_3
+	#define TurnLeft_PORT	GPIOC
+	#define TurnLeft_PIN	GPIO_PIN_5
+#elif ( PCB_VER == 0100 )
+	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
+	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
+
+	#define V72_PORT		GPIOA
+	#define V72_PIN			GPIO_PIN_2
+	#define V48_PORT		GPIOD
+	#define V48_PIN			GPIO_PIN_3
 
 	#define SPMODE1_PORT	GPIOD
 	#define SPMODE1_PIN		GPIO_PIN_4
@@ -359,10 +393,10 @@ void LRFlashTask(void);
 	#define SPEEDV_ADJ_CH	ADC1_CHANNEL_4
 	#define SPEEDV_ADJ_SCH	ADC1_SCHMITTTRIG_CHANNEL4
 
-	#define VMODE1_PORT		GPIOD
-	#define VMODE1_PIN		GPIO_PIN_4
-	#define VMODE2_PORT		GPIOD
-	#define VMODE2_PIN		GPIO_PIN_5
+	#define V72_PORT		GPIOD
+	#define V72_PIN			GPIO_PIN_4
+	#define V48_PORT		GPIOD
+	#define V48_PIN			GPIO_PIN_5
 
 	#define SPMODE1_PORT	GPIOA
 	#define SPMODE1_PIN		GPIO_PIN_3
@@ -379,7 +413,7 @@ void LRFlashTask(void);
 	#define TurnRight_PIN	GPIO_PIN_3
 	#define TurnLeft_PORT	GPIOC
 	#define TurnLeft_PIN	GPIO_PIN_5
-#elif ( PCB_VER == 0041 )
+#elif ( PCB_VER == 0041 )	//for LCD8794GCT
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_5
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL5
 
@@ -407,6 +441,29 @@ void LRFlashTask(void);
 	#define TurnRightOut_PIN	GPIO_PIN_5
 	#define TurnLeftOut_PORT	GPIOD
 	#define TurnLeftOut_PIN		GPIO_PIN_1	
+#elif ( PCB_VER == 201745UL )	//for LCD8794GCT
+	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
+	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
+
+	#define SPEEDV_ADJ_CH	ADC1_CHANNEL_4
+	#define SPEEDV_ADJ_SCH	ADC1_SCHMITTTRIG_CHANNEL4
+
+	#define SPMODE1_PORT	GPIOA
+	#define SPMODE1_PIN		GPIO_PIN_3
+	#define SPMODE2_PORT	GPIOA
+	#define SPMODE2_PIN		GPIO_PIN_1
+	#define SPMODE3_PORT	GPIOA
+	#define SPMODE3_PIN		GPIO_PIN_2
+	
+	#define NearLight_PORT	GPIOC
+	#define NearLight_PIN	GPIO_PIN_7
+	#define TurnRight_PORT	GPIOD
+	#define TurnRight_PIN	GPIO_PIN_4
+	#define TurnLeft_PORT	GPIOC
+	#define TurnLeft_PIN	GPIO_PIN_3
+	
+	#define POut_PORT		GPIOC
+	#define POut_PIN		GPIO_PIN_5
 #endif
 
 /******************************************************************************/

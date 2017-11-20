@@ -9,10 +9,10 @@ unsigned char flashflag = 0;
 const unsigned char SegDataTime[10] 	= {0xFA,0x60,0xD6,0xF4,0x6C,0xBC,0xBE,0xE0,0xFE,0xFC};
 const unsigned char SegDataVoltage[10]	= {0x5F,0x50,0x3D,0x79,0x72,0x6B,0x6F,0x51,0x7F,0x7B};
 const unsigned char SegDataMile[10] 	= {0xAF,0xA0,0x6D,0xE9,0xE2,0xCB,0xCF,0xA1,0xEF,0xEB};
-const unsigned char SegDataMile2[10] 	= {0x5F,0x50,0x3D,0x79,0x72,0x6B,0x6F,0x51,0x7F,0x7B};
-const unsigned char SegDataSpeed[10] 	= {0x5F,0x50,0x3D,0x79,0x72,0x6B,0x6F,0x51,0x7F,0x7B};
-const unsigned char SegDataTemp[10] 	= {0xFA,0x60,0xD6,0xF4,0x6C,0xBC,0xBE,0xE0,0xFE,0xFC};
-const unsigned char SegDataEnergy[10] 	= {0x5F,0x50,0x3D,0x79,0x72,0x6B,0x6F,0x51,0x7F,0x7B};
+#define SegDataMile2 	SegDataVoltage
+#define SegDataSpeed 	SegDataVoltage
+#define SegDataTemp 	SegDataTime
+#define SegDataEnergy 	SegDataVoltage
 
 void MenuUpdate(BIKE_STATUS* bike)
 {
@@ -23,38 +23,23 @@ void MenuUpdate(BIKE_STATUS* bike)
 
 	for(i=0;i<18;i++) BL_Data[i] = 0x00;
 
-	GPIO_Init(TurnLeftOut_PORT, TurnLeftOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	
-    if ( bike->bLFlashType ){
-		if ( bike->bLeftFlash 	){
-			BL_Data[0x08] |= 0x01;	//S1
-			GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); 
-		} else
-			GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+#if ( PCB_VER != 201745UL	)
+	if ( bike->bLFlashType ){
+		if ( bike->bLeftFlash ) BL_Data[0x08] |= 0x01;	//S1
     } else {
-     	if ( bike->bLeftFlash 	&& flashflag >= 5 )	{
-			BL_Data[0x08] |= 0x01;	//S1
-			GPIO_WriteLow (TurnLeftOut_PORT,TurnLeftOut_PIN); 
-		} else
-			GPIO_WriteHigh(TurnLeftOut_PORT,TurnLeftOut_PIN);
+     	if ( bike->bLeftFlash && flashflag >= 5 ) BL_Data[0x08] |= 0x01;	//S1
     }
     if ( bike->bRFlashType ){
-		if ( bike->bRightFlash	){
-			BL_Data[0x0F] |= 0x04;	//S12
-			GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); 
-		} else
-			GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+		if ( bike->bRightFlash ) BL_Data[0x0F] |= 0x04;	//S12
     } else {
-     	if ( bike->bRightFlash && flashflag >= 5 ){
-			BL_Data[0x0F] |= 0x04;	//S12
-			GPIO_WriteLow (TurnRightOut_PORT,TurnRightOut_PIN); 
-		} else
-			GPIO_WriteHigh(TurnRightOut_PORT,TurnRightOut_PIN);
+     	if ( bike->bRightFlash && flashflag >= 5 ) BL_Data[0x0F] |= 0x04;	//S12
     }
+#endif
 	
-	if( bike->bCruise 	) BL_Data[0x0B] |= 0x20;	//S4
+	if( bike->bCruise 		) BL_Data[0x0B] |= 0x20;	//S4
 	if( bike->bNearLight	) BL_Data[0x0B] |= 0x10;	//S5
-#ifdef NearLightOut_PIN
+	
+#if ( PCB_VER != 201745UL	)
 	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
 	CFG->GCR = CFG_GCR_SWD;
 	#endif
@@ -63,12 +48,12 @@ void MenuUpdate(BIKE_STATUS* bike)
 #endif
 	
 	if( bike->bHallERR 	) BL_Data[0x0B] |= 0x80;	//S2	电机霍尔故障
-	if( bike->bWheelERR 	) BL_Data[0x0B] |= 0x40;	//S3	手把故障
+	if( bike->bWheelERR ) BL_Data[0x0B] |= 0x40;	//S3	手把故障
 	if( bike->bECUERR 	) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障
-//	if( bike->bPhaseERR  ) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
-	if( bike->bBraked  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
-//	if( bike->bYXTERR	) BL_Data[0x0E] |= 0x80;	//S6	ECO
-//	if( bike->bYXTERR	) BL_Data[0x0F] |= 0x80;	//S7	R
+//	if( bike->bPhaseERR ) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
+//	if( bike->bBraked  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
+	if( bike->bYXTERR	) BL_Data[0x0E] |= 0x80;	//S6	ECO
+	if( bike->bYXTERR	) BL_Data[0x0F] |= 0x80;	//S7	R
 
 	/***************************Battery Area Display**********************************/
 	BL_Data[0x06] |=  0x80; //T
@@ -124,6 +109,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[0x05] |= (SegDataVoltage[ bike->uiVoltage/10  %10]) | 0x80; //V
 	BL_Data[0x06] |= (SegDataVoltage[(bike->uiVoltage/100)%10]);
 
+#if 0	
 	/*************************** uiVoltage Energy**********************************/
 	BL_Data[0x0D] |= 0x80; //S15
 	BL_Data[0x0C] |= (SegDataEnergy[ bike->ucEnergy%10]	 )&0x0F;
@@ -131,6 +117,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Data[0x0B] |= (SegDataEnergy[(bike->ucEnergy/10)%10])&0x0F; 
 	BL_Data[0x0C] |= (SegDataEnergy[(bike->ucEnergy/10)%10])&0xF0; 
 	if ( bike->ucEnergy == 100 ) BL_Data[0x0C] |= 0x80; //S14
+#endif
 
 	/*************************** ulMile Display**********************************/  
 	BL_Data[0x00] |= (SegDataMile2[ bike->ulMile		 %10]) | 0x80;	//S17

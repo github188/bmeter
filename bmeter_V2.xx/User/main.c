@@ -481,34 +481,34 @@ void InitConfig(void)
 	#elif defined BENLING_ZHONGSHA
 		sConfig.uiSysVoltage = 72;
 	#elif (defined OUJUN) || (defined OUPAINONG_6072)
-		//GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
-		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+		//GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
+		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
 			sConfig.uiSysVoltage = 72;
 		} else {
 			sConfig.uiSysVoltage = 60;
 		}
 	#elif defined OUPAINONG_4860
-		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
 			sConfig.uiSysVoltage = 48;
 		} else {
 			sConfig.uiSysVoltage = 60;
 		}
 	#elif defined LCD9040_4860
-		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
 			sConfig.uiSysVoltage = 60;
 		} else {
 			sConfig.uiSysVoltage = 48;
 		}
 	#else
-		GPIO_Init(VMODE1_PORT, VMODE1_PIN, GPIO_MODE_IN_PU_NO_IT);
-		GPIO_Init(VMODE2_PORT, VMODE2_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(VMODE1_PORT, VMODE1_PIN) == RESET ){
+		GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
+		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+		if ( GPIO_ReadInputPin(V72_PORT, V72_PIN) == RESET ){
 			sConfig.uiSysVoltage = 72;
 		} else {
-			if ( GPIO_ReadInputPin(VMODE2_PORT, VMODE2_PIN) == RESET ){
+			if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
 				sConfig.uiSysVoltage = 48;
 			} else {
 				sConfig.uiSysVoltage = 60;
@@ -534,6 +534,7 @@ uint8_t GetuiBatStatus(uint16_t uiVol)
 	return i;
 }
 
+#if 0
 #ifdef LCD8794GCT
 
 const uint16_t BatEnergy48[8] = {420,490};
@@ -560,7 +561,7 @@ uint8_t GetBatEnergy(uint16_t uiVol)
 	return uiEnergy;
 }
 #endif
-
+#endif
 
 #define READ_TURN_LEFT()		GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
 #define READ_TURN_RIGHT()		GPIO_Read(TurnRight_PORT , TurnRight_PIN )
@@ -686,8 +687,14 @@ uint8_t MileResetTask(void)
 		sBike.bLastNear = sBike.bNearLight;
 		break;
 	case TASK_STEP3:
-		if ( Get_ElapseTick(uiPreTick) > 3000 )
+		if ( Get_ElapseTick(uiPreTick) > 3000 ) {
 			TaskFlag = TASK_EXIT;
+			if ( sConfig.uiSingleTrip )
+				sBike.ulMile = 0;
+			else
+				sBike.ulMile = sConfig.ulMile;
+			sBike.bMileFlash = 0;
+		}
 		break;
 	case TASK_EXIT:
 	default:
@@ -772,7 +779,9 @@ uint8_t SpeedCaltTask(void)
 			}
 			uiPreTick = Get_SysTick();
 		}
-		sBike.bLastNear = sBike.bNearLight;
+		sBike.bLastNear  = sBike.bNearLight;
+        sBike.bLastLeft  = sBike.bTurnLeft;
+        sBike.bLastRight = sBike.bTurnRight;
 		break;
 	case TASK_STEP2:
         //if ( sConfig.uiSysVoltage == 48 )
@@ -783,11 +792,11 @@ uint8_t SpeedCaltTask(void)
 		if ( sBike.bLastNear == 0 && sBike.bNearLight == 1 ){
 			uiPreTick = Get_SysTick();
             if ( sBike.bTurnLeft == 1 ) {
-				count = 0;
+				ucCount = 0;
 				if ( sBike.ucSpeed + ucSpeedInc > 1 )
 					ucSpeedInc --;
 	        } else if ( sBike.bTurnRight == 1 ) {
-				count = 0;
+				ucCount = 0;
                 if ( sBike.ucSpeed + ucSpeedInc < 99 )
 					ucSpeedInc ++;
             } else {
@@ -1184,7 +1193,7 @@ void main(void)
 			}
 			sBike.ucBatStatus= GetuiBatStatus(sBike.uiVoltage);
 		#ifdef LCD8794GCT
-			sBike.ucEnergy 	= GetBatEnergy(sBike.uiVoltage);
+			//sBike.ucEnergy 	= GetBatEnergy(sBike.uiVoltage);
 		#endif
 		
 			Light_Task();
@@ -1209,7 +1218,7 @@ void main(void)
 			sBike.ucHour       	= uiCount/10 + uiCount/10*10;
 			sBike.ucMinute     	= uiCount/10 + uiCount/10*10;
 			#ifdef LCD8794GCT
-			sBike.ucEnergy     	= uiCount/10 + uiCount/10*10UL;
+			//sBike.ucEnergy     	= uiCount/10 + uiCount/10*10UL;
 			#endif
 		#endif
 	
