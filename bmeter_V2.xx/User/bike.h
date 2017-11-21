@@ -116,6 +116,10 @@
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
 
+// uiSpeed*5V*21/1024/fullV*fullSpeed
+#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/*/
+#define SPEED_CALC_60V(uiSpeed) uiSpeed*1925UL/8192UL	/*30V->55KM/H*/
+#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/8192UL	/*36V->55KM/H*/
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100
@@ -123,12 +127,23 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
+
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_48V
+	#undef	SPEED_CALC_60V
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*301UL /2048UL	/*30V->43KM/H*/
 #elif defined JINPENG_6072
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_60V
+	#undef	SPEED_CALC_72V
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
 #elif defined LCD9040
 	#define PCB_VER		0200
 	//#define PCB_VER		0100
@@ -161,12 +176,26 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_48V
+	#undef	SPEED_CALC_60V
+	#undef	SPEED_CALC_72V
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL	/*30V->55KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
 #elif defined DENGGUAN_XUNYING_T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  0
 	#undef  RESET_MILE_ENABLE
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_48V
+	#undef	SPEED_CALC_60V
+	#undef	SPEED_CALC_72V
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL	/*30V->55KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
 #elif defined BENLING_OUSHANG
 	#define PCB_VER		0100
 	#define LCD9040
@@ -203,12 +232,22 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_48V
+	#undef	SPEED_CALC_60V
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*57750UL/242688UL	/*23.7V->55KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*63000UL/258048UL	/*25.2V->60KM/H*/
 #elif defined OUPAINONG_6072
 	#define PCB_VER		0100
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
+	// uiSpeed*5V*21/1024/fullV*fullSpeed
+	#undef	SPEED_CALC_60V
+	#undef	SPEED_CALC_72V
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
 #elif defined OUPAINONG_ADJ_4860
 	#define PCB_VER		0013
 	#define LCD5535
@@ -465,6 +504,9 @@ void LRFlashTask(void);
 	#define POut_PORT		GPIOC
 	#define POut_PIN		GPIO_PIN_5
 #endif
+
+#define READ_TURN_LEFT()	GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
+#define READ_TURN_RIGHT()	GPIO_Read(TurnRight_PORT, TurnRight_PIN )
 
 /******************************************************************************/
 

@@ -82,7 +82,8 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 		// }
 	// }
 	
-	LRFlashTask();
+	if ( (uiSysTick % 10) == 0)
+		LRFlashTask();
 }
 
 #if ( YXT_ENABLE == 1 )
