@@ -91,10 +91,6 @@
         <configuration>STM8S208</configuration>
       </member>
       <member>
-        <project>Project - LCD8794GCT</project>
-        <configuration>STM8S208</configuration>
-      </member>
-      <member>
         <project>Project - OUJUN</project>
         <configuration>STM8S208</configuration>
       </member>
@@ -116,6 +112,10 @@
       </member>
       <member>
         <project>Project - LCD9040_SingleTrip</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - JIKE13050</project>
         <configuration>STM8S208</configuration>
       </member>
     </batchDefinition>
