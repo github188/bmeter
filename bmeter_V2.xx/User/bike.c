@@ -61,6 +61,183 @@ uint8_t ucUart1Index=0;
 
 /*----------------------------------------------------------*/
 
+int GetTemp(void)
+{
+	static uint8_t ucIndex = 0;
+	int32_t slTemp;
+	uint8_t i;
+
+	//GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
+	//ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_6, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL6 ,\
+				DISABLE);
+	ADC1_Cmd(ENABLE);
+	Delay(1000);
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	slTemp = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+  
+	uiTempBuf[ucIndex++] = slTemp;
+	if ( ucIndex >= ContainOf(uiTempBuf) )
+		ucIndex = 0;
+	for(i=0,slTemp=0;i<ContainOf(uiTempBuf);i++)
+		slTemp += uiTempBuf[i];
+	slTemp /= ContainOf(uiTempBuf);
+
+	//slTemp = 470UL*1024/(1024-slTemp)-470;
+	//slTemp = NTCtoTemp(slTemp)/10;
+	//slTemp = ((3600- (long)slTemp * 2905/1024)/10);
+
+	slTemp = 10000*1024UL/(1024-slTemp)-10000;
+	slTemp = NTCtoTemp(slTemp);
+	if ( slTemp > 999  ) slTemp =  999;
+	if ( slTemp < -999 ) slTemp = -999;
+	
+	return slTemp;
+}
+#if 0
+uint16_t GetVol(void)
+{
+	static uint8_t ucIndex = 0;
+	uint16_t uiVol;
+	uint8_t i;
+
+	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+				DISABLE);
+	ADC1_Cmd(ENABLE);
+	Delay(5000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	uiVol = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+
+	uiVolBuf[ucIndex++] = uiVol;
+	if ( ucIndex >= ContainOf(uiVolBuf) )
+		ucIndex = 0;
+	for(i=0,uiVol=0;i<ContainOf(uiVolBuf);i++)
+		uiVol += uiVolBuf[i];
+	uiVol /= ContainOf(uiVolBuf);
+	uiVol = (uint32_t)uiVol*1050/1024 ;
+	
+	return uiVol;
+}
+#else
+uint8_t GetVolStabed(uint16_t* uiVol)
+{
+	uint32_t ulMid;
+	uint16_t uiBuf[32];
+	uint8_t i;
+	
+	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	//ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+				DISABLE);
+
+	ADC1_Cmd(ENABLE);
+	for(i=0;i<32;i++){
+		Delay(500);  
+		ADC1_StartConversion(); 
+		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+		uiBuf[i] = ADC1_GetConversionValue();
+	}
+	ADC1_Cmd(DISABLE);
+	
+	*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
+
+	for(i=0,ulMid=0;i<32;i++)	ulMid += uiBuf[i];
+	ulMid /= 32;
+	for( i=0;i<32;i++){
+		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 ||  (ulMid *100 / uiBuf[i]) < 99) )
+			return 0;
+	}
+	
+	return 1;
+}
+
+#endif
+
+#if ( PCB_VER == 0013 )
+uint8_t GetSpeedAdj(void)
+{
+	static uint8_t ucIndex = 0;
+	uint16_t uiAdj;
+	uint8_t i;
+
+	ADC1_DeInit();  
+	ADC1_Init(	ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADJ_CH, ADC1_PRESSEL_FCPU_D2,\
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADJ_SCH,DISABLE);
+
+	ADC1_Cmd(ENABLE);
+	Delay(1000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	uiAdj = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+  	
+	uiSpeedBuf[ucIndex++] = uiAdj;
+	if ( ucIndex >= ContainOf(uiSpeedBuf) )
+		ucIndex = 0;
+
+	for(i=0,uiAdj=0;i<ContainOf(uiSpeedBuf);i++)
+		uiAdj += uiSpeedBuf[i];
+	uiAdj /= ContainOf(uiSpeedBuf);
+	
+	if ( uiAdj > 99 )
+		uiAdj = 99;
+	
+  return uiAdj;
+}
+#endif
+
+uint8_t GetSpeed(void)
+{
+	static uint8_t ucIndex = 0;
+	uint16_t uiSpeed;
+	uint8_t i;
+
+	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
+	//ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+			ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
+			DISABLE);
+
+	ADC1_Cmd(ENABLE);
+	Delay(1000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	uiSpeed = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+  	
+	uiSpeedBuf[ucIndex++] = uiSpeed;
+	if ( ucIndex >= ContainOf(uiSpeedBuf) )
+		ucIndex = 0;
+
+	for(i=0,uiSpeed=0;i<ContainOf(uiSpeedBuf);i++)
+		uiSpeed += uiSpeedBuf[i];
+	uiSpeed /= ContainOf(uiSpeedBuf);
+	
+	if ( sConfig.uiSysVoltage		== 48 ){
+		uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
+	} else if ( sConfig.uiSysVoltage== 60 ) {
+		uiSpeed = SPEED_CALC_60V((uint32_t)uiSpeed);
+	} else if ( sConfig.uiSysVoltage== 72 )	{
+		uiSpeed = SPEED_CALC_72V((uint32_t)uiSpeed);
+	}
+	if ( uiSpeed > 99 )
+		uiSpeed = 99;
+	
+  return uiSpeed;
+}
+
+/*----------------------------------------------------------*/
+
+
 uint16_t Get_SysTick(void)
 {
 	uint16_t uiTick;
@@ -80,6 +257,39 @@ uint16_t Get_ElapseTick(uint16_t uiPreTick)
 		return (uiTick - uiPreTick); 
 	else 
 		return (0xFFFF - uiPreTick + uiTick);
+}
+
+const int32_t NTC_B3450[29][2] = 
+{
+	251783,	-400,	184546,	-350,	137003,	-300,	102936,	-250,	78219,	-200,
+	60072,	-150,	46601,	-100,	36495,	-50,	28837,	0,		22980,	50,
+	18460,	100,	14942,	150,	12182,	200,	10000,	250,	8263,	300,
+	6869,	350,	5745,	400,	4832,	450,	4085,	500,	3472,	550,
+	2965,	600,	2544,	650,	2193,	700,	1898,	750,	1649,	800,
+	1439,	850,	1260,	900,	1108,	950,	977,	1000
+};
+
+int32_t NTCtoTemp(int32_t ntc)
+{
+	uint8_t i,j;
+
+	if ( ntc > NTC_B3450[0][0] ){
+		return NTC_B3450[0][1];
+	} else {
+		for(i=0;i<sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1;i++){
+			if ( ntc <= NTC_B3450[i][0] && ntc > NTC_B3450[i+1][0] )
+				break;
+		}
+		if ( i == sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1 ){
+			return NTC_B3450[28][1];
+		} else {
+			for(j=0;j<50;j++){
+				if ( NTC_B3450[i][0] - (j*(NTC_B3450[i][0] - NTC_B3450[i+1][0])/50) <= ntc )
+					return NTC_B3450[i][1] + j;
+			}
+			return NTC_B3450[i+1][1];
+		}
+	}
 }
 
 void HotReset(void)
@@ -151,7 +361,7 @@ void InitConfig(void)
 uint8_t GetBatStatus(uint16_t uiVol)
 {
 	uint8_t i;
-	int16_t const * uiBatStatus;
+	const uint16_t *uiBatStatus;
 
 	switch ( sConfig.uiSysVoltage ){
 	case 48:uiBatStatus = uiBatStatus48;break;
@@ -194,38 +404,6 @@ uint8_t GetBatEnergy(uint16_t uiVol)
 #endif
 #endif
 
-const int32_t NTC_B3450[29][2] = 
-{
-	251783,	-400,	184546,	-350,	137003,	-300,	102936,	-250,	78219,	-200,
-	60072,	-150,	46601,	-100,	36495,	-50,	28837,	0,		22980,	50,
-	18460,	100,	14942,	150,	12182,	200,	10000,	250,	8263,	300,
-	6869,	350,	5745,	400,	4832,	450,	4085,	500,	3472,	550,
-	2965,	600,	2544,	650,	2193,	700,	1898,	750,	1649,	800,
-	1439,	850,	1260,	900,	1108,	950,	977,	1000
-};
-
-int32_t NTCtoTemp(int32_t ntc)
-{
-	uint8_t i,j;
-
-	if ( ntc > NTC_B3450[0][0] ){
-		return NTC_B3450[0][1];
-	} else {
-		for(i=0;i<sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1;i++){
-			if ( ntc <= NTC_B3450[i][0] && ntc > NTC_B3450[i+1][0] )
-				break;
-		}
-		if ( i == sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1 ){
-			return NTC_B3450[28][1];
-		} else {
-			for(j=0;j<50;j++){
-				if ( NTC_B3450[i][0] - (j*(NTC_B3450[i][0] - NTC_B3450[i+1][0])/50) <= ntc )
-					return NTC_B3450[i][1] + j;
-			}
-			return NTC_B3450[i+1][1];
-		}
-	}
-}
 
 
 void LRFlashTask(void)
@@ -296,7 +474,7 @@ uint8_t MileResetTask(void)
 	static uint16_t uiPreTick=0;
 	static uint8_t TaskFlag = TASK_INIT;
 	static uint8_t ucCount = 0;
-	uint8_t ret = 1;
+	uint8_t ret=0;
 	
     if ( TaskFlag == TASK_EXIT )
         return 0;
@@ -316,11 +494,13 @@ uint8_t MileResetTask(void)
 			uiPreTick = Get_SysTick();
 			if ( ++ucCount >= 8 ){
 				TaskFlag = TASK_STEP2;
+				ucCount = 0;
 				sBike.bMileFlash = 1;
 				sBike.ulMile = sConfig.ulMile;
 			} 
 		}
 		sBike.bLastNear = sBike.bNearLight;
+		ret = 1;
 		break;
 	case TASK_STEP2:
 		if ( sBike.bTurnRight == 0 && sBike.bTurnLeft == 1 ) {
@@ -348,6 +528,7 @@ uint8_t MileResetTask(void)
 			}
 		}
 		sBike.bLastNear = sBike.bNearLight;
+		ret = 1;
 		break;
 	case TASK_STEP3:
 		if ( Get_ElapseTick(uiPreTick) > 3000 ) {
@@ -358,6 +539,7 @@ uint8_t MileResetTask(void)
 				sBike.ulMile = sConfig.ulMile;
 			sBike.bMileFlash = 0;
 		}
+		ret = 1;
 		break;
 	case TASK_EXIT:
 	default:
@@ -365,6 +547,7 @@ uint8_t MileResetTask(void)
 		ret = 0;
 		break;
 	}
+	
 	return ret;
 }
 
@@ -417,7 +600,8 @@ uint8_t SpeedCaltTask(void)
 	static uint8_t TaskFlag = TASK_INIT;
 	static uint8_t ucLastSpeed = 0;
 	static uint8_t ucCount = 0;
-    static signed char ucSpeedInc=0;
+    static signed char cSpeedInc=0;
+	static uint8_t yxterr=0;
 	
     if ( TaskFlag == TASK_EXIT )
       	return 0;
@@ -437,14 +621,17 @@ uint8_t SpeedCaltTask(void)
 			if ( ++ucCount >= 8 ){
 				TaskFlag = TASK_STEP2;
 				ucCount 	= 0;
-				ucSpeedInc 	= 0;
+				cSpeedInc 	= 0;
 				sBike.bSpeedFlash = 1;
+				yxterr = sBike.bYXTERR;
+				if ( yxterr )
+					sConfig.uiSpeedScale 	 = 1000;
+				else
+					sConfig.uiYXT_SpeedScale = 1000;
 			}
 			uiPreTick = Get_SysTick();
 		}
 		sBike.bLastNear  = sBike.bNearLight;
-        sBike.bLastLeft  = sBike.bTurnLeft;
-        sBike.bLastRight = sBike.bTurnRight;
 		break;
 	case TASK_STEP2:
         //if ( sConfig.uiSysVoltage == 48 )
@@ -456,21 +643,21 @@ uint8_t SpeedCaltTask(void)
 			uiPreTick = Get_SysTick();
             if ( sBike.bTurnLeft == 1 ) {
 				ucCount = 0;
-				if ( sBike.ucSpeed + ucSpeedInc > 1 )
-					ucSpeedInc --;
+				if ( sBike.ucSpeed + cSpeedInc > 1 )
+					cSpeedInc --;
 	        } else if ( sBike.bTurnRight == 1 ) {
 				ucCount = 0;
-                if ( sBike.ucSpeed + ucSpeedInc < 99 )
-					ucSpeedInc ++;
+                if ( sBike.ucSpeed + cSpeedInc < 99 )
+					cSpeedInc ++;
             } else {
 				if ( ++ucCount >= 5 ){
 					TaskFlag = TASK_EXIT;
 					sBike.bSpeedFlash = 0;
 					if ( sBike.ucSpeed ) {
-						if ( sBike.bYXTERR )
-							sConfig.uiSpeedScale 	 = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
+						if ( yxterr )
+							sConfig.uiSpeedScale 	 = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+cSpeedInc);
 						else
-							sConfig.uiYXT_SpeedScale = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+ucSpeedInc);
+							sConfig.uiYXT_SpeedScale = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+cSpeedInc);
 						WriteConfig();
 					}
 				}
@@ -485,7 +672,7 @@ uint8_t SpeedCaltTask(void)
 		if ( sBike.ucSpeed )
 			uiPreTick = Get_SysTick();
 
-        sBike.ucSpeed += ucSpeedInc;
+        sBike.ucSpeed += cSpeedInc;
 		ucLastSpeed = sBike.ucSpeed;
 		break;
 	case TASK_EXIT:
@@ -664,186 +851,6 @@ void TimeTask(void)
 #endif 
 /*----------------------------------------------------------*/
 
-int GetTemp(void)
-{
-	static uint8_t ucIndex = 0;
-	int32_t slTemp;
-	uint8_t i;
-
-	//GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
-	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_6, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL6 ,\
-				DISABLE);
-	ADC1_Cmd(ENABLE);
-	Delay(1000);
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	slTemp = ADC1_GetConversionValue();
-	ADC1_Cmd(DISABLE);
-  
-	uiTempBuf[ucIndex++] = slTemp;
-	if ( ucIndex >= ContainOf(uiTempBuf) )
-		ucIndex = 0;
-	for(i=0,slTemp=0;i<ContainOf(uiTempBuf);i++)
-		slTemp += uiTempBuf[i];
-	slTemp /= ContainOf(uiTempBuf);
-
-	//slTemp = 470UL*1024/(1024-slTemp)-470;
-	//slTemp = NTCtoTemp(slTemp)/10;
-	//slTemp = ((3600- (long)slTemp * 2905/1024)/10);
-
-	slTemp = 10000*1024UL/(1024-slTemp)-10000;
-	slTemp = NTCtoTemp(slTemp);
-	if ( slTemp > 999  ) slTemp =  999;
-	if ( slTemp < -999 ) slTemp = -999;
-	
-	return slTemp;
-}
-#if 0
-uint16_t GetVol(void)
-{
-	static uint8_t ucIndex = 0;
-	uint16_t uiVol;
-	uint8_t i;
-
-	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
-	ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
-				DISABLE);
-	ADC1_Cmd(ENABLE);
-	Delay(5000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiVol = ADC1_GetConversionValue();
-	ADC1_Cmd(DISABLE);
-
-	uiVolBuf[ucIndex++] = uiVol;
-	if ( ucIndex >= ContainOf(uiVolBuf) )
-		ucIndex = 0;
-	for(i=0,uiVol=0;i<ContainOf(uiVolBuf);i++)
-		uiVol += uiVolBuf[i];
-	uiVol /= ContainOf(uiVolBuf);
-	uiVol = (uint32_t)uiVol*1050/1024 ;
-	
-	return uiVol;
-}
-#else
-uint8_t GetVolStabed(uint16_t* uiVol)
-{
-	uint32_t ulMid;
-	uint16_t uiBuf[32];
-	uint8_t i;
-	
-	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
-	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
-				DISABLE);
-
-	ADC1_Cmd(ENABLE);
-	for(i=0;i<32;i++){
-		Delay(500);  
-		ADC1_StartConversion(); 
-		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-		uiBuf[i] = ADC1_GetConversionValue();
-	}
-	ADC1_Cmd(DISABLE);
-	
-	*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
-
-	for(i=0,ulMid=0;i<32;i++)	ulMid += uiBuf[i];
-	ulMid /= 32;
-	for( i=0;i<32;i++){
-		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 ||  (ulMid *100 / uiBuf[i]) < 99) )
-			return 0;
-	}
-	
-	return 1;
-}
-
-#endif
-
-#if ( PCB_VER == 0013 )
-uint8_t GetSpeedAdj(void)
-{
-	static uint8_t ucIndex = 0;
-	uint16_t uiAdj;
-	uint8_t i;
-
-	ADC1_DeInit();  
-	ADC1_Init(	ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADJ_CH, ADC1_PRESSEL_FCPU_D2,\
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADJ_SCH,DISABLE);
-
-	ADC1_Cmd(ENABLE);
-	Delay(1000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiAdj = ADC1_GetConversionValue();
-	ADC1_Cmd(DISABLE);
-  	
-	uiSpeedBuf[ucIndex++] = uiAdj;
-	if ( ucIndex >= ContainOf(uiSpeedBuf) )
-		ucIndex = 0;
-
-	for(i=0,uiAdj=0;i<ContainOf(uiSpeedBuf);i++)
-		uiAdj += uiSpeedBuf[i];
-	uiAdj /= ContainOf(uiSpeedBuf);
-	
-	if ( uiAdj > 99 )
-		uiAdj = 99;
-	
-  return uiAdj;
-}
-#endif
-
-uint8_t GetSpeed(void)
-{
-	static uint8_t ucIndex = 0;
-	uint16_t uiSpeed;
-	uint8_t i;
-
-	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
-	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
-			ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
-			DISABLE);
-
-	ADC1_Cmd(ENABLE);
-	Delay(1000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiSpeed = ADC1_GetConversionValue();
-	ADC1_Cmd(DISABLE);
-  	
-	uiSpeedBuf[ucIndex++] = uiSpeed;
-	if ( ucIndex >= ContainOf(uiSpeedBuf) )
-		ucIndex = 0;
-
-	for(i=0,uiSpeed=0;i<ContainOf(uiSpeedBuf);i++)
-		uiSpeed += uiSpeedBuf[i];
-	uiSpeed /= ContainOf(uiSpeedBuf);
-	
-	if ( sConfig.uiSysVoltage		== 48 ){
-		uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
-	} else if ( sConfig.uiSysVoltage== 60 ) {
-		uiSpeed = SPEED_CALC_60V((uint32_t)uiSpeed);
-	} else if ( sConfig.uiSysVoltage== 72 )	{
-		uiSpeed = SPEED_CALC_72V((uint32_t)uiSpeed);
-	}
-	if ( uiSpeed > 99 )
-		uiSpeed = 99;
-	
-  return uiSpeed;
-}
-
-BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
-{
-	GPIO_Init(GPIOx, GPIO_Pin, GPIO_MODE_IN_FL_NO_IT);
-	return GPIO_ReadInputPin(GPIOx, GPIO_Pin);
-}
-
 void Light_Task(void)
 {
 	uint8_t ucSpeedMode;
@@ -981,6 +988,7 @@ void Calibration(void)
 		WriteConfig();
 	}
 	
+#if ( TIME_ENABLE == 1 )
 	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
@@ -993,6 +1001,7 @@ void Calibration(void)
 		sBike.bUart = 1;
 	} else
 		sBike.bUart = 0;
+#endif
 
 	CFG->GCR &= ~CFG_GCR_SWD;
 }
@@ -1058,15 +1067,13 @@ void main(void)
 			if ( (uiCount % 5) == 0 ) {
 				if ( GetVolStabed(&uiVol) ){
 					sBike.uiVoltage = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
-					sBike.ucBatStatus= GetuiBatStatus(sBike.uiVoltage);
+					sBike.ucBatStatus= GetBatStatus(sBike.uiVoltage);
 				}
 			}
 			if ( (uiCount % 10) == 0 ){
-				if ( sBike.bUart == 0 ){
 				//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
 					sBike.siTemperature= GetTemp();
 				}
-			}
 		#ifdef LCD8794GCT
 			//sBike.ucEnergy 	= GetBatEnergy(sBike.uiVoltage);
 		#endif

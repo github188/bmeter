@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.23 - 20171122
+  * 改正左右转信号检测问题，MileResetTask问题，修改程序结构；
+  * 
   * V2.22 - 20171120
   * 增加对9040基本版本2.0PCB的支持、JIKE13050版本的支持
   * 增加相关设计文档
@@ -117,7 +120,7 @@
 //#define LCD_SEG_TEST
 
 // uiSpeed*5V*21/1024/fullV*fullSpeed
-#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/*/
+#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
 #define SPEED_CALC_60V(uiSpeed) uiSpeed*1925UL/8192UL	/*30V->55KM/H*/
 #define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/8192UL	/*36V->55KM/H*/
 
@@ -309,8 +312,6 @@ typedef struct {
     uint8_t bRightFlash	:1;	
     uint8_t bTurnLeft	:1;
     uint8_t bTurnRight	:1;
-    uint8_t bLastLeft	:1;
-    uint8_t bLastRight	:1;
 
 	uint8_t bHotReset	:1;	
 	uint8_t bNearLight	:1;
@@ -507,6 +508,7 @@ void LRFlashTask(void);
 
 #define READ_TURN_LEFT()	GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
 #define READ_TURN_RIGHT()	GPIO_Read(TurnRight_PORT, TurnRight_PIN )
+#define FEED_DOG()			IWDG_ReloadCounter()
 
 /******************************************************************************/
 
