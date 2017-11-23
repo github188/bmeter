@@ -388,72 +388,68 @@ void InitConfig(void)
 	sBike.ucSpeedMode = 0;
 	sBike.bYXTERR = 1;
 	
-#if ( PCB_VER == 0041 )
-	sConfig.uiSysVoltage = 60;
-#else
-	#if defined BENLING_OUSHANG
-		uint16_t uiVol;
-		for(i=0;i<0xFF;i++){
-			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			IWDG_ReloadCounter();  
-		}
-		if ( 720 <= uiVol && uiVol <= 870 ){
-			sConfig.uiSysVoltage = 72;
-			WriteConfig();
-		} else if ( 480 <= uiVol && uiVol <= 600 ){
-			sConfig.uiSysVoltage = 60;
-			WriteConfig();
-		}
-	#elif defined BENLING_BL48_60
-		uint16_t uiVol;
-		for(i=0;i<0xFF;i++){
-			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			IWDG_ReloadCounter();  
-		}
-		if ( 610 <= uiVol && uiVol <= 720 ){
-			sConfig.uiSysVoltage = 60;
-			WriteConfig();
-		}	else if ( 360 <= uiVol && uiVol <= 500 ){
-			sConfig.uiSysVoltage = 48;
-			WriteConfig();
-		}		
-	#elif defined BENLING_ZHONGSHA
+#if defined BENLING_OUSHANG
+	uint16_t uiVol;
+	for(i=0;i<0xFF;i++){
+		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
+		IWDG_ReloadCounter();  
+	}
+	if ( 720 <= uiVol && uiVol <= 870 ){
 		sConfig.uiSysVoltage = 72;
-	#elif (defined OUJUN) || (defined OUPAINONG_6072)
-		//GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
-		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
-			sConfig.uiSysVoltage = 72;
-		} else {
-			sConfig.uiSysVoltage = 60;
-		}
-	#elif defined OUPAINONG_4860
-		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+		WriteConfig();
+	} else if ( 480 <= uiVol && uiVol <= 600 ){
+		sConfig.uiSysVoltage = 60;
+		WriteConfig();
+	}
+#elif defined BENLING_BL48_60
+	uint16_t uiVol;
+	for(i=0;i<0xFF;i++){
+		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
+		IWDG_ReloadCounter();  
+	}
+	if ( 610 <= uiVol && uiVol <= 720 ){
+		sConfig.uiSysVoltage = 60;
+		WriteConfig();
+	}	else if ( 360 <= uiVol && uiVol <= 500 ){
+		sConfig.uiSysVoltage = 48;
+		WriteConfig();
+	}		
+#elif defined BENLING_ZHONGSHA
+	sConfig.uiSysVoltage = 72;
+#elif (defined OUJUN) || (defined OUPAINONG_6072)
+	//GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
+	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+		sConfig.uiSysVoltage = 72;
+	} else {
+		sConfig.uiSysVoltage = 60;
+	}
+#elif defined OUPAINONG_4860 || defined JIKE13050
+	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+		sConfig.uiSysVoltage = 48;
+	} else {
+		sConfig.uiSysVoltage = 60;
+	}
+#elif defined LCD9040_4860
+	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+		sConfig.uiSysVoltage = 60;
+	} else {
+		sConfig.uiSysVoltage = 48;
+	}
+#else
+	GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
+	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
+	if ( GPIO_ReadInputPin(V72_PORT, V72_PIN) == RESET ){
+		sConfig.uiSysVoltage = 72;
+	} else {
 		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
 			sConfig.uiSysVoltage = 48;
 		} else {
 			sConfig.uiSysVoltage = 60;
 		}
-	#elif defined LCD9040_4860
-		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
-			sConfig.uiSysVoltage = 60;
-		} else {
-			sConfig.uiSysVoltage = 48;
-		}
-	#else
-		GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
-		GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-		if ( GPIO_ReadInputPin(V72_PORT, V72_PIN) == RESET ){
-			sConfig.uiSysVoltage = 72;
-		} else {
-			if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
-				sConfig.uiSysVoltage = 48;
-			} else {
-				sConfig.uiSysVoltage = 60;
-			}
-		}
-	#endif
+	}
 #endif
 }
 

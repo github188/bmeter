@@ -155,7 +155,8 @@
 	#define YXT_ENABLE  1				
 	#define RESET_MILE_ENABLE
 #elif defined LCD9040_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0200
+//	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
@@ -224,7 +225,7 @@
 	#define YXT_ENABLE  1
 	#define RESET_MILE_ENABLE
 #elif defined JIKE13050
-	#define PCB_VER		0041
+	#define PCB_VER		201745UL
 	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
@@ -487,6 +488,9 @@ void LRFlashTask(void);
 
 	#define SPEEDV_ADJ_CH	ADC1_CHANNEL_4
 	#define SPEEDV_ADJ_SCH	ADC1_SCHMITTTRIG_CHANNEL4
+
+	#define V48_PORT		GPIOD
+	#define V48_PIN			GPIO_PIN_5
 
 	#define SPMODE1_PORT	GPIOA
 	#define SPMODE1_PIN		GPIO_PIN_3

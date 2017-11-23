@@ -491,7 +491,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>LCD9040_4860.HEX</state>
+          <state>9040_P200_Vxxx_4860.HEX</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

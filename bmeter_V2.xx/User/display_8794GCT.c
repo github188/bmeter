@@ -52,8 +52,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	if( bike->bECUERR 	) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障
 //	if( bike->bPhaseERR ) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
 //	if( bike->bBraked  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
-	if( bike->bYXTERR	) BL_Data[0x0E] |= 0x80;	//S6	ECO
-	if( bike->bYXTERR	) BL_Data[0x0F] |= 0x80;	//S7	R
+	if( bike->bYXTECO	) BL_Data[0x0E] |= 0x80;	//S6	ECO
+	if( bike->bYXTRCHG	) BL_Data[0x0F] |= 0x80;	//S7	R
 
 	/***************************Battery Area Display**********************************/
 	BL_Data[0x06] |=  0x80; //T
