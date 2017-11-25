@@ -115,14 +115,25 @@
 //#define OUPAINONG_6072		//LCD9040_6072
 //#define OUPAINONG_ADJ_4860	//LCD9040ADJ_4860
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
+/******************************************************************************/
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
 
+#define VOL_CALIBRATIOIN	600UL	//60.0V
+#define TEMP_CALIBRATIOIN	250UL	//25.0C
+#define SPEED_CALIBRATIOIN	30UL	//30km/h
+
+#define PON_ALLON_TIME		2000UL	//1000ms
+
+#define DISPLAY_MAX_SPEED	45UL	//40km/h
+#define SPEEDMODE_DEFAULT	1		//1档
+/******************************************************************************/
+
 // uiSpeed*5V*21/1024/fullV*fullSpeed
 #define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
-#define SPEED_CALC_60V(uiSpeed) uiSpeed*1925UL/8192UL	/*30V->55KM/H*/
-#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/8192UL	/*36V->55KM/H*/
+#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL;	/*30V->55KM/H*/
+#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
 
 #ifdef JINPENG_4860
 	#define PCB_VER		0100
@@ -285,6 +296,7 @@
 #ifndef YXT_ENABLE
 	#define YXT_ENABLE      1				
 #endif
+/******************************************************************************/
 
 #define ContainOf(x) (sizeof(x)/sizeof(x[0]))
 
@@ -296,14 +308,6 @@
 #define TASK_EXIT	0xFF
 
 /******************************************************************************/
-#define VOL_CALIBRATIOIN	600UL	//60.0V
-#define TEMP_CALIBRATIOIN	250UL	//25.0C
-#define SPEED_CALIBRATIOIN	30UL	//30km/h
-
-#define PON_ALLON_TIME		2000UL	//1000ms
-
-#define DISPLAY_MAX_SPEED	45UL	//40km/h
-#define SPEEDMODE_DEFAULT	1		//1档
 
 /******************************************************************************/
 typedef struct {
@@ -313,15 +317,17 @@ typedef struct {
     uint8_t bRightFlash	:1;	
     uint8_t bTurnLeft	:1;
     uint8_t bTurnRight	:1;
-
-	uint8_t bHotReset	:1;	
 	uint8_t bNearLight	:1;
 	uint8_t bLastNear	:1;
+
+	uint8_t bHotReset	:1;	
 	uint8_t bBraked		:1;
 	uint8_t bCruise		:1;
     uint8_t bLcdFresh	:1;
 	uint8_t bMileFlash	:1;	
 	uint8_t bSpeedFlash	:1;	
+	uint8_t bHasTimer	:1;
+	uint8_t bTimeSet	:1;
     
 	uint8_t bECUERR		:1;
 	uint8_t bPhaseERR	:1;
@@ -330,8 +336,6 @@ typedef struct {
 	uint8_t bYXTERR		:1;
 	uint8_t bYXTECO		:1;
 	uint8_t bYXTRCHG	:1;
-	uint8_t bHasTimer	:1;
-	uint8_t bTimeSet	:1;
 	uint8_t bUart		:1;	
     
 	uint8_t 	ucSpeedMode;
