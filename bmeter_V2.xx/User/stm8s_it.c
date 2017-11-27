@@ -47,7 +47,6 @@
 extern unsigned char ucUart1Buf[16];
 extern unsigned char ucUart1Index;
 
-BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin);
 
 #ifdef _COSMIC_
 /**

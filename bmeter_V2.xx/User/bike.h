@@ -7,6 +7,10 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.26 - 20171128
+  * 修改一线通函数每次调用后都更新速度，解决一线通状态下速度调整时闪烁的问题；
+  * 改正了相电压状态下速度调整时显示异常的问题；
+  * 
   * V2.25 - 20171127
   * 增加软件版本配置信息，当程序检测到版本不一致时清空配置信息；
   * 修改系统电压功能为预定义模式；
@@ -129,23 +133,21 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
-#define VERSION			225UL
+#define VERSION			226UL
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
 
 #define VOL_CALIBRATIOIN	600UL	//60.0V
 #define TEMP_CALIBRATIOIN	250UL	//25.0C
-#define SPEED_CALIBRATIOIN	30UL	//30km/h
 
 #define PON_ALLON_TIME		2000UL	//1000ms
 
 #define DISPLAY_MAX_SPEED	45UL	//40km/h
-#define SPEEDMODE_DEFAULT	1		//1档
 /******************************************************************************/
 
 #if defined LCD9040
-	#define PCB_VER		0200
+	#define PCB_VER		0100
 	//#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
@@ -415,7 +417,7 @@ void LRFlashTask(void);
 	#define SPMODE3_PORT	GPIOA
 	#define SPMODE3_PIN		GPIO_PIN_1
 	//#define SPMODE4_PORT	GPIOA
-	//#define SPMODE4_PIN		GPIO_PIN_3
+	//#define SPMODE4_PIN	GPIO_PIN_3
 	
 	#define NearLight_PORT	GPIOC
 	#define NearLight_PIN	GPIO_PIN_7
