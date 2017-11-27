@@ -190,8 +190,7 @@
         <option>
           <name>CCDefines</name>
           <state>STM8S003</state>
-          <state>LCD9040</state>
-          <state>SINGLE_TRIP</state>
+          <state>LCD9040_ST</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -492,7 +491,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>9040_P200_Vxxx_SingleTrip.hex</state>
+          <state>LCD9040_P200_Vxxx_ST.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

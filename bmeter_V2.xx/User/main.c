@@ -262,6 +262,9 @@ uint8_t GetSpeed(void)
   return uiSpeed;
 }
 
+/*----------------------------------------------------------*/
+
+
 uint16_t Get_SysTick(void)
 {
 	uint16_t uiTick;
@@ -341,6 +344,7 @@ void WriteConfig(void)
 	sConfig.ucBike[1] = 'i';
 	sConfig.ucBike[2] = 'k';
 	sConfig.ucBike[3] = 'e';
+	sConfig.uiVersion = VERSION;
 	for(sConfig.ucSum=0,i=0;i<sizeof(BIKE_CONFIG)-1;i++)
 		sConfig.ucSum += cbuf[i];
 		
@@ -366,6 +370,7 @@ void InitConfig(void)
 		//sConfig.ucBike[1] != 'i' || 
 		//sConfig.ucBike[2] != 'k' || 
 		//sConfig.ucBike[3] != 'e' || 
+		sConfig.uiVersion 	!= VERSION || 
 		sum != sConfig.ucSum ){
 		sConfig.uiSysVoltage 	= 60;
 		sConfig.uiVolScale  	= 1000;
@@ -401,7 +406,7 @@ void InitConfig(void)
 		sConfig.uiSysVoltage = 60;
 		WriteConfig();
 	}
-#elif defined BENLING_BL48_60
+#elif defined VD61723650
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
 		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
@@ -414,42 +419,42 @@ void InitConfig(void)
 		sConfig.uiSysVoltage = 48;
 		WriteConfig();
 	}		
-#elif defined BENLING_ZHONGSHA
+#elif defined VD48
+	sConfig.uiSysVoltage = 48;
+#elif defined VD60
+	sConfig.uiSysVoltage = 60;
+#elif defined VD72
 	sConfig.uiSysVoltage = 72;
-#elif (defined OUJUN) || (defined OUPAINONG_6072)
-	//GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
-	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+#elif defined VD48N72L
+	if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
 		sConfig.uiSysVoltage = 72;
 	} else {
 		sConfig.uiSysVoltage = 60;
 	}
-#elif defined OUPAINONG_4860 || defined JIKE13050
-	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+#elif defined VD48L72N
+	if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
 		sConfig.uiSysVoltage = 48;
 	} else {
 		sConfig.uiSysVoltage = 60;
 	}
-#elif defined LCD9040_4860
-	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-	if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+#elif defined VD48H72N
+	if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
 		sConfig.uiSysVoltage = 60;
 	} else {
 		sConfig.uiSysVoltage = 48;
 	}
-#else
-	GPIO_Init(V72_PORT, V72_PIN, GPIO_MODE_IN_PU_NO_IT);
-	GPIO_Init(V48_PORT, V48_PIN, GPIO_MODE_IN_PU_NO_IT);
-	if ( GPIO_ReadInputPin(V72_PORT, V72_PIN) == RESET ){
+#elif defined VD72L48L
+	if ( GPIO_Read(V72_PORT, V72_PIN) == RESET ){
 		sConfig.uiSysVoltage = 72;
 	} else {
-		if ( GPIO_ReadInputPin(V48_PORT, V48_PIN) == RESET ){
+		if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
 			sConfig.uiSysVoltage = 48;
 		} else {
 			sConfig.uiSysVoltage = 60;
 		}
 	}
+#else
+	#error "Please select a system voltage detection method!!!"
 #endif
 }
 

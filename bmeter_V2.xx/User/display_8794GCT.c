@@ -51,7 +51,7 @@ void MenuUpdate(BIKE_STATUS* bike)
 	if( bike->bWheelERR ) BL_Data[0x0B] |= 0x40;	//S3	手把故障
 	if( bike->bECUERR 	) BL_Data[0x0F] |= 0x01;	//S7 	电机控制器故障
 //	if( bike->bPhaseERR ) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
-//	if( bike->bBraked  	) BL_Data[0x0F] |= 0x02;	//S11	电机缺相故障
+	if( bike->bBraked  	) BL_Data[0x0F] |= 0x02;	//S11	刹车故障
 	if( bike->bYXTECO	) BL_Data[0x0E] |= 0x80;	//S6	ECO
 	if( bike->bYXTRCHG	) BL_Data[0x0F] |= 0x80;	//S7	R
 

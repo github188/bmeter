@@ -491,7 +491,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>LCD_JINPENG_6072.HEX</state>
+          <state>9040_P200_Vxxx_JINPENG_6072.HEX</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

@@ -35,7 +35,13 @@
     <path>$WS_DIR$\Project - LCD9040_4860.ewp</path>
   </project>
   <project>
+    <path>$WS_DIR$\Project - LCD9040_JP_45KM.ewp</path>
+  </project>
+  <project>
     <path>$WS_DIR$\Project - LCD9040_SingleTrip.ewp</path>
+  </project>
+  <project>
+    <path>$WS_DIR$\Project - LCD9040_VD48H72N_ST.ewp</path>
   </project>
   <project>
     <path>$WS_DIR$\Project - LCD9040T.ewp</path>

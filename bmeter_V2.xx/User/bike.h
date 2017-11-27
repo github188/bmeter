@@ -7,6 +7,14 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.25 - 20171127
+  * 增加软件版本配置信息，当程序检测到版本不一致时清空配置信息；
+  * 修改系统电压功能为预定义模式；
+  * 增加PCB200的发行版本；
+  * 
+  * V2.24 - 20171125
+  * 改正速度修正的问题；
+  * 
   * V2.23 - 20171122
   * 改正左右转信号检测问题，MileResetTask问题，修改程序结构；
   * 
@@ -98,6 +106,10 @@
 
 /******************************************************************************/
 //release define
+//#define LCD9040
+//#define LCD9040_VD48H72L_ST
+//#define LCD9040_VD48H72N_ST
+//#define LCD9040_JP_45KM
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define LCD6040
@@ -117,6 +129,8 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
+#define VERSION			225UL
+
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
 
@@ -130,137 +144,127 @@
 #define SPEEDMODE_DEFAULT	1		//1档
 /******************************************************************************/
 
-// uiSpeed*5V*21/1024/fullV*fullSpeed
-#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
-#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL;	/*30V->55KM/H*/
-#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
+#if defined LCD9040
+	#define PCB_VER		0200
+	//#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define VD72L48L	
+#elif defined LCD9040_ST
+	#define PCB_VER		0200
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1	
+	#define VD72L48L	
+	#define SINGLE_TRIP
+#elif defined LCD9040_VD48H72N_ST
+	#define PCB_VER		0200
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1	
+	#define VD48H72N	
+	#define SINGLE_TRIP
+#elif defined LCD9040_JP_45KM
+	#define PCB_VER		0200
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1	
+	#define VD72L48L	
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*525UL /4096UL	/*36V->45KM/H*/
+#elif defined JIKE13050
+	#define PCB_VER		201745UL
+	#define LCD8794GCT
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1
+	#define VD48L72N	
 
-#ifdef JINPENG_4860
+#elif JINPENG_4860
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
-
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_48V
-	#undef	SPEED_CALC_60V
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*301UL /2048UL	/*30V->43KM/H*/
+	#define YXT_ENABLE  1	
+	#define VD48L72N
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
 #elif defined JINPENG_6072
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_60V
-	#undef	SPEED_CALC_72V
+	#define YXT_ENABLE  1
+	#define VD48N72L	
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
 	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
-#elif defined LCD9040
-	#define PCB_VER		0200
-	//#define PCB_VER		0100
-	//#define LCD9040
-	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
 #elif defined LCD9040_4860
-	#define PCB_VER		0200
-//	#define PCB_VER		0100
+	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
+	#define YXT_ENABLE  1	
+	#define VD48H72L	
 	#define SINGLE_TRIP
 #elif defined LCD9040T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  1				
-	#undef RESET_MILE_ENABLE
+	#define VD72L48L	
 #elif defined LCD6040
 	#define PCB_VER		0100
 	//#define LCD6040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
+	#define VD72L48L	
 #elif defined DENGGUAN_XUNYING
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_48V
-	#undef	SPEED_CALC_60V
-	#undef	SPEED_CALC_72V
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL	/*30V->55KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
+	#define VD72L48L	
 #elif defined DENGGUAN_XUNYING_T
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  0
-	#undef  RESET_MILE_ENABLE
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_48V
-	#undef	SPEED_CALC_60V
-	#undef	SPEED_CALC_72V
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL	/*30V->55KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
+	#define VD72L48L	
 #elif defined BENLING_OUSHANG
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
+	#define VD72L48L	
 #elif defined BENLING_BL48_60
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
+	#define VD72L48L	
 #elif defined BENLING_ZHONGSHA
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
+	#define VD72
 #elif defined OUJUN
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
-#elif defined JIKE13050
-	#define PCB_VER		201745UL
-	#define LCD8794GCT
-	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1
-	#define RESET_MILE_ENABLE
+	#define VD48N72L
 #elif defined OUPAINONG_4860
 	#define PCB_VER		0100
 	#define LCD5535
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_48V
-	#undef	SPEED_CALC_60V
+	#define YXT_ENABLE  1		
+	#define VD48L72N	
 	#define SPEED_CALC_48V(uiSpeed) uiSpeed*57750UL/242688UL	/*23.7V->55KM/H*/
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*63000UL/258048UL	/*25.2V->60KM/H*/
 #elif defined OUPAINONG_6072
 	#define PCB_VER		0100
 	#define LCD5535
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
-	// uiSpeed*5V*21/1024/fullV*fullSpeed
-	#undef	SPEED_CALC_60V
-	#undef	SPEED_CALC_72V
+	#define YXT_ENABLE  1	
+	#define VD48N72L	
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
 	#define SPEED_CALC_72V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
 #elif defined OUPAINONG_ADJ_4860
@@ -268,13 +272,13 @@
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
+	#define VD72L48L	
 #elif defined OUPAINONG_ADJ_6072
 	#define PCB_VER		0013
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
-	#define RESET_MILE_ENABLE
+	#define VD72L48L	
 #else
 	#error "Please select a release!!!"
 #endif
@@ -296,9 +300,22 @@
 #ifndef YXT_ENABLE
 	#define YXT_ENABLE      1				
 #endif
+
+// uiSpeed*5V*21/1024/fullV*fullSpeed
+#ifndef SPEED_CALC_48V
+#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
+#endif
+
+#ifndef SPEED_CALC_60V
+#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL;	/*30V->55KM/H*/
+#endif
+
+#ifndef SPEED_CALC_72V
+#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
+#endif
+
 /******************************************************************************/
 
-#define ContainOf(x) (sizeof(x)/sizeof(x[0]))
 
 #define TASK_INIT	0
 #define TASK_STEP1	1
@@ -359,6 +376,7 @@ typedef struct {
 	
 typedef struct {
 	uint8_t 	ucBike[4];
+	uint16_t	uiVersion;
 	uint16_t  	uiSysVoltage;
 	uint16_t  	uiVolScale;
 	uint16_t  	uiTempScale;
@@ -514,6 +532,7 @@ void LRFlashTask(void);
 	#define POut_PIN		GPIO_PIN_5
 #endif
 
+#define ContainOf(x) 		(sizeof(x)/sizeof(x[0]))
 #define READ_TURN_LEFT()	GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
 #define READ_TURN_RIGHT()	GPIO_Read(TurnRight_PORT, TurnRight_PIN )
 #define FEED_DOG()			IWDG_ReloadCounter()

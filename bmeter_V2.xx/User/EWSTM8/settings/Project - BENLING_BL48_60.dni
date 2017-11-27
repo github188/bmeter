@@ -8,6 +8,9 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
+[SfrWindow]
+Show=1 1
+Sort=4 0
 [InterruptLog]
 LogEnabled=0
 SumEnabled=0
