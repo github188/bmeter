@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.27 - 20171128
+  * 增加RESET_CONFIGA功能，去掉程序检测到版本不一致时清空配置信息的功能；
+  *
   * V2.26 - 20171128
   * 修改一线通函数每次调用后都更新速度，解决一线通状态下速度调整时闪烁的问题；
   * 改正了相电压状态下速度调整时显示异常的问题；
@@ -133,10 +136,11 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
-#define VERSION			226UL
+#define SW_VER				227UL
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
+//#define RESET_CONFIG
 
 #define VOL_CALIBRATIOIN	600UL	//60.0V
 #define TEMP_CALIBRATIOIN	250UL	//25.0C

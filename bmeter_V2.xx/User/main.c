@@ -68,7 +68,7 @@ static void IWDG_Config(void)
   IWDG_SetReload(0xFF);
   
   /* Reload IWDG counter */
-  IWDG_ReloadCounter();
+  FEED_DOG();
 }
 
 void Init_timer(void)
@@ -344,7 +344,7 @@ void WriteConfig(void)
 	sConfig.ucBike[1] = 'i';
 	sConfig.ucBike[2] = 'k';
 	sConfig.ucBike[3] = 'e';
-	sConfig.uiVersion = VERSION;
+	sConfig.uiVersion = SW_VER;
 	for(sConfig.ucSum=0,i=0;i<sizeof(BIKE_CONFIG)-1;i++)
 		sConfig.ucSum += cbuf[i];
 		
@@ -353,6 +353,22 @@ void WriteConfig(void)
 
 	//Delay(5000);
 	FLASH_Lock(FLASH_MEMTYPE_DATA);
+}
+
+void ResetConfig(void)
+{
+	sConfig.uiSysVoltage 	= 60;
+	sConfig.uiVolScale  	= 1000;
+	sConfig.uiTempScale 	= 1000;
+	sConfig.uiSpeedScale	= 1000;
+	sConfig.uiYXT_SpeedScale= 1000;
+#ifdef SINGLE_TRIP
+	sConfig.uiSingleTrip	= 1;
+#else
+	sConfig.uiSingleTrip	= 0;
+#endif
+	sConfig.ulMile			= 0;
+	WriteConfig();
 }
 
 void InitConfig(void)
@@ -370,20 +386,9 @@ void InitConfig(void)
 		sConfig.ucBike[1] 	!= 'i' || 
 		sConfig.ucBike[2] 	!= 'k' || 
 		sConfig.ucBike[3] 	!= 'e' || 
-		sConfig.uiVersion 	!= VERSION || 
+		//sConfig.uiVersion 	!= SW_VER || 
 		sum != sConfig.ucSum ){
-		sConfig.uiSysVoltage 	= 60;
-		sConfig.uiVolScale  	= 1000;
-		sConfig.uiTempScale 	= 1000;
-		sConfig.uiSpeedScale	= 1000;
-		sConfig.uiYXT_SpeedScale= 1000;
-#ifdef SINGLE_TRIP
-		sConfig.uiSingleTrip	= 1;
-#else
-		sConfig.uiSingleTrip	= 0;
-#endif
-		sConfig.ulMile			= 0;
-		WriteConfig();
+		ResetConfig();
 	}
 
 	sBike.ulMile = sConfig.ulMile;
@@ -398,7 +403,7 @@ void InitConfig(void)
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
 		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-		IWDG_ReloadCounter();  
+		FEED_DOG();  
 	}
 	if ( 720 <= uiVol && uiVol <= 870 ){
 		sConfig.uiSysVoltage = 72;
@@ -411,7 +416,7 @@ void InitConfig(void)
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
 		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-		IWDG_ReloadCounter();  
+		FEED_DOG();  
 	}
 	if ( 610 <= uiVol && uiVol <= 720 ){
 		sConfig.uiSysVoltage = 60;
@@ -1022,7 +1027,7 @@ void UartTask(void)
 		} else if ( ucUart1Index >= 5 && ucUart1Buf[0] == 'C' /*&& ucUart1Buf[1] == 'a' && ucUart1Buf[2] == 'l' && ucUart1Buf[3] == 'i' */){
 			for(i=0;i<0xFF;i++){
 				if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-				IWDG_ReloadCounter();  
+				FEED_DOG();  
 			}
 			sBike.uiVoltage	 	= uiVol;
 			sBike.siTemperature = GetTemp();
@@ -1057,34 +1062,18 @@ void Calibration(void)
 	}
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
-			if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
-			IWDG_ReloadCounter();  
+			if ( GetVolStabed(&uiVol) && (uiVol > 500) ) break;
+			FEED_DOG();  
 		}
 		sBike.uiVoltage		= uiVol;
 		//sBike.siTemperature= GetTemp();
 		//sBike.ucSpeed		= GetSpeed();
 
-		sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;		//60.00V
+		sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;	//60.00V
 		//sConfig.TempScale	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
-		//sConfig.uiSpeedScale = (uint32_t)sBike.ucSpeed*1000UL/SPEED_CALIBRATIOIN;	//30km/h
 		//sConfig.ulMile = 0;
 		WriteConfig();
 	}
-
-#if ( TIME_ENABLE == 1 )
-	for(i=0;i<32;i++){
-		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
-		Delay(1000);
-		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN) ) break;
-		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
-		Delay(1000);
-		if( GPIO_Read(SPMODE2_PORT	, SPMODE2_PIN)  == RESET ) break;
-	}
-	if ( i == 32 ){
-		sBike.bUart = 1;
-	} else
-		sBike.bUart = 0;
-#endif
 
 	CFG->GCR &= ~CFG_GCR_SWD;
 }
@@ -1118,10 +1107,16 @@ void main(void)
 	#endif
 	} else
 		BL55072_Config(0);
+	
+#ifdef RESET_CONFIG
+	ResetConfig();
+	BL55072_Config(2);
+	while(1){ FEED_DOG(); }
+#else
 
-//	for(i=0;i<32;i++){	GetVol();	/*IWDG_ReloadCounter(); */ }
-//	for(i=0;i<16;i++){	GetSpeed();	/*IWDG_ReloadCounter(); */ }
-	for(i=0;i<4;i++) {	GetTemp();	IWDG_ReloadCounter(); }
+//	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
+//	for(i=0;i<16;i++){	GetSpeed();	/*FEED_DOG(); */ }
+	for(i=0;i<4;i++) {	GetTemp();	FEED_DOG(); }
 
 	InitConfig();
 	Calibration();
@@ -1148,7 +1143,7 @@ void main(void)
 	enableInterrupts();
 	
 	if ( sBike.bHotReset == 0 ) {
-		while ( Get_SysTick() < PON_ALLON_TIME ) IWDG_ReloadCounter();
+		while ( Get_SysTick() < PON_ALLON_TIME ) FEED_DOG();
 		BL55072_Config(0);
 	#if ( PCB_VER == 0041 )
 		GPIO_WriteHigh (TurnLeftOut_PORT	,TurnLeftOut_PIN);
@@ -1212,7 +1207,7 @@ void main(void)
 			MenuUpdate(&sBike);
 			
 			/* Reload IWDG counter */
-			IWDG_ReloadCounter();  
+			FEED_DOG();  
 		} 
 
 	#if ( TIME_ENABLE == 1 )
@@ -1221,6 +1216,7 @@ void main(void)
 		#endif
 	#endif
 	}
+#endif	
 }
 
 
