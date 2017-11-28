@@ -9,21 +9,22 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=1084229871
+Checksum=1149437885
 [CodeCoverage]
 Enabled=_ 0
 [CallStack]
 ShowArgs=0
 [Disassembly]
 MixedMode=1
-[CallStackLog]
-Enabled=0
-[DriverProfiling]
-Enabled=0
-Mode=1
-Graph=0
-Symbiont=0
-Exclusions=
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints]
+Count=0
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0
 [InterruptLog]
 LogEnabled=0
 SumEnabled=0
@@ -38,8 +39,10 @@ GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
 [Breakpoints2]
-Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.26.2" 0 0 1 "" 0 ""
-Count=1
+Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.27.7" 0 0 1 "" 0 ""
+Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1101.2" 0 0 1 "" 0 ""
+Bp2=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1126.2" 0 0 1 "" 0 ""
+Count=3
 [Interrupts]
 Enabled=1
 [MemoryMap]
@@ -52,13 +55,8 @@ ActionState=1
 [Trace1]
 Enabled=0
 ShowSource=1
-[Simulator]
-Freq=16000000
-[DataSample]
-LogEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
+[CallStackLog]
+Enabled=0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -66,10 +64,14 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
-[Breakpoints]
-Count=0
 [Aliases]
 Count=0
 SuppressDialog=0
-[DebuggerSettings]
-DisableInterruptsWhenStepping=0
+[Simulator]
+Freq=16000000
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
