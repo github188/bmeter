@@ -9,22 +9,21 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=1149437885
+Checksum=-329410707
 [CodeCoverage]
 Enabled=_ 0
 [CallStack]
 ShowArgs=0
 [Disassembly]
 MixedMode=1
-[DataSample]
-LogEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
-[Breakpoints]
-Count=0
-[DebuggerSettings]
-DisableInterruptsWhenStepping=0
+[CallStackLog]
+Enabled=0
+[DriverProfiling]
+Enabled=0
+Mode=1
+Graph=0
+Symbiont=0
+Exclusions=
 [InterruptLog]
 LogEnabled=0
 SumEnabled=0
@@ -39,9 +38,9 @@ GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
 [Breakpoints2]
-Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.27.7" 0 0 1 "" 0 ""
-Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1101.2" 0 0 1 "" 0 ""
-Bp2=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1126.2" 0 0 1 "" 0 ""
+Bp0=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.27.7" 0 0 1 "" 0 ""
+Bp1=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1101.2" 0 0 1 "" 0 ""
+Bp2=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1126.2" 0 0 1 "" 0 ""
 Count=3
 [Interrupts]
 Enabled=1
@@ -55,8 +54,13 @@ ActionState=1
 [Trace1]
 Enabled=0
 ShowSource=1
-[CallStackLog]
-Enabled=0
+[Simulator]
+Freq=16000000
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -64,14 +68,12 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
+[Breakpoints]
+Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1097.2" 1 0 0 0 "" 0 ""
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\display_9040.c}.35.2" 1 0 0 0 "" 0 ""
+Count=2
 [Aliases]
 Count=0
 SuppressDialog=0
-[Simulator]
-Freq=16000000
-[DriverProfiling]
-Enabled=0
-Mode=1
-Graph=0
-Symbiont=0
-Exclusions=
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0

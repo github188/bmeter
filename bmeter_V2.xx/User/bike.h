@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.28 - 20171128
+  * 改正RESET_CONFIG时显示的功能，增加JIKE13050的Parking灯输出控制；
+  *
   * V2.27 - 20171128
   * 增加RESET_CONFIGA功能，去掉程序检测到版本不一致时清空配置信息的功能；
   *
@@ -136,7 +139,7 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
-#define SW_VER				227UL
+#define SW_VER				228UL
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
@@ -357,8 +360,9 @@ typedef struct {
 	uint8_t bHallERR	:1;
 	uint8_t bWheelERR	:1;
 	uint8_t bYXTERR		:1;
-	uint8_t bYXTECO		:1;
-	uint8_t bYXTRCHG	:1;
+	uint8_t bECO		:1;
+	uint8_t bRCHG		:1;
+	uint8_t bParking	:1;
 	uint8_t bUart		:1;	
     
 	uint8_t 	ucSpeedMode;

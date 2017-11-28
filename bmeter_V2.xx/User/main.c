@@ -1090,7 +1090,13 @@ void main(void)
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
 	IWDG_Config();
-
+	
+#ifdef RESET_CONFIG
+	ResetConfig();
+	BL55072_Config(2);
+	MenuUpdate(&sBike);
+	while(1){ FEED_DOG(); }
+#else
 	Init_timer();  
 	HotReset();
 	if ( sBike.bHotReset == 0 ) {
@@ -1108,11 +1114,6 @@ void main(void)
 	} else
 		BL55072_Config(0);
 	
-#ifdef RESET_CONFIG
-	ResetConfig();
-	BL55072_Config(2);
-	while(1){ FEED_DOG(); }
-#else
 
 //	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
 //	for(i=0;i<16;i++){	GetSpeed();	/*FEED_DOG(); */ }

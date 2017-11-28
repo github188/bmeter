@@ -117,7 +117,7 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 		bike->bYXTERR = 0;
 
 #ifdef JIKE13050	
-		if ( (YXT_Status[1] & (1<<7)) )	bike->bYXTECO  = 1; else bike->bYXTECO  = 0;
+		if ( (YXT_Status[1] & (1<<7)) )	bike->bECO     = 1; else bike->bECO     = 0;
 #endif
 		if ( (YXT_Status[1] & (1<<6)) )	bike->bHallERR = 1; else bike->bHallERR = 0;
 		if ( (YXT_Status[1] & (1<<5)) ) bike->bWheelERR= 1; else bike->bWheelERR= 0; 
@@ -127,7 +127,9 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 
 		if ( (YXT_Status[2] & (1<<5)) )	bike->bBraked  = 1; else bike->bBraked  = 0;
 #ifdef JIKE13050	
-		if ( (YXT_Status[2] & (1<<3)) )	bike->bYXTRCHG = 1; else bike->bYXTRCHG = 0;
+		if ( (YXT_Status[2] & (1<<3)) )	bike->bRCHG    = 1; else bike->bRCHG    = 0;
+		if ( (YXT_Status[2] & (1<<6)) )	bike->bParking = 0; else bike->bParking = 0;
+		
 #endif
 	
 		bike->ucSpeedMode = ((YXT_Status[2]>>5)&0x04)|(YXT_Status[2]&0x03);
