@@ -24,38 +24,6 @@ Mode=1
 Graph=0
 Symbiont=0
 Exclusions=
-[InterruptLog]
-LogEnabled=0
-SumEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
-SumSortOrder=0
-[DataLog]
-LogEnabled=0
-SumEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
-[Breakpoints2]
-Bp0=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.27.7" 0 0 1 "" 0 ""
-Bp1=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1101.2" 0 0 1 "" 0 ""
-Bp2=_ 0 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1126.2" 0 0 1 "" 0 ""
-Count=3
-[Interrupts]
-Enabled=1
-[MemoryMap]
-Enabled=0
-Base=0
-UseAuto=0
-TypeViolation=1
-UnspecRange=1
-ActionState=1
-[Trace1]
-Enabled=0
-ShowSource=1
-[Simulator]
-Freq=16000000
 [DataSample]
 LogEnabled=0
 GraphEnabled=0
@@ -72,8 +40,40 @@ LogFile=_ ""
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1097.2" 1 0 0 0 "" 0 ""
 Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\display_9040.c}.35.2" 1 0 0 0 "" 0 ""
 Count=2
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0
+[InterruptLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+SumSortOrder=0
+[DataLog]
+LogEnabled=0
+SumEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Breakpoints2]
+Bp0=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\display_9040.c}.27.7" 0 0 1 "" 0 ""
+Bp1=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1101.2" 0 0 1 "" 0 ""
+Bp2=_ 1 "STD_CODE2" "{$PROJ_DIR$\..\main.c}.1126.2" 0 0 1 "" 0 ""
+Count=3
+[Interrupts]
+Enabled=1
+[MemoryMap]
+Enabled=0
+Base=0
+UseAuto=0
+TypeViolation=1
+UnspecRange=1
+ActionState=1
+[Trace1]
+Enabled=0
+ShowSource=1
 [Aliases]
 Count=0
 SuppressDialog=0
-[DebuggerSettings]
-DisableInterruptsWhenStepping=0
+[Simulator]
+Freq=16000000

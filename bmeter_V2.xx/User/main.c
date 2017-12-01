@@ -514,31 +514,31 @@ uint8_t GetBatEnergy(uint16_t uiVol)
 
 void LRFlashTask(void)
 {
-	static uint8_t ucLeftOn=0	,ucLeftOff=0;
-	static uint8_t ucRightOn=0	,ucRightOff=0;
-	static uint8_t ucLeftCount=0,ucRightCount=0;
+	static uint8_t ucLeftOn=0	,ucLeftOff=0;	//开启计时器
+	static uint8_t ucRightOn=0	,ucRightOff=0;	//关闭计时器
+	static uint8_t ucLeftCount=0,ucRightCount=0;//开启时间计时器
 
-	if ( READ_TURN_LEFT() ){	//ON
+	if ( READ_TURN_LEFT() ){			//ON
         ucLeftOff = 0;
         if ( ucLeftOn ++ > 10 ){		//200ms 滤波
             if ( ucLeftOn > 100 ){
           	    ucLeftOn = 101;
-                sBike.bLFlashType = 0;
+                sBike.bLFlashType = 0;	//长时间开启，为开关信号
             }
            	if ( ucLeftCount < 0xFF-50 ){
 	            ucLeftCount++;
             }
-			sBike.bLeftFlash= 1;
+			sBike.bLeftFlash= 1;		
 			sBike.bTurnLeft = 1;
         }
-	} else {					//OFF
+	} else {							//OFF
         ucLeftOn = 0;
         if ( ucLeftOff ++ == 10 ){
-        	ucLeftCount += 50;	//500ms
+        	ucLeftCount += 50;			//在开启时间上加1000ms
 			sBike.bLeftFlash = 0;
         } else if ( ucLeftOff > 10 ){
 	        ucLeftOff = 11;
-            sBike.bLFlashType = 1;
+            sBike.bLFlashType = 1;		//闪光器信号
             if ( ucLeftCount == 0 ){
 				sBike.bTurnLeft = 0;
             } else
@@ -580,14 +580,8 @@ uint8_t MileResetTask(void)
 	static uint16_t uiPreTick=0;
 	static uint8_t TaskFlag = TASK_INIT;
 	static uint8_t ucCount = 0;
-	uint8_t ret=0;
+	uint8_t ret = 0;
 	
-   // if ( TaskFlag == TASK_EXIT )
-   //     return 0;
-    
-	if ( Get_ElapseTick(uiPreTick) > 10000 | sBike.bBraked | sBike.ucSpeed )
-		TaskFlag = TASK_EXIT;
-
 	switch( TaskFlag ){
 	case TASK_INIT:
 		if ( Get_SysTick() < 3000 && sBike.bTurnRight == 1 ){
@@ -603,7 +597,7 @@ uint8_t MileResetTask(void)
 				ucCount = 0;
 				sBike.bMileFlash = 1;
 				sBike.ulMile = sConfig.ulMile;
-			} 
+			}
 		}
 		sBike.bLastNear = sBike.bNearLight;
 		ret = 1;
@@ -650,13 +644,75 @@ uint8_t MileResetTask(void)
 	case TASK_EXIT:
 	default:
 		sBike.bMileFlash = 0;
-		ret = 0;
 		break;
 	}
+
+	if ( Get_ElapseTick(uiPreTick) > 10000/* || sBike.bBraked || sBike.ucSpeed*/ )
+		TaskFlag = TASK_EXIT;
 	
 	return ret;
 }
 
+
+void MileTask(void)
+{
+#define MT_INIT					0
+#define MT_SHOW_TOTAL_MILE_2S	1
+#define MT_WAIT_SPEED			2
+#define MT_SHOW_MILE			3
+
+	static uint16_t uiTime = 0;
+	static uint8_t task=MT_INIT;
+	
+	if ( MileResetTask() )
+		return ;
+
+	uiTime ++;
+	switch( task ){
+	case MT_INIT:
+		if ( sConfig.uiSingleTrip == 0 )
+			task = MT_SHOW_MILE;
+		else
+			task = MT_SHOW_TOTAL_MILE_2S;
+		sBike.ulMile = sConfig.ulMile;
+		sBike.ulFMile = 0;
+		break;
+	case MT_SHOW_TOTAL_MILE_2S:
+		if ( uiTime > 20 )	//2s
+			task = MT_WAIT_SPEED;
+		break;
+	case MT_WAIT_SPEED:
+		if ( uiTime > 50 || sBike.ucSpeed > 0 ){
+			task = MT_SHOW_MILE;
+			sBike.ulMile = 0;
+		}
+		break;	
+	case MT_SHOW_MILE:
+		if ( sBike.ucSpeed > DISPLAY_MAX_SPEED )
+			sBike.ulFMile += DISPLAY_MAX_SPEED;
+		else
+			sBike.ulFMile += sBike.ucSpeed;
+		
+		if(sBike.ulFMile >= 36000)
+		{
+			sBike.ulFMile = 0;
+			sBike.ulMile++;
+			if ( sBike.ulMile > 99999 	) sBike.ulMile = 0;
+			sConfig.ulMile ++;
+			if ( sConfig.ulMile > 99999 ) sConfig.ulMile = 0;
+			WriteConfig();
+		} 
+		break;
+	default:
+		task = MT_INIT;
+		break;
+	}
+#undef MT_INIT
+#undef MT_SHOW_TOTAL_MILE_2S
+#undef MT_WAIT_SPEED
+#undef MT_SHOW_MILE	
+}
+#if 0
 void MileTask(void)
 {
 	static uint16_t uiTime = 0;
@@ -699,6 +755,7 @@ void MileTask(void)
 		}  
 	}
 }
+#endif
 
 uint8_t SpeedCaltTask(void)
 {
@@ -710,12 +767,6 @@ uint8_t SpeedCaltTask(void)
 	static uint8_t yxterr=0;
 	signed char scSpeed;
 	
-    //if ( TaskFlag == TASK_EXIT )
-    //  	return 0;
-    
-	if ( Get_ElapseTick(uiPreTick) > 10000 || sBike.bBraked )
-		TaskFlag = TASK_EXIT;
-
 	switch( TaskFlag ){
 	case TASK_INIT:
 		if ( Get_SysTick() < 3000 && sBike.bTurnLeft == 1 ){
@@ -786,6 +837,9 @@ uint8_t SpeedCaltTask(void)
 		sBike.bSpeedFlash = 0;
 		break;
 	}
+	if ( Get_ElapseTick(uiPreTick) > 10000 || sBike.bBraked )
+		TaskFlag = TASK_EXIT;
+
 	return 0;
 }
 
