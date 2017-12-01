@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-329410707
+Checksum=-1875604647
 [CodeCoverage]
 Enabled=_ 0
 [CallStack]
@@ -24,24 +24,6 @@ Mode=1
 Graph=0
 Symbiont=0
 Exclusions=
-[DataSample]
-LogEnabled=0
-GraphEnabled=0
-ShowTimeLog=1
-ShowTimeSum=1
-[Log file]
-LoggingEnabled=_ 0
-LogFile=_ ""
-Category=_ 0
-[TermIOLog]
-LoggingEnabled=_ 0
-LogFile=_ ""
-[Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.1097.2" 1 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\display_9040.c}.35.2" 1 0 0 0 "" 0 ""
-Count=2
-[DebuggerSettings]
-DisableInterruptsWhenStepping=0
 [InterruptLog]
 LogEnabled=0
 SumEnabled=0
@@ -72,8 +54,24 @@ ActionState=1
 [Trace1]
 Enabled=0
 ShowSource=1
+[Simulator]
+Freq=16000000
+[DataSample]
+LogEnabled=0
+GraphEnabled=0
+ShowTimeLog=1
+ShowTimeSum=1
+[Log file]
+LoggingEnabled=_ 0
+LogFile=_ ""
+Category=_ 0
+[TermIOLog]
+LoggingEnabled=_ 0
+LogFile=_ ""
+[Breakpoints]
+Count=0
 [Aliases]
 Count=0
 SuppressDialog=0
-[Simulator]
-Freq=16000000
+[DebuggerSettings]
+DisableInterruptsWhenStepping=0

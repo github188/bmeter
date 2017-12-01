@@ -528,13 +528,13 @@ void LRFlashTask(void)
            	if ( ucLeftCount < 0xFF-50 ){
 	            ucLeftCount++;
             }
-			sBike.bLeftFlash= 1;		
-			sBike.bTurnLeft = 1;
+			sBike.bLeftFlash= 1;		//闪光信号
+			sBike.bTurnLeft = 1;		//转向信号
         }
 	} else {							//OFF
         ucLeftOn = 0;
         if ( ucLeftOff ++ == 10 ){
-        	ucLeftCount += 50;			//在开启时间上加1000ms
+        	ucLeftCount += 25;			//在开启时间上加500ms
 			sBike.bLeftFlash = 0;
         } else if ( ucLeftOff > 10 ){
 	        ucLeftOff = 11;
@@ -562,7 +562,7 @@ void LRFlashTask(void)
 	} else {					//OFF
         ucRightOn = 0;
         if ( ucRightOff ++ == 10 ){
-        	ucRightCount += 50;	//500ms
+        	ucRightCount += 25;	//500ms
 			sBike.bRightFlash = 0;
         } else if ( ucRightOff > 10 ){
 	        ucRightOff = 11;
@@ -575,7 +575,7 @@ void LRFlashTask(void)
 	}
 }
 
-uint8_t MileResetTask(void)
+uint8_t MileSetupTask(void)
 {
 	static uint16_t uiPreTick=0;
 	static uint8_t TaskFlag = TASK_INIT;
@@ -606,7 +606,6 @@ uint8_t MileResetTask(void)
 		if ( sBike.bTurnRight == 0 && sBike.bTurnLeft == 1 ) {
 			ucCount = 0;
 			TaskFlag = TASK_EXIT;
-			sBike.bMileFlash = 0;
 			sBike.ulFMile 	= 0;
 			sBike.ulMile 	= 0;
 			sConfig.ulMile 	= 0;
@@ -618,10 +617,10 @@ uint8_t MileResetTask(void)
 					TaskFlag = TASK_STEP3;
 					if ( sConfig.uiSingleTrip ){
 						sConfig.uiSingleTrip = 0;
-						sBike.ulMile = 99999UL;
+						sBike.ulMile = 22222UL;
 					} else {
 						sConfig.uiSingleTrip = 1;
-						sBike.ulMile = 0;
+						sBike.ulMile = 11111UL;
 					}
 					WriteConfig();
 				}
@@ -637,7 +636,6 @@ uint8_t MileResetTask(void)
 				sBike.ulMile = 0;
 			else
 				sBike.ulMile = sConfig.ulMile;
-			sBike.bMileFlash = 0;
 		}
 		ret = 1;
 		break;
@@ -653,7 +651,6 @@ uint8_t MileResetTask(void)
 	return ret;
 }
 
-
 void MileTask(void)
 {
 #define MT_INIT					0
@@ -664,8 +661,10 @@ void MileTask(void)
 	static uint16_t uiTime = 0;
 	static uint8_t task=MT_INIT;
 	
-	if ( MileResetTask() )
+	if ( MileSetupTask() ){
+		task	= MT_INIT;
 		return ;
+	}
 
 	uiTime ++;
 	switch( task ){
@@ -674,8 +673,9 @@ void MileTask(void)
 			task = MT_SHOW_MILE;
 		else
 			task = MT_SHOW_TOTAL_MILE_2S;
-		sBike.ulMile = sConfig.ulMile;
+		sBike.ulMile  = sConfig.ulMile;
 		sBike.ulFMile = 0;
+		uiTime 	= 0;
 		break;
 	case MT_SHOW_TOTAL_MILE_2S:
 		if ( uiTime > 20 )	//2s
@@ -712,50 +712,6 @@ void MileTask(void)
 #undef MT_WAIT_SPEED
 #undef MT_SHOW_MILE	
 }
-#if 0
-void MileTask(void)
-{
-	static uint16_t uiTime = 0;
-	uint8_t uiSpeed;
-	
-	if ( MileResetTask() )
-		return ;
-	
-	uiSpeed = sBike.ucSpeed;
-	if ( uiSpeed > DISPLAY_MAX_SPEED )
-		uiSpeed = DISPLAY_MAX_SPEED;
-
-//#ifdef SINGLE_TRIP
-	uiTime ++;
-	if ( uiTime < 20 ) {	//2s
-		if ( sConfig.uiSingleTrip == 0 )
-			uiTime = 51;
-		sBike.ulMile = sConfig.ulMile;
-	} else if ( uiTime < 50 ) { 	//5s
-		if ( uiSpeed ) {
-			uiTime = 50;
-			sBike.ulMile = 0;
-		}
-	} else if ( uiTime == 50 ){
-		sBike.ulMile = 0;
-	} else 
-//#endif	
-	{
-		uiTime = 51;
-		
-		sBike.ulFMile = sBike.ulFMile + uiSpeed;
-		if(sBike.ulFMile >= 36000)
-		{
-			sBike.ulFMile = 0;
-			sBike.ulMile++;
-			if ( sBike.ulMile > 99999 )	sBike.ulMile = 0;
-			sConfig.ulMile ++;
-			if ( sConfig.ulMile > 99999 )	sConfig.ulMile = 0;
-			WriteConfig();
-		}  
-	}
-}
-#endif
 
 uint8_t SpeedCaltTask(void)
 {
@@ -803,7 +759,7 @@ uint8_t SpeedCaltTask(void)
                 if ( sBike.ucSpeed + scSpeedInc < 99 )
 					scSpeedInc ++;
             } else {
-				if ( ++ucCount >= 5 ){
+				if ( ++ucCount >= 4 ){
 					TaskFlag = TASK_EXIT;
 					sBike.bSpeedFlash = 0;
 					if ( sBike.ucSpeed ) {
