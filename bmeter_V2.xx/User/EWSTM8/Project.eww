@@ -125,6 +125,25 @@
         <configuration>STM8S208</configuration>
       </member>
     </batchDefinition>
+    <batchDefinition>
+      <name>200</name>
+      <member>
+        <project>Project - LCD9040</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD9040_JP_45KM</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD9040_VD48H72N_ST</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - JIKE13050</project>
+        <configuration>STM8S208</configuration>
+      </member>
+    </batchDefinition>
   </batchBuild>
 </workspace>
 
