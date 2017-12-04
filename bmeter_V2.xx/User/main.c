@@ -269,9 +269,9 @@ uint16_t Get_SysTick(void)
 {
 	uint16_t uiTick;
 	
-	disableInterrupts();
+	DISABLE_INTERRUPTS();
 	uiTick = uiSysTick;
-	enableInterrupts();
+	ENABLE_INTERRUPTS();
 	
 	return uiTick;
 }

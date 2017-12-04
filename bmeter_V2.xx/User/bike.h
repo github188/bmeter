@@ -193,7 +193,8 @@
 	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define VD48L72N	
+//	#define VD48L72N	
+	#define VD48N72L	
 
 #elif JINPENG_4860
 	#define PCB_VER		0100
@@ -552,6 +553,8 @@ void LRFlashTask(void);
 #define READ_TURN_LEFT()	GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
 #define READ_TURN_RIGHT()	GPIO_Read(TurnRight_PORT, TurnRight_PIN )
 #define FEED_DOG()			IWDG_ReloadCounter()
+#define DISABLE_INTERRUPTS()	disableInterrupts()
+#define ENABLE_INTERRUPTS()		enableInterrupts()
 
 /******************************************************************************/
 
