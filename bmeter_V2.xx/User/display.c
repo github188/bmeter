@@ -7,4 +7,7 @@
 	#include "display_8794GCT.c"
 #elif ( defined LCD6040 )
 	#include "display_6040.c"
+#elif ( defined LED1640 )
+	#include "display_LED1640.c"
+
 #endif

@@ -128,6 +128,7 @@
 //#define LCD9040_JP_45KM
 //#define JINPENG_4860
 //#define JINPENG_6072
+//#define JINPENG_12080
 //#define LCD6040
 //#define LCD9040
 //#define LCD9040_4860
@@ -207,6 +208,14 @@
 #elif defined JINPENG_6072
 	#define PCB_VER		0100
 	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1
+	#define VD48N72L	
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
+	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
+#elif defined JINPENG_12080
+	#define PCB_VER		0100
+	#define LED1640
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48N72L	
@@ -300,7 +309,11 @@
 #endif
 
 /******************************************************************************/
-#if (defined LCD9040) || (defined LCD5535) || (defined LCD8794GCT) || (defined LCD6040 )
+#if (defined LCD9040) || \
+	(defined LCD5535) || \
+	(defined LCD8794GCT) || \
+	(defined LCD6040 )	|| \
+	(defined LED1640 )
 #else
 #error "Not defined LCD_TYPE"
 #endif
