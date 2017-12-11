@@ -219,8 +219,8 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48N72L	
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
 #elif defined LCD9040_4860
 	#define PCB_VER		0100
 	#define LCD9040
@@ -423,6 +423,19 @@ extern volatile uint16_t uiSysTick;
 
 uint16_t Get_SysTick(void);
 uint16_t Get_ElapseTick(uint16_t uiPreTick);
+int16_t NTCtoTemp(int16_t ntc);
+void HotReset(void);
+void WriteConfig(void);
+void ResetConfig(void);
+void InitConfig(void);
+uint8_t GetBatStatus(uint16_t uiVol);
+uint8_t GetBatEnergy(uint16_t uiVol);
+void LRFlashTask(void);
+uint8_t MileSetupTask(void);
+void MileTask(void);
+uint8_t SpeedCaltTask(void);
+void TimeTask(void);
+
 void LRFlashTask(void);
 /******************************************************************************/
 

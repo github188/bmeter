@@ -836,6 +836,9 @@
   <group>
     <name>User</name>
     <file>
+      <name>$PROJ_DIR$\..\bike.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\bl55072.c</name>
     </file>
     <file>

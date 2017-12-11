@@ -3,7 +3,6 @@
 #include "bl55072.h"
 #include "TM16XX.H"
 
-unsigned char TM16XX[16];
 unsigned char flashflag = 0;
 
 const unsigned char SegData[10] = {0x3F,0x30,0x6D,0x79,0x72,0x5B,0x5F,0x31,0x7F,0x7B,};
@@ -103,12 +102,5 @@ void MenuUpdate(BIKE_STATUS* bike)
 			break;
 	}
   
-	TM16XX_Write_Data(0,16,TM16XX);
+	TM16XX_Write_Data(TM16XX,16);
 }
-
-
-void Delay(uint32_t nCount)
-{
-  for(; nCount != 0; nCount--);
-}
-
