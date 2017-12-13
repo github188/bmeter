@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.31 - 20171214
+  * 增加对JINGPENG-12080的支持；
+  *
   * V2.30 - 20171201
   * 减小闪光器关闭时的判断时间，更改MileTask结构，优化显示效果；
   *
@@ -146,7 +149,7 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
-#define SW_VER				228UL
+#define SW_VER				231UL
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
@@ -215,7 +218,7 @@
 	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
 #elif defined JINPENG_12080
 	#define PCB_VER		0100
-	#define LED1640
+	#define TM1640
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48N72L	
@@ -313,7 +316,7 @@
 	(defined LCD5535) || \
 	(defined LCD8794GCT) || \
 	(defined LCD6040 )	|| \
-	(defined LED1640 )
+	(defined TM1640 )
 #else
 #error "Not defined LCD_TYPE"
 #endif

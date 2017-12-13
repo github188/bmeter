@@ -146,8 +146,3 @@ void MenuUpdate(BIKE_STATUS* bike)
 }
 
 
-void Delay(uint32_t nCount)
-{
-  for(; nCount != 0; nCount--);
-}
-

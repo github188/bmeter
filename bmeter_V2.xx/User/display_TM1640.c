@@ -102,5 +102,5 @@ void MenuUpdate(BIKE_STATUS* bike)
 			break;
 	}
   
-	TM16XX_Write_Data(TM16XX,16);
+	TM1640_Write_Data(TM16XX,16);
 }

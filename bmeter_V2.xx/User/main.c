@@ -6,6 +6,7 @@
 #include "stm8s_iwdg.h"
 
 #include "bl55072.h"
+#include "TM16XX.h"
 #include "display.h"
 #include "pcf8563.h"
 #include "bike.h"
@@ -70,7 +71,7 @@ static void IWDG_Config(void)
   FEED_DOG();
 }
 
-void Init_timer(void)
+void InitTimer(void)
 {
 	/** ÅäÖÃTimer2 **/ 
 	CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, ENABLE);
@@ -85,6 +86,11 @@ BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
 {
 	GPIO_Init(GPIOx, GPIO_Pin, GPIO_MODE_IN_FL_NO_IT);
 	return GPIO_ReadInputPin(GPIOx, GPIO_Pin);
+}
+
+void Delay(uint32_t nCount)
+{
+  for(; nCount != 0; nCount--);
 }
 
 int GetTemp(void)
@@ -452,7 +458,7 @@ void Calibration(void)
 void main(void)
 {
 	uint8_t i;
-	uint16_t uiTick;
+	uint16_t uiTick=0;
 	uint16_t uiCount=0;
 	uint16_t uiVol=0;
 	uint16_t tick_100ms=0;
@@ -460,20 +466,28 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	IWDG_Config();
+	//IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
-	BL55072_Config(2);
-	MenuUpdate(&sBike);
-	while(1){ FEED_DOG(); }
+	while(1){ 
+		if ( Get_ElapseTick(uiTick) > 1000 ){
+			uiTick = Get_SysTick();
+			if ( i ){ i = 0; DisplayInit(i); } 
+			else 	{ i = 1; DisplayInit(i); }
+			MenuUpdate(&sBike);
+		}
+		FEED_DOG(); 
+	}
 #else
-	Init_timer();  
+
+	InitTimer();  
 	HotReset();
+    sBike.bHotReset = 0;
 	if ( sBike.bHotReset == 0 ) {
-		BL55072_Config(1);
+		DisplayInit(1);
 	} else
-		BL55072_Config(0);
+		DisplayInit(0);
 	
 //	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
 //	for(i=0;i<16;i++){	GetSpeed();	/*FEED_DOG(); */ }
@@ -494,11 +508,11 @@ void main(void)
 	YXT_Init();  
 #endif
   
-	enableInterrupts();
+	ENABLE_INTERRUPTS();
 	
 	if ( sBike.bHotReset == 0 ) {
 		while ( Get_SysTick() < PON_ALLON_TIME ) FEED_DOG();
-		BL55072_Config(0);
+		DisplayInit(0);
 	}
 	
 	GetVolStabed(&uiVol);

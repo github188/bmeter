@@ -92,9 +92,3 @@ void MenuUpdate(BIKE_STATUS* bike)
 	BL_Write_Data(0,18,BL_Data);
 }
 
-
-void Delay(uint32_t nCount)
-{
-	for(; nCount != 0; nCount--);
-}
-
