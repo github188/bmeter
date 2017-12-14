@@ -22,14 +22,14 @@ const uint16_t uiBatStatus72[8] = {0};
 const uint16_t uiBatStatus48[8] = {0};
 const uint16_t uiBatStatus60[8] = {480,493,506,519,532,545,558,570};
 const uint16_t uiBatStatus72[8] = {550,569,589,608,628,647,667,686};
-#elif defined JINPENG_LED
+#elif defined JINPENG_12080
 const uint16_t uiBatStatus48[8] = {420,426,433,440,447,454,462,470};
 const uint16_t uiBatStatus60[8] = {520,528,537,546,555,563,571,579};
 const uint16_t uiBatStatus72[8] = {0};
 #elif defined LCD6040
-const uint16_t uiBatStatus48[] = {425,432,444,456,468};
-const uint16_t uiBatStatus60[] = {525,537,553,566,578};
-const uint16_t uiBatStatus72[] = {630,641,661,681,701};
+const uint16_t uiBatStatus48[] 	= {425,432,444,456,468};
+const uint16_t uiBatStatus60[] 	= {525,537,553,566,578};
+const uint16_t uiBatStatus72[] 	= {630,641,661,681,701};
 #else
 const uint16_t uiBatStatus48[8] = {420,427,435,444,453,462,471,481};
 const uint16_t uiBatStatus60[8] = {520,531,544,556,568,577,587,595};
@@ -269,7 +269,6 @@ uint8_t GetSpeed(void)
 
 void GetSysVoltage(void)
 {	
-	
 #if defined BENLING_OUSHANG
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
@@ -335,14 +334,13 @@ void GetSysVoltage(void)
 #endif
 }
 
-void Light_Task(void)
+void LightTask(void)
 {
 	uint8_t ucSpeedMode;
 
 	if( GPIO_Read(NearLight_PORT, 	NearLight_PIN) ) sBike.bNearLight = 1; else sBike.bNearLight = 0;
 	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN) ) sBike.bTurnRight = 1; else sBike.bTurnRight = 0;
 	//if( GPIO_Read(TurnLeft_PORT, 	TurnLeft_PIN ) ) sBike.bTurnLeft  = 1; else sBike.bTurnLeft  = 0;
-	//if( GPIO_Read(Braked_PORT, 	Braked_PIN	 ) ) sBike.bBraked    = 1; else sBike.bBraked  	 = 0;
 	
 	if ( sBike.bYXTERR ){
 		ucSpeedMode = 0;
@@ -359,8 +357,8 @@ void Light_Task(void)
 			case 0x08: 	sBike.ucSpeedMode = 4; break;
 			default:	sBike.ucSpeedMode = 0; break;
 		}
-		sBike.ucPHA_Speed= GetSpeed();
-		sBike.ucSpeed 	= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
+		sBike.ucPHA_Speed	= GetSpeed();
+		sBike.ucSpeed 		= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
 	}
 }
 
@@ -412,7 +410,7 @@ void UartTask(void)
 
 			sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;					
 		//	sConfig.TempScale 	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	
-			sConfig.uiSpeedScale= (uint32_t)sBike.ucSpeed*1000UL/SPEED_CALIBRATIOIN;				
+		//	sConfig.uiSpeedScale= (uint32_t)sBike.ucSpeed*1000UL/SPEED_CALIBRATIOIN;				
 			WriteConfig();
 		}
 		ucUart1Index = 0;
@@ -448,7 +446,6 @@ void Calibration(void)
 
 		sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;	//60.00V
 		//sConfig.TempScale	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
-		//sConfig.ulMile = 0;
 		WriteConfig();
 	}
 
@@ -466,7 +463,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
@@ -529,19 +526,19 @@ void main(void)
 			
 			if ( (uiCount % 5) == 0 ) {
 				if ( GetVolStabed(&uiVol) ){
-					sBike.uiVoltage = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
+					sBike.uiVoltage  = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
 					sBike.ucBatStatus= GetBatStatus(sBike.uiVoltage);
+				#ifdef LCD8794GCT
+				//	sBike.ucEnergy 	 = GetBatEnergy(sBike.uiVoltage);
+				#endif
 				}
 			}
 			if ( (uiCount % 10) == 0 ){
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
 				sBike.siTemperature= GetTemp();
 			}
-		#ifdef LCD8794GCT
-			//sBike.ucEnergy 	= GetBatEnergy(sBike.uiVoltage);
-		#endif
 		
-			Light_Task();
+			LightTask();
 			MileTask(); 
 			
 		#if ( YXT_ENABLE == 1 )
@@ -563,7 +560,7 @@ void main(void)
 			sBike.ucHour       	= uiCount/10 + uiCount/10*10;
 			sBike.ucMinute     	= uiCount/10 + uiCount/10*10;
 			#ifdef LCD8794GCT
-			//sBike.ucEnergy     	= uiCount/10 + uiCount/10*10UL;
+		//	sBike.ucEnergy     	= uiCount/10 + uiCount/10*10UL;
 			#endif
 		#endif
 	

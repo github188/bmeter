@@ -3,19 +3,27 @@
 #include "bike.h"
 #include "TM16XX.h"
 
+/******************************************************************************/
+
 #define TM16XX_PORT	GPIOC
+
+#ifdef TM1624	
+#define TM16XX_CLK	GPIO_PIN_5
+#define TM16XX_DAT	GPIO_PIN_6
+#define TM16XX_CS	GPIO_PIN_7
+#define CS_SET()	TM16XX_PORT->ODR  |= TM16XX_CS
+#define CS_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CS
+#elif defined TM1640
 #define TM16XX_CLK	GPIO_PIN_0
 #define TM16XX_DAT	GPIO_PIN_1
-//#define TM16XX_CLK	GPIO_PIN_5
-//#define TM16XX_DAT	GPIO_PIN_6
-//#define TM16XX_CS	GPIO_PIN_7
+#endif
 
 #define CLK_SET()	TM16XX_PORT->ODR  |= TM16XX_CLK
 #define CLK_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CLK
 #define DAT_SET()	TM16XX_PORT->ODR  |= TM16XX_DAT
 #define DAT_CLR()	TM16XX_PORT->ODR  &=~TM16XX_DAT
-//#define CS_SET()	TM16XX_PORT->ODR  |= TM16XX_CS
-//#define CS_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CS
+
+/******************************************************************************/
 
 #define CONFIG_CMD	0x40
 #define ADDR_AUTO	0x00
@@ -28,16 +36,21 @@
 
 #define ADDRESS_CMD	0xC0
 
+/******************************************************************************/
+
 unsigned char TM16XX[16];
 
+/******************************************************************************/
 
 void TM16XX_Init(unsigned char st)
 {
 	unsigned char i,dat;
 	
+#ifdef TM1624	
+	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_PP_HIGH_FAST);
+#endif
 	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_PP_HIGH_FAST);
 	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_PP_HIGH_FAST);
-	//GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_PP_HIGH_FAST);
 	
 	switch(st){
 		case 0:	dat = 0x00; break;	

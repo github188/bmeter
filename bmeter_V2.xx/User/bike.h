@@ -199,7 +199,6 @@
 	#define YXT_ENABLE  1
 //	#define VD48L72N	
 	#define VD48N72L	
-
 #elif JINPENG_4860
 	#define PCB_VER		0100
 	#define LCD9040
@@ -221,7 +220,7 @@
 	#define TM1640
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define VD48N72L	
+	#define VD48L72N	
 	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
 #elif defined LCD9040_4860
