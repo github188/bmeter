@@ -189,21 +189,19 @@ void InitConfig(void)
 		sum += cbuf[i];
 		
 	if (sConfig.ucBike[0] != 'b' || 
-		sConfig.ucBike[1] 	!= 'i' || 
-		sConfig.ucBike[2] 	!= 'k' || 
-		sConfig.ucBike[3] 	!= 'e' || 
-		//sConfig.uiVersion != SW_VER || 
+		sConfig.ucBike[1] != 'i' || 
+		sConfig.ucBike[2] != 'k' || 
+		sConfig.ucBike[3] != 'e' || 
+	//	sConfig.uiVersion != SW_VER || 
 		sum != sConfig.ucSum ){
 		ResetConfig();
 	}
 
-	sBike.ulMile = sConfig.ulMile;
-#if ( TIME_ENABLE == 1 )
-	sBike.bHasTimer = 0;
-#endif
-	sBike.ulFMile = 0;
-	sBike.ucSpeedMode = 0;
-	sBike.bYXTERR = 1;
+	sBike.ulMile 		= sConfig.ulMile;
+	sBike.bHasTimer		= 0;
+	sBike.ulFMile 		= 0;
+	sBike.ucSpeedMode	= 0;
+	sBike.bYXTERR 	 	= 1;
 
 	GetSysVoltage();
 }

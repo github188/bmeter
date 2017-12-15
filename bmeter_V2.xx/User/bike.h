@@ -131,6 +131,7 @@
 //#define LCD9040_JP_45KM
 //#define JINPENG_4860
 //#define JINPENG_6072
+//#define JINPENG_MR9737
 //#define JINPENG_12080
 //#define LCD6040
 //#define LCD9040
@@ -215,8 +216,16 @@
 	#define VD48N72L	
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
 	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
+#elif defined JINPENG_MR9737
+	#define PCB_VER		MR9737
+	#define TM1624
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1
+	#define VD48	
+	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
 #elif defined JINPENG_12080
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define TM1640
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
@@ -368,30 +377,35 @@ typedef struct {
 	uint8_t bNearLight	:1;
 	uint8_t bLastNear	:1;
 
+	uint8_t bFarLight	:1;
+	uint8_t bOverSpeed	:1;
 	uint8_t bHotReset	:1;	
-	uint8_t bBraked		:1;
-	uint8_t bCruise		:1;
     uint8_t bLcdFresh	:1;
 	uint8_t bMileFlash	:1;	
 	uint8_t bSpeedFlash	:1;	
-	uint8_t bHasTimer	:1;
-	uint8_t bTimeSet	:1;
+	uint8_t bYXTERR		:1;
+	uint8_t bCruise		:1;
     
+	uint8_t bBraked		:1;
 	uint8_t bECUERR		:1;
 	uint8_t bPhaseERR	:1;
 	uint8_t bHallERR	:1;
 	uint8_t bWheelERR	:1;
-	uint8_t bYXTERR		:1;
 	uint8_t bECO		:1;
 	uint8_t bRCHG		:1;
 	uint8_t bParking	:1;
+	
+	uint8_t bHasTimer	:1;
 	uint8_t bUart		:1;	
+	uint8_t bTimeSet	:1;
+	uint8_t bBT			:1;
     
 	uint8_t 	ucSpeedMode;
 	signed int	siTemperature;
-	uint16_t  	uiVoltage;
-	uint8_t 	ucBatStatus;
-	uint8_t 	ucEnergy;
+	uint16_t  	uiBatVoltage;
+	uint16_t  	uiBatVoltage2;
+	uint16_t  	uiBatVoltage3;
+	uint16_t  	uiBatVoltage4;
 	uint8_t 	ucSpeed;
 	uint8_t 	ucPHA_Speed;
 	uint8_t 	ucYXT_Speed;
@@ -442,6 +456,9 @@ void LRFlashTask(void);
 /******************************************************************************/
 
 #if ( PCB_VER == 0200 )
+	#define BATV_ADC_CH		ADC1_CHANNEL_2
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL2
+
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
@@ -468,7 +485,15 @@ void LRFlashTask(void);
 	#define TurnRight_PIN	GPIO_PIN_3
 	#define TurnLeft_PORT	GPIOC
 	#define TurnLeft_PIN	GPIO_PIN_5
+	
+	#define TM16XX_PORT	GPIOC
+	#define TM16XX_CLK	GPIO_PIN_0
+	#define TM16XX_DAT	GPIO_PIN_1
+
 #elif ( PCB_VER == 0100 )
+	#define BATV_ADC_CH		ADC1_CHANNEL_2
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL2
+
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
@@ -495,6 +520,9 @@ void LRFlashTask(void);
 //	#define CRZLight_PORT	
 //	#define CRZLight_PIN	
 #elif ( PCB_VER == 0013 )
+	#define BATV_ADC_CH		ADC1_CHANNEL_2
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL2
+
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
@@ -522,6 +550,9 @@ void LRFlashTask(void);
 	#define TurnLeft_PORT	GPIOC
 	#define TurnLeft_PIN	GPIO_PIN_5
 #elif ( PCB_VER == 0041 )	//for LCD8794GCT
+	#define BATV_ADC_CH		ADC1_CHANNEL_2
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL2
+
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_5
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL5
 
@@ -550,6 +581,9 @@ void LRFlashTask(void);
 	#define TurnLeftOut_PORT	GPIOD
 	#define TurnLeftOut_PIN		GPIO_PIN_1	
 #elif ( PCB_VER == 201745UL )	//for LCD8794GCT
+	#define BATV_ADC_CH		ADC1_CHANNEL_2
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL2
+
 	#define SPEEDV_ADC_CH	ADC1_CHANNEL_3
 	#define SPEEDV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL3
 
@@ -575,12 +609,34 @@ void LRFlashTask(void);
 	
 	#define POut_PORT		GPIOC
 	#define POut_PIN		GPIO_PIN_5
+#elif ( PCB_VER == MR9737 )
+	#define BATV_ADC_CH		ADC1_CHANNEL_6
+	#define BATV_ADC_SCH	ADC1_SCHMITTTRIG_CHANNEL6
+
+	#define BATV_ADC_CH2	ADC1_CHANNEL_2
+	#define BATV_ADC_SCH2	ADC1_SCHMITTTRIG_CHANNEL2
+
+	#define NearLight_PORT	GPIOD
+	#define NearLight_PIN	GPIO_PIN_4
+	#define FarLight_PORT	GPIOD
+	#define FarLight_PIN	GPIO_PIN_5
+	#define OverSpeed_PORT	GPIOA
+	#define OverSpeed_PIN	GPIO_PIN_3
+	#define TurnRight_PORT	GPIOB
+	#define TurnRight_PIN	GPIO_PIN_5
+	#define TurnLeft_PORT	GPIOB
+	#define TurnLeft_PIN	GPIO_PIN_4
+
+	#define TM16XX_PORT		GPIOC
+	#define TM16XX_CLK		GPIO_PIN_5
+	#define TM16XX_DAT		GPIO_PIN_6
+	#define TM16XX_CS		GPIO_PIN_7
 #endif
 
-#define ContainOf(x) 		(sizeof(x)/sizeof(x[0]))
-#define READ_TURN_LEFT()	GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
-#define READ_TURN_RIGHT()	GPIO_Read(TurnRight_PORT, TurnRight_PIN )
-#define FEED_DOG()			IWDG_ReloadCounter()
+#define ContainOf(x) 			(sizeof(x)/sizeof(x[0]))
+#define READ_TURN_LEFT()		GPIO_Read(TurnLeft_PORT , TurnLeft_PIN	)
+#define READ_TURN_RIGHT()		GPIO_Read(TurnRight_PORT, TurnRight_PIN )
+#define FEED_DOG()				IWDG_ReloadCounter()
 #define DISABLE_INTERRUPTS()	disableInterrupts()
 #define ENABLE_INTERRUPTS()		enableInterrupts()
 

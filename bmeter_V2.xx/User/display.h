@@ -9,7 +9,6 @@
 #define DisplayInit(x)	BL55072_Config(x)
 #endif
 
-extern void MenuUpdate(BIKE_STATUS* bike);
-extern void Delay(unsigned long nCount);
+void Display(BIKE_STATUS* bike);
 
 #endif

@@ -1,13 +1,12 @@
 #include "stdlib.h"
 #include "bike.h"
-#include "bl55072.h"
 #include "TM16XX.H"
 
 unsigned char flashflag = 0;
 
 const unsigned char SegData[10] = {0x3F,0x30,0x6D,0x79,0x72,0x5B,0x5F,0x31,0x7F,0x7B,};
 
-void MenuUpdate(BIKE_STATUS* bike)
+void Display(BIKE_STATUS* bike)
 {
 	unsigned char i = 0;
   
@@ -16,17 +15,8 @@ void MenuUpdate(BIKE_STATUS* bike)
 	
 	for(i=0;i<18;i++)	TM16XX[i] = 0x00;
 	
-    if ( bike->bLFlashType ){
-		if ( bike->bLeftFlash 	)	TM16XX[ 2] |= 0x80;	//S1
-    } else {
-     	if ( bike->bLeftFlash 	&& flashflag >= 5 )	TM16XX[2] |= 0x80;	//S1
-    }
-    if ( bike->bRFlashType ){
-		if ( bike->bRightFlash	)	TM16XX[ 3]|= 0x80;	//S3
-    } else {
-     	if ( bike->bRightFlash && flashflag >= 5 )	TM16XX[ 3]|= 0x80;	//S3
-    }
-	
+    if( bike->bLFlashType || flashflag >= 5){ if ( bike->bLeftFlash )	TM16XX[ 2] |= 0x80;	}	//S1
+    if( bike->bRFlashType || flashflag >= 5){ if ( bike->bRightFlash)	TM16XX[ 3] |= 0x80;	}	//S3
 	if( bike->bNearLight 	) TM16XX[ 1] |= 0x80;	//S2
 	if( bike->bHallERR 		) TM16XX[13] |= 0x10;	//S4	电机故障
 	if( bike->bWheelERR 	) TM16XX[13] |= 0x20;	//S5	转把故障
@@ -34,19 +24,18 @@ void MenuUpdate(BIKE_STATUS* bike)
 	if( bike->bBraked  		) TM16XX[13] |= 0x80;	//S7 	刹车
 
   /***************************Battery Area Display**********************************/
-	TM16XX[12] |= 0x7F;	//T5-T11
-	switch ( bike->ucBatStatus ){
+	switch ( GetBatStatus(sBike.uiBatVoltage) ){
     case 0:
-		if ( flashflag < 5 ) 
-			TM16XX[12]&=~0x7F;break;	//T5-T11
-    case 1: TM16XX[11] = 0x01;break;
-    case 2: TM16XX[11] = 0x03;break;
-    case 3: TM16XX[11] = 0x07;break;
-    case 4: TM16XX[11] = 0x0F;break;
-    case 5: TM16XX[11] = 0x1F;break;
-    case 6: TM16XX[11] = 0x3F;break;      
-    case 7: TM16XX[11] = 0x7F;break;
-    case 8: TM16XX[11] = 0xFF;break;          
+		if ( flashflag >= 5 ) 
+			TM16XX[12]|= 0x7F;break;	//T5-T11
+    case 1: TM16XX[11]|= 0x01;break;
+    case 2: TM16XX[11]|= 0x03;break;
+    case 3: TM16XX[11]|= 0x07;break;
+    case 4: TM16XX[11]|= 0x0F;break;
+    case 5: TM16XX[11]|= 0x1F;break;
+    case 6: TM16XX[11]|= 0x3F;break;      
+    case 7: TM16XX[11]|= 0x7F;break;
+    case 8: TM16XX[11]|= 0xFF;break;          
     default:break; 
 	}
 
@@ -62,33 +51,22 @@ void MenuUpdate(BIKE_STATUS* bike)
 	//TM16XX[1] |= (SegData[(bike->uiVoltage/100)%10]);
 
 	/*************************** Mile Display**********************************/  
-	TM16XX[10] |= (SegData [ bike->ulMile	   	 %10]);
-	TM16XX[ 9] |= (SegData [(bike->ulMile/10   )%10]);
-	TM16XX[ 8] |= (SegData [(bike->ulMile/100  )%10]); 
-	TM16XX[ 7] |= (SegData [(bike->ulMile/1000 )%10]); 
-	TM16XX[ 6] |= (SegData [(bike->ulMile/10000)%10]); 
-	TM16XX[ 6] |= 0x80;	//T4
-	if ( (bike->bMileFlash && flashflag < 5) ) {
-		TM16XX[ 8] &= ~0x80;
-		TM16XX[ 7] &= ~0x80;
-		TM16XX[ 6] &= ~0x80; 
-		TM16XX[ 1] &= ~0x80; 
-		TM16XX[ 0] &= ~0x80;
+	if ( bike->bMileFlash == 0 || flashflag >= 5 ) {
+		TM16XX[10] |= (SegData [ bike->ulMile	   	 %10]);
+		TM16XX[ 9] |= (SegData [(bike->ulMile/10   )%10]);
+		TM16XX[ 8] |= (SegData [(bike->ulMile/100  )%10]); 
+		TM16XX[ 7] |= (SegData [(bike->ulMile/1000 )%10]); 
+		TM16XX[ 6] |= (SegData [(bike->ulMile/10000)%10]); 
+		TM16XX[ 6] |= 0x80;	//T4
 	}		
 
 	/*************************** Speed Display**********************************/
-	TM16XX[ 2] |= (SegData [ bike->ucSpeed	 	%10]);
-	TM16XX[ 3]  = TM16XX[ 2];
-	TM16XX[ 4] |= (SegData [(bike->ucSpeed/10)	%10]); 
-	TM16XX[ 4] |= 0x80;
-	TM16XX[ 5]  = TM16XX[ 4];	//T2,T3
-	if ( bike->bSpeedFlash ){
-		if ( flashflag < 5  ) {
-			TM16XX[ 2] &= ~0x80;
-			TM16XX[ 3] &= ~0x80;
-			TM16XX[ 4] &= ~0x80;
-			TM16XX[ 5] &= ~0x80;
-		}
+	if ( bike->bSpeedFlash == 0 || flashflag >= 5 ) {
+		TM16XX[ 2] |= (SegData [ bike->ucSpeed	 	%10]);
+		TM16XX[ 3]  = TM16XX[ 2];
+		TM16XX[ 4] |= (SegData [(bike->ucSpeed/10)	%10]); 
+		TM16XX[ 4] |= 0x80;
+		TM16XX[ 5]  = TM16XX[ 4];	//T2,T3
 	}
 
 	/*************************** Mode Display**********************************/ 

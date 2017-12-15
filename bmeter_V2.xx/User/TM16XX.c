@@ -5,17 +5,9 @@
 
 /******************************************************************************/
 
-#define TM16XX_PORT	GPIOC
-
-#ifdef TM1624	
-#define TM16XX_CLK	GPIO_PIN_5
-#define TM16XX_DAT	GPIO_PIN_6
-#define TM16XX_CS	GPIO_PIN_7
+#ifdef TM16XX_CS	
 #define CS_SET()	TM16XX_PORT->ODR  |= TM16XX_CS
 #define CS_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CS
-#elif defined TM1640
-#define TM16XX_CLK	GPIO_PIN_0
-#define TM16XX_DAT	GPIO_PIN_1
 #endif
 
 #define CLK_SET()	TM16XX_PORT->ODR  |= TM16XX_CLK

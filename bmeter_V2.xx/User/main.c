@@ -11,21 +11,24 @@
 #include "pcf8563.h"
 #include "bike.h"
 #include "YXT.h"
+
 /*----------------------------------------------------------*/
-
-
 #ifdef JINPENG_4860
 const uint16_t uiBatStatus48[8] = {420,426,432,439,445,451,457,464};
 const uint16_t uiBatStatus60[8] = {520,528,536,542,550,558,566,574};
-const uint16_t uiBatStatus72[8] = {0};
+const uint16_t uiBatStatus72[8] = {0xFFFF};
 #elif defined JINPENG_6072
-const uint16_t uiBatStatus48[8] = {0};
+const uint16_t uiBatStatus48[8] = {0xFFFF};
 const uint16_t uiBatStatus60[8] = {480,493,506,519,532,545,558,570};
 const uint16_t uiBatStatus72[8] = {550,569,589,608,628,647,667,686};
+#elif defined JINPENG_MR9737
+const uint16_t uiBatStatus48[8] = {300,410,438,464,490,516};
+const uint16_t uiBatStatus60[8] = {0xFFFF};
+const uint16_t uiBatStatus72[8] = {0xFFFF};
 #elif defined JINPENG_12080
 const uint16_t uiBatStatus48[8] = {420,426,433,440,447,454,462,470};
 const uint16_t uiBatStatus60[8] = {520,528,537,546,555,563,571,579};
-const uint16_t uiBatStatus72[8] = {0};
+const uint16_t uiBatStatus72[8] = {0xFFFF};
 #elif defined LCD6040
 const uint16_t uiBatStatus48[] 	= {425,432,444,456,468};
 const uint16_t uiBatStatus60[] 	= {525,537,553,566,578};
@@ -129,7 +132,7 @@ int GetTemp(void)
 	
 	return slTemp;
 }
-#if 0
+
 uint16_t GetVol(void)
 {
 	static uint8_t ucIndex = 0;
@@ -138,8 +141,8 @@ uint16_t GetVol(void)
 
 	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH,\
 				DISABLE);
 	ADC1_Cmd(ENABLE);
 	Delay(5000);  
@@ -154,11 +157,42 @@ uint16_t GetVol(void)
 	for(i=0,uiVol=0;i<ContainOf(uiVolBuf);i++)
 		uiVol += uiVolBuf[i];
 	uiVol /= ContainOf(uiVolBuf);
-	uiVol = (uint32_t)uiVol*1050/1024 ;
+	uiVol = (uint32_t)uiVol*1050UL/1024UL;
 	
 	return uiVol;
 }
-#else
+
+#ifdef BATV2_ADC_CH
+uint16_t GetVol2(void)
+{
+	static uint8_t ucIndex = 0;
+	uint16_t uiVol;
+	uint8_t i;
+
+	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	ADC1_DeInit();  
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV2_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV2_ADC_SCH,\
+				DISABLE);
+	ADC1_Cmd(ENABLE);
+	Delay(5000);  
+	ADC1_StartConversion(); 
+	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+	uiVol = ADC1_GetConversionValue();
+	ADC1_Cmd(DISABLE);
+
+	uiVol2Buf[ucIndex++] = uiVol;
+	if ( ucIndex >= ContainOf(uiVol2Buf) )
+		ucIndex = 0;
+	for(i=0,uiVol=0;i<ContainOf(uiVol2Buf);i++)
+		uiVol += uiVol2Buf[i];
+	uiVol /= ContainOf(uiVol2Buf);
+	uiVol = (uint32_t)uiVol*1050UL/1024UL;
+	
+	return uiVol;
+}
+#endif
+
 uint8_t GetVolStabed(uint16_t* uiVol)
 {
 	uint32_t ulMid;
@@ -167,8 +201,8 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, ADC1_CHANNEL_2, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, ADC1_SCHMITTTRIG_CHANNEL2,\
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH,\
 				DISABLE);
 
 	ADC1_Cmd(ENABLE);
@@ -191,8 +225,6 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	
 	return 1;
 }
-
-#endif
 
 #if ( PCB_VER == 0013 )
 uint8_t GetSpeedAdj(void)
@@ -341,6 +373,9 @@ void LightTask(void)
 	if( GPIO_Read(NearLight_PORT, 	NearLight_PIN) ) sBike.bNearLight = 1; else sBike.bNearLight = 0;
 	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN) ) sBike.bTurnRight = 1; else sBike.bTurnRight = 0;
 	//if( GPIO_Read(TurnLeft_PORT, 	TurnLeft_PIN ) ) sBike.bTurnLeft  = 1; else sBike.bTurnLeft  = 0;
+#ifdef OverSpeed_PORT
+	if( GPIO_Read(OverSpeed_PORT, 	OverSpeed_PIN) ) sBike.bOverSpeed = 1; else sBike.bOverSpeed = 0;
+#endif
 	
 	if ( sBike.bYXTERR ){
 		ucSpeedMode = 0;
@@ -404,11 +439,11 @@ void UartTask(void)
 				if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
 				FEED_DOG();  
 			}
-			sBike.uiVoltage	 	= uiVol;
+			sBike.uiBatVoltage	 	= uiVol;
 			sBike.siTemperature = GetTemp();
 			sBike.ucSpeed		= GetSpeed();
 
-			sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;					
+			sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL/VOL_CALIBRATIOIN;					
 		//	sConfig.TempScale 	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	
 		//	sConfig.uiSpeedScale= (uint32_t)sBike.ucSpeed*1000UL/SPEED_CALIBRATIOIN;				
 			WriteConfig();
@@ -440,11 +475,11 @@ void Calibration(void)
 			if ( GetVolStabed(&uiVol) && (uiVol > 500) ) break;
 			FEED_DOG();  
 		}
-		sBike.uiVoltage		= uiVol;
+		sBike.uiBatVoltage		= uiVol;
 		//sBike.siTemperature= GetTemp();
 		//sBike.ucSpeed		= GetSpeed();
 
-		sConfig.uiVolScale	= (uint32_t)sBike.uiVoltage*1000UL/VOL_CALIBRATIOIN;	//60.00V
+		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL/VOL_CALIBRATIOIN;	//60.00V
 		//sConfig.TempScale	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
 		WriteConfig();
 	}
@@ -513,7 +548,7 @@ void main(void)
 	}
 	
 	GetVolStabed(&uiVol);
-	sBike.uiVoltage = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
+	sBike.uiBatVoltage = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
 	sBike.siTemperature = GetTemp();
 	
 	while(1){
@@ -525,13 +560,14 @@ void main(void)
 			uiCount ++;
 			
 			if ( (uiCount % 5) == 0 ) {
+			#ifdef JINPENG_MR9737
+					sBike.uiBatVoltage  = (uint32_t)GetVol();
+					sBike.uiBatVoltage2	= (uint32_t)GetVol2();
+			#else
 				if ( GetVolStabed(&uiVol) ){
-					sBike.uiVoltage  = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
-					sBike.ucBatStatus= GetBatStatus(sBike.uiVoltage);
-				#ifdef LCD8794GCT
-				//	sBike.ucEnergy 	 = GetBatEnergy(sBike.uiVoltage);
-				#endif
+					sBike.uiBatVoltage  = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
 				}
+			#endif
 			}
 			if ( (uiCount % 10) == 0 ){
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
@@ -553,7 +589,7 @@ void main(void)
       
 		#ifdef LCD_SEG_TEST
 			if ( ++uiCount >= 100 ) uiCount = 0;
-			sBike.uiVoltage 	= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL + uiCount/10*1000UL;
+			sBike.uiBatVoltage 	= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL + uiCount/10*1000UL;
 			sBike.siTemperature	= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL;
 			sBike.ucSpeed		= uiCount/10 + uiCount/10*10;
 			sBike.ulMile		= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL + uiCount/10*1000UL + uiCount/10*10000UL;
@@ -564,7 +600,7 @@ void main(void)
 			#endif
 		#endif
 	
-			MenuUpdate(&sBike);
+			Display(&sBike);
 			
 			/* Reload IWDG counter */
 			FEED_DOG();  
