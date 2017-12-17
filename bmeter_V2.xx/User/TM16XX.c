@@ -6,14 +6,14 @@
 /******************************************************************************/
 
 #ifdef TM16XX_CS	
-#define CS_SET()	TM16XX_PORT->ODR  |= TM16XX_CS
-#define CS_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CS
+#define CS_SET()	do{TM16XX_PORT->ODR  |= TM16XX_CS;} while(0)
+#define CS_CLR()	do{TM16XX_PORT->ODR  &=~TM16XX_CS;} while(0)
 #endif
 
-#define CLK_SET()	TM16XX_PORT->ODR  |= TM16XX_CLK
-#define CLK_CLR()	TM16XX_PORT->ODR  &=~TM16XX_CLK
-#define DAT_SET()	TM16XX_PORT->ODR  |= TM16XX_DAT
-#define DAT_CLR()	TM16XX_PORT->ODR  &=~TM16XX_DAT
+#define CLK_SET()	do{TM16XX_PORT->ODR  |= TM16XX_CLK;} while(0)
+#define CLK_CLR()	do{TM16XX_PORT->ODR  &=~TM16XX_CLK;} while(0)
+#define DAT_SET()	do{TM16XX_PORT->ODR  |= TM16XX_DAT;} while(0)
+#define DAT_CLR()	do{TM16XX_PORT->ODR  &=~TM16XX_DAT;} while(0)
 
 /******************************************************************************/
 
@@ -39,7 +39,7 @@ void TM16XX_Init(unsigned char st)
 	unsigned char i,dat;
 	
 #ifdef TM1624	
-	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_PP_HIGH_FAST);
+	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_OD_LOW_SLOW);
 #endif
 	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_PP_HIGH_FAST);
 	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_PP_HIGH_FAST);
@@ -57,21 +57,20 @@ void TM16XX_Init(unsigned char st)
 #endif
 }
 
+//#pragma optimize=none
 void TM16XX_WriteReg( unsigned char reg )
 {
 	unsigned char i;
 	for(i=0;i<8;i++) {
 		if((reg>>i)&0x01)	DAT_SET();
 		else				DAT_CLR();
-		asm("nop");
-		CLK_CLR();asm("nop");
-		CLK_SET();asm("nop");
-		asm("nop"); 
+		asm("nop");asm("nop");
+		CLK_SET();asm("nop");asm("nop");
+		CLK_CLR();asm("nop");asm("nop");
 	}
 }
 
 #ifdef TM1624	
-
 void TM1624_Write_Data(unsigned char* buf,unsigned char len)
 {
 	unsigned char i;
@@ -98,34 +97,33 @@ void TM1624_Write_Data(unsigned char* buf,unsigned char len)
 void TM1640_Write_Data(unsigned char* buf,unsigned char len)
 {
 	unsigned char i;
-	CLK_SET();
-	DAT_SET();
-	CLK_CLR();
+	DAT_SET();asm("nop");asm("nop");
+	CLK_SET();asm("nop");asm("nop");
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_CLR();asm("nop");asm("nop");
 	TM16XX_WriteReg(CONFIG_CMD|ADDR_AUTO);
-	CLK_CLR();
-	DAT_CLR();
-	CLK_SET();
-	DAT_SET();
-	DAT_CLR();
-	CLK_CLR();
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_SET();asm("nop");asm("nop");
+	DAT_SET();asm("nop");asm("nop");
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_CLR();asm("nop");asm("nop");
 		
 	TM16XX_WriteReg(ADDRESS_CMD|0x00);
 	
 	for(i=0;i<len;i++)
 		TM16XX_WriteReg(buf[i]);
 	
-	CLK_CLR();
-	DAT_CLR();
-	CLK_SET();
-	DAT_SET();
-	DAT_CLR();
-	CLK_CLR();
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_SET();asm("nop");asm("nop");
+	DAT_SET();asm("nop");asm("nop");
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_CLR();asm("nop");asm("nop");asm("nop");
 
 	TM16XX_WriteReg(DISPLAY_CMD|DISPLAY_14);
-	CLK_CLR();
-	DAT_CLR();
-	CLK_SET();
-	DAT_SET();
+	//TM16XX_WriteReg(DISPLAY_CMD|0X08);
+	DAT_CLR();asm("nop");asm("nop");
+	CLK_SET();asm("nop");asm("nop");
+	DAT_SET();asm("nop");asm("nop");
 }
 #endif
 

@@ -515,7 +515,7 @@ void main(void)
 
 	InitTimer();  
 	HotReset();
-    sBike.bHotReset = 0;
+    //sBike.bHotReset = 0;
 	if ( sBike.bHotReset == 0 ) {
 		DisplayInit(1);
 	} else
@@ -588,7 +588,7 @@ void main(void)
 		#endif
       
 		#ifdef LCD_SEG_TEST
-			if ( ++uiCount >= 100 ) uiCount = 0;
+			if ( uiCount >= 100 ) uiCount = 0;
 			sBike.uiBatVoltage 	= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL + uiCount/10*1000UL;
 			sBike.siTemperature	= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL;
 			sBike.ucSpeed		= uiCount/10 + uiCount/10*10;

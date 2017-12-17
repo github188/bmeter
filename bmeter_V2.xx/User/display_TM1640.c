@@ -26,22 +26,21 @@ void Display(BIKE_STATUS* bike)
   /***************************Battery Area Display**********************************/
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
     case 0:
-		if ( flashflag >= 5 ) 
-			TM16XX[12]|= 0x7F;break;	//T5-T11
-    case 1: TM16XX[11]|= 0x01;break;
-    case 2: TM16XX[11]|= 0x03;break;
-    case 3: TM16XX[11]|= 0x07;break;
-    case 4: TM16XX[11]|= 0x0F;break;
-    case 5: TM16XX[11]|= 0x1F;break;
-    case 6: TM16XX[11]|= 0x3F;break;      
-    case 7: TM16XX[11]|= 0x7F;break;
-    case 8: TM16XX[11]|= 0xFF;break;          
+		if ( flashflag >= 5 ) TM16XX[12]|= 0x7F;break;	//T5-T11
+    case 1: TM16XX[11]|= 0x01;TM16XX[12]|= 0x7F;break;
+    case 2: TM16XX[11]|= 0x03;TM16XX[12]|= 0x7F;break;
+    case 3: TM16XX[11]|= 0x07;TM16XX[12]|= 0x7F;break;
+    case 4: TM16XX[11]|= 0x0F;TM16XX[12]|= 0x7F;break;
+    case 5: TM16XX[11]|= 0x1F;TM16XX[12]|= 0x7F;break;
+    case 6: TM16XX[11]|= 0x3F;TM16XX[12]|= 0x7F;break;      
+    case 7: TM16XX[11]|= 0x7F;TM16XX[12]|= 0x7F;break;
+    case 8: TM16XX[11]|= 0xFF;TM16XX[12]|= 0x7F;break;          
     default:break; 
 	}
 
 	/***************************Temp Area Display**********************************/
-	TM16XX[ 0] |= (SegData[abs(bike->siTemperature/10	)%10]);
-	TM16XX[ 1] |= (SegData[abs(bike->siTemperature/100	)%10]);       
+	TM16XX[ 0] |= (SegData[abs(bike->siTemperature/100	)%10]);       
+	TM16XX[ 1] |= (SegData[abs(bike->siTemperature/10	)%10]);
 	TM16XX[ 0] |= 0x80;	//T1
 	//if (bike->siTemperature < 0)
 	//	TM16XX[4] |= 0x01;       
@@ -57,17 +56,18 @@ void Display(BIKE_STATUS* bike)
 		TM16XX[ 8] |= (SegData [(bike->ulMile/100  )%10]); 
 		TM16XX[ 7] |= (SegData [(bike->ulMile/1000 )%10]); 
 		TM16XX[ 6] |= (SegData [(bike->ulMile/10000)%10]); 
-		TM16XX[ 6] |= 0x80;	//T4
 	}		
+	TM16XX[ 6] |= 0x80;	//T4
 
 	/*************************** Speed Display**********************************/
 	if ( bike->bSpeedFlash == 0 || flashflag >= 5 ) {
-		TM16XX[ 2] |= (SegData [ bike->ucSpeed	 	%10]);
-		TM16XX[ 3]  = TM16XX[ 2];
-		TM16XX[ 4] |= (SegData [(bike->ucSpeed/10)	%10]); 
-		TM16XX[ 4] |= 0x80;
-		TM16XX[ 5]  = TM16XX[ 4];	//T2,T3
+		TM16XX[ 2] |= (SegData [(bike->ucSpeed/10) 	%10]);
+		TM16XX[ 3] |= (SegData [(bike->ucSpeed/10) 	%10]);
+		TM16XX[ 4] |= (SegData [bike->ucSpeed		%10]); 
+		TM16XX[ 5] |= (SegData [bike->ucSpeed		%10]); 
 	}
+	TM16XX[ 4] |= 0x80;	//T2
+	TM16XX[ 5] |= 0x80;	//T3
 
 	/*************************** Mode Display**********************************/ 
 	switch (bike->ucSpeedMode){

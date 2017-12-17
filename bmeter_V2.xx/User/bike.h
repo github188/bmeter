@@ -7,7 +7,10 @@
   * @brief   
   ******************************************************************************
   * @Changlog
-  * V2.31 - 20171214
+  * V2.32 - 20171214
+  * 完善对JINGPENG-12080的支持；
+  * 
+  *  * V2.31 - 20171214
   * 增加对JINGPENG-12080的支持；
   *
   * V2.30 - 20171201
@@ -150,7 +153,7 @@
 //#define OUPAINONG_ADJ_6072	//LCD9040ADJ_6072
 /******************************************************************************/
 
-#define SW_VER				231UL
+//#define SW_VER				232UL
 
 //#define SINGLE_TRIP	
 //#define LCD_SEG_TEST
@@ -486,9 +489,9 @@ void LRFlashTask(void);
 	#define TurnLeft_PORT	GPIOC
 	#define TurnLeft_PIN	GPIO_PIN_5
 	
-	#define TM16XX_PORT	GPIOC
-	#define TM16XX_CLK	GPIO_PIN_0
-	#define TM16XX_DAT	GPIO_PIN_1
+	#define TM16XX_PORT	GPIOB
+	#define TM16XX_CLK	GPIO_PIN_4
+	#define TM16XX_DAT	GPIO_PIN_5
 
 #elif ( PCB_VER == 0100 )
 	#define BATV_ADC_CH		ADC1_CHANNEL_2

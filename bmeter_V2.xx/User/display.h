@@ -3,7 +3,7 @@
 
 #include "bike.h"
 
-#if ( defined LED1640 ) 
+#if ( defined TM1640 ) 
 #define DisplayInit(x)	TM16XX_Init(x)
 #else
 #define DisplayInit(x)	BL55072_Config(x)
