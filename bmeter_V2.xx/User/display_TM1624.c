@@ -68,14 +68,14 @@ void Display(BIKE_STATUS* bike)
 
   /***************************Battery Area Display**********************************/
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
-    case 0:		 break;
+    case 0:	break;
     case 1:
 		if ( flashflag >= 5 ) 
 			T1();break;
-    case 2: T2();break;
-    case 3: T3();break;
-    case 4: T4();break;
-    case 5: T5();break;
+    case 2: T1();T2();break;
+    case 3: T1();T2();T3();break;
+    case 4: T1();T2();T3();T4();break;
+    case 5: T1();T2();T3();T4();T5();break;
     default:break; 
 	}
 

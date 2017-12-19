@@ -84,7 +84,6 @@ void InitTimer(void)
 	TIM2_Cmd(ENABLE);     
 }
 
-
 BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
 {
 	GPIO_Init(GPIOx, GPIO_Pin, GPIO_MODE_IN_FL_NO_IT);

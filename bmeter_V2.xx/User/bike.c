@@ -151,7 +151,7 @@ void WriteConfig(void)
 	sConfig.ucBike[1] = 'i';
 	sConfig.ucBike[2] = 'k';
 	sConfig.ucBike[3] = 'e';
-	sConfig.uiVersion = SW_VER;
+//	sConfig.uiVersion = SW_VER;
 	for(sConfig.ucSum=0,i=0;i<sizeof(BIKE_CONFIG)-1;i++)
 		sConfig.ucSum += cbuf[i];
 		

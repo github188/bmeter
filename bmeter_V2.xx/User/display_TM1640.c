@@ -24,17 +24,20 @@ void Display(BIKE_STATUS* bike)
 	if( bike->bBraked  		) TM16XX[13] |= 0x80;	//S7 	刹车
 
   /***************************Battery Area Display**********************************/
+	TM16XX[12]|= 0x7F;	//T5-T11
+	TM16XX[11]|= 0x01;	//U0
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
     case 0:
-		if ( flashflag >= 5 ) TM16XX[12]|= 0x7F;break;	//T5-T11
-    case 1: TM16XX[11]|= 0x01;TM16XX[12]|= 0x7F;break;
-    case 2: TM16XX[11]|= 0x03;TM16XX[12]|= 0x7F;break;
-    case 3: TM16XX[11]|= 0x07;TM16XX[12]|= 0x7F;break;
-    case 4: TM16XX[11]|= 0x0F;TM16XX[12]|= 0x7F;break;
-    case 5: TM16XX[11]|= 0x1F;TM16XX[12]|= 0x7F;break;
-    case 6: TM16XX[11]|= 0x3F;TM16XX[12]|= 0x7F;break;      
-    case 7: TM16XX[11]|= 0x7F;TM16XX[12]|= 0x7F;break;
-    case 8: TM16XX[11]|= 0xFF;TM16XX[12]|= 0x7F;break;          
+		if ( flashflag < 5 ) 
+			TM16XX[11]&=~0x01;break;	//U0
+    case 1: TM16XX[11]|= 0x01;break;
+    case 2: TM16XX[11]|= 0x03;break;
+    case 3: TM16XX[11]|= 0x07;break;
+    case 4: TM16XX[11]|= 0x0F;break;
+    case 5: TM16XX[11]|= 0x1F;break;
+    case 6: TM16XX[11]|= 0x3F;break;      
+    case 7: TM16XX[11]|= 0x7F;break;
+    case 8: TM16XX[11]|= 0xFF;break;          
     default:break; 
 	}
 

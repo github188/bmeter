@@ -39,10 +39,10 @@ void TM16XX_Init(unsigned char st)
 	unsigned char i,dat;
 	
 #ifdef TM1624	
-	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_OD_LOW_SLOW);
+	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_OD_HIZ_FAST);
 #endif
-	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_PP_HIGH_FAST);
-	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_PP_HIGH_FAST);
+	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_OD_HIZ_FAST);
+	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_OD_HIZ_FAST);
 	
 	switch(st){
 		case 0:	dat = 0x00; break;	
@@ -57,16 +57,22 @@ void TM16XX_Init(unsigned char st)
 #endif
 }
 
-//#pragma optimize=none
+#pragma optimize=none
+void TM16XX_Delay(unsigned char cnt)
+{
+	volatile unsigned char i;
+	for(i=0;i<cnt;i++);	
+}
+
 void TM16XX_WriteReg( unsigned char reg )
 {
 	unsigned char i;
 	for(i=0;i<8;i++) {
 		if((reg>>i)&0x01)	DAT_SET();
 		else				DAT_CLR();
-		asm("nop");asm("nop");
-		CLK_SET();asm("nop");asm("nop");
-		CLK_CLR();asm("nop");asm("nop");
+		TM16XX_Delay(5);
+		CLK_SET();TM16XX_Delay(5);
+		CLK_CLR();//TM16XX_Delay(2);
 	}
 }
 
@@ -94,36 +100,37 @@ void TM1624_Write_Data(unsigned char* buf,unsigned char len)
 	CS_SET();
 }
 #elif defined TM1640
+#pragma optimize=none
 void TM1640_Write_Data(unsigned char* buf,unsigned char len)
 {
 	unsigned char i;
-	DAT_SET();asm("nop");asm("nop");
-	CLK_SET();asm("nop");asm("nop");
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_CLR();asm("nop");asm("nop");
+	DAT_SET();TM16XX_Delay(5);
+	CLK_SET();TM16XX_Delay(5);
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_CLR();TM16XX_Delay(5);
 	TM16XX_WriteReg(CONFIG_CMD|ADDR_AUTO);
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_SET();asm("nop");asm("nop");
-	DAT_SET();asm("nop");asm("nop");
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_CLR();asm("nop");asm("nop");
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_SET();TM16XX_Delay(5);
+	DAT_SET();TM16XX_Delay(5);
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_CLR();TM16XX_Delay(5);
 		
 	TM16XX_WriteReg(ADDRESS_CMD|0x00);
 	
 	for(i=0;i<len;i++)
 		TM16XX_WriteReg(buf[i]);
 	
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_SET();asm("nop");asm("nop");
-	DAT_SET();asm("nop");asm("nop");
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_CLR();asm("nop");asm("nop");asm("nop");
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_SET();TM16XX_Delay(5);
+	DAT_SET();TM16XX_Delay(5);
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_CLR();TM16XX_Delay(5);
 
 	TM16XX_WriteReg(DISPLAY_CMD|DISPLAY_14);
 	//TM16XX_WriteReg(DISPLAY_CMD|0X08);
-	DAT_CLR();asm("nop");asm("nop");
-	CLK_SET();asm("nop");asm("nop");
-	DAT_SET();asm("nop");asm("nop");
+	DAT_CLR();TM16XX_Delay(5);
+	CLK_SET();TM16XX_Delay(5);
+	DAT_SET();TM16XX_Delay(5);
 }
 #endif
 

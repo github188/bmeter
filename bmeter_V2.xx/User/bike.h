@@ -7,10 +7,13 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.33 - 20171219
+  * 改电量外框常亮，调整TM1640通讯速度；
+  * 
   * V2.32 - 20171214
   * 完善对JINGPENG-12080的支持；
   * 
-  *  * V2.31 - 20171214
+  * V2.31 - 20171214
   * 增加对JINGPENG-12080的支持；
   *
   * V2.30 - 20171201
@@ -159,10 +162,11 @@
 //#define LCD_SEG_TEST
 //#define RESET_CONFIG
 
+/******************************************************************************/
 #define VOL_CALIBRATIOIN	600UL	//60.0V
 #define TEMP_CALIBRATIOIN	250UL	//25.0C
 
-#define PON_ALLON_TIME		2000UL	//1000ms
+#define PON_ALLON_TIME		2000UL	//2000ms
 
 #define DISPLAY_MAX_SPEED	45UL	//40km/h
 /******************************************************************************/
@@ -323,15 +327,6 @@
 #endif
 
 /******************************************************************************/
-#if (defined LCD9040) || \
-	(defined LCD5535) || \
-	(defined LCD8794GCT) || \
-	(defined LCD6040 )	|| \
-	(defined TM1640 )
-#else
-#error "Not defined LCD_TYPE"
-#endif
-    
 #ifndef PCB_VER
 	#define PCB_VER	0100
 #endif
@@ -407,8 +402,6 @@ typedef struct {
 	signed int	siTemperature;
 	uint16_t  	uiBatVoltage;
 	uint16_t  	uiBatVoltage2;
-	uint16_t  	uiBatVoltage3;
-	uint16_t  	uiBatVoltage4;
 	uint8_t 	ucSpeed;
 	uint8_t 	ucPHA_Speed;
 	uint8_t 	ucYXT_Speed;

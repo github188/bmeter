@@ -55,10 +55,11 @@ void Display(BIKE_STATUS* bike)
 	}
 
 	/***************************Battery Area Display**********************************/
+	BL_Data[0x06]|= 0x80;
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
 	case 0:
-		if ( flashflag >= 5 ) 
-			BL_Data[0x06]|= 0x80;break;
+		if ( flashflag < 5 ) 
+			BL_Data[0x06]&=~0x80;break;
 	case 1: BL_Data[0x07] = 0x80;break;
 	case 2: BL_Data[0x07] = 0xC0;break;
 	case 3: BL_Data[0x07] = 0xE0;break;
@@ -119,7 +120,7 @@ void Display(BIKE_STATUS* bike)
 
 	/*************************** ulMile Display**********************************/  
 	if ( bike->bMileFlash == 0 || flashflag >= 5 ) {
-		BL_Data[0x00] |= (SegDataMile2[ bike->ulMile		 %10]) | 0x80;	//S17
+		BL_Data[0x00] |= (SegDataMile2[ bike->ulMile		%10]) | 0x80;	//S17
 		BL_Data[0x01] |= (SegDataMile [(bike->ulMile/10   )%10]);
 		BL_Data[0x02] |= (SegDataMile [(bike->ulMile/100  )%10]); 
 		BL_Data[0x03] |= (SegDataMile [(bike->ulMile/1000 )%10]);

@@ -32,10 +32,11 @@ void Display(BIKE_STATUS* bike)
 	if( bike->bBraked  		) BL_Data[15]|= 0x40;	//S8 	刹车
 
   /***************************Battery Area Display**********************************/
+	BL_Data[16]|= 0x10;
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
     case 0:
-		if ( flashflag >= 5 ) 
-			BL_Data[16]|= 0x10;break;
+		if ( flashflag < 5 ) 
+			BL_Data[16]&=~0x10;break;
     case 1: BL_Data[3] |= 0x10;break;
     case 2: BL_Data[3] |= 0x30;break;
     case 3: BL_Data[3] |= 0x70;break;

@@ -32,7 +32,7 @@ void Display(BIKE_STATUS* bike)
 	switch ( GetBatStatus(sBike.uiBatVoltage) ){
     case 0:
 		if ( flashflag >= 5 ) 
-			BL_Data[ 4] |= 0x01;break;  //S14    
+			BL_Data[ 4] &=~0x80;break;
     case 1: BL_Data[ 4] |= 0x01;break; //S14
     case 2: BL_Data[ 4] |= 0x03;break; //S15
     case 3: BL_Data[ 4] |= 0x07;break; //S16
