@@ -41,7 +41,7 @@ const uint16_t uiBatStatus72[8] = {630,642,653,664,675,687,700,715};
 
 /*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
-uint16_t uiVolBuf[28];
+uint16_t uiVolBuf[8];
 uint16_t uiTempBuf[4];
 
 #if ( TIME_ENABLE == 1 )
@@ -194,9 +194,10 @@ uint16_t GetVol2(void)
 
 uint8_t GetVolStabed(uint16_t* uiVol)
 {
-	uint32_t ulMid;
+	static uint8_t ucIndex = 0;
+	uint32_t ulMid,vol;
 	uint16_t uiBuf[32];
-	uint8_t i;
+	uint8_t i,valid;
 	
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	//ADC1_DeInit();  
@@ -213,14 +214,24 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	}
 	ADC1_Cmd(DISABLE);
 	
-	*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
+	//*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
 
 	for(i=0,ulMid=0;i<32;i++)	ulMid += uiBuf[i];
 	ulMid /= 32;
 	for( i=0;i<32;i++){
-		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 ||  (ulMid *100 / uiBuf[i]) < 99) )
+		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 || (ulMid *100 / uiBuf[i]) < 99) )
 			return 0;
 	}
+
+	uiVolBuf[ucIndex++] = ulMid;
+	if ( ucIndex >= ContainOf(uiVolBuf) )
+		ucIndex = 0;
+		
+	for(i=0,ulMid=0;i<ContainOf(uiVolBuf);i++)
+		ulMid += uiVolBuf[i];
+	ulMid /= ContainOf(uiVolBuf);
+	
+	*uiVol = ulMid;
 	
 	return 1;
 }
@@ -497,7 +508,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	IWDG_Config();
+	//IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
@@ -520,7 +531,7 @@ void main(void)
 	} else
 		DisplayInit(0);
 	
-//	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
+	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
 //	for(i=0;i<16;i++){	GetSpeed();	/*FEED_DOG(); */ }
 	for(i=0;i<4;i++) {	GetTemp();	FEED_DOG(); }
 
@@ -558,14 +569,16 @@ void main(void)
 			tick_100ms = uiTick;
 			uiCount ++;
 			
-			if ( (uiCount % 5) == 0 ) {
+			if ( (uiCount % 5) == 0 ) 
+			{
 			#ifdef JINPENG_MR9737
 					sBike.uiBatVoltage  = (uint32_t)GetVol();
 					sBike.uiBatVoltage2	= (uint32_t)GetVol2();
 			#else
 				if ( GetVolStabed(&uiVol) ){
-					sBike.uiBatVoltage  = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
+					sBike.uiBatVoltage  = (uint32_t)(uiVol+300)*1000UL/sConfig.uiVolScale;
 				}
+				//sBike.uiBatVoltage  = (uint32_t)GetVol()+300;
 			#endif
 			}
 			if ( (uiCount % 10) == 0 ){

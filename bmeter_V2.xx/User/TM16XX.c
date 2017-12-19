@@ -126,8 +126,8 @@ void TM1640_Write_Data(unsigned char* buf,unsigned char len)
 	DAT_CLR();TM16XX_Delay(5);
 	CLK_CLR();TM16XX_Delay(5);
 
-	TM16XX_WriteReg(DISPLAY_CMD|DISPLAY_14);
-	//TM16XX_WriteReg(DISPLAY_CMD|0X08);
+	//TM16XX_WriteReg(DISPLAY_CMD|DISPLAY_14);
+	TM16XX_WriteReg(DISPLAY_CMD|0X08);
 	DAT_CLR();TM16XX_Delay(5);
 	CLK_SET();TM16XX_Delay(5);
 	DAT_SET();TM16XX_Delay(5);

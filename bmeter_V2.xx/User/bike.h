@@ -172,7 +172,7 @@
 /******************************************************************************/
 
 #if defined LCD9040
-	#define PCB_VER		0200
+	#define PCB_VER		0100
 	//#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
