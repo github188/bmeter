@@ -99,7 +99,6 @@ int GetTemp(void)
 {
 	static uint8_t ucIndex = 0;
 	int32_t slTemp;
-	uint8_t i;
 
 	//GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
 	//ADC1_DeInit();  
@@ -116,9 +115,7 @@ int GetTemp(void)
 	uiTempBuf[ucIndex++] = slTemp;
 	if ( ucIndex >= ContainOf(uiTempBuf) )
 		ucIndex = 0;
-	for(i=0,slTemp=0;i<ContainOf(uiTempBuf);i++)
-		slTemp += uiTempBuf[i];
-	slTemp /= ContainOf(uiTempBuf);
+	slTemp = get_average16(uiTempBuf,ContainOf(uiTempBuf));
 
 	//slTemp = 470UL*1024/(1024-slTemp)-470;
 	//slTemp = NTCtoTemp(slTemp)/10;
@@ -136,10 +133,9 @@ uint16_t GetVol(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiVol;
-	uint8_t i;
 
-	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
-	ADC1_DeInit();  
+	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
+	//ADC1_DeInit();  
 	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
 				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH,\
 				DISABLE);
@@ -153,9 +149,7 @@ uint16_t GetVol(void)
 	uiVolBuf[ucIndex++] = uiVol;
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
-	for(i=0,uiVol=0;i<ContainOf(uiVolBuf);i++)
-		uiVol += uiVolBuf[i];
-	uiVol /= ContainOf(uiVolBuf);
+	uiVol = get_average16(uiVolBuf,ContainOf(uiVolBuf));
 	uiVol = (uint32_t)uiVol*1050UL/1024UL;
 	
 	return uiVol;
@@ -166,7 +160,6 @@ uint16_t GetVol2(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiVol;
-	uint8_t i;
 
 	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	ADC1_DeInit();  
@@ -183,21 +176,21 @@ uint16_t GetVol2(void)
 	uiVol2Buf[ucIndex++] = uiVol;
 	if ( ucIndex >= ContainOf(uiVol2Buf) )
 		ucIndex = 0;
-	for(i=0,uiVol=0;i<ContainOf(uiVol2Buf);i++)
-		uiVol += uiVol2Buf[i];
-	uiVol /= ContainOf(uiVol2Buf);
+	uiVol = get_average16(uiVol2Buf,ContainOf(uiVol2Buf));
 	uiVol = (uint32_t)uiVol*1050UL/1024UL;
 	
 	return uiVol;
 }
 #endif
 
+
+
 uint8_t GetVolStabed(uint16_t* uiVol)
 {
 	static uint8_t ucIndex = 0;
-	uint32_t ulMid,vol;
-	uint16_t uiBuf[32];
-	uint8_t i,valid;
+	uint32_t ulMid;
+	uint16_t uiBuf[ContainOf(uiVolBuf)];
+	uint8_t i;
 	
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	//ADC1_DeInit();  
@@ -216,8 +209,7 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	
 	//*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
 
-	for(i=0,ulMid=0;i<32;i++)	ulMid += uiBuf[i];
-	ulMid /= 32;
+	ulMid = get_average16(uiBuf,ContainOf(uiBuf));
 	for( i=0;i<32;i++){
 		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 || (ulMid *100 / uiBuf[i]) < 99) )
 			return 0;
@@ -227,11 +219,11 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
 		
-	for(i=0,ulMid=0;i<ContainOf(uiVolBuf);i++)
-		ulMid += uiVolBuf[i];
-	ulMid /= ContainOf(uiVolBuf);
+	for(i=0;i<ContainOf(uiVolBuf);i++)
+		uiBuf[i] = uiVolBuf[i];
 	
-	*uiVol = ulMid;
+	exchange_sort16(uiBuf,ContainOf(uiBuf));
+	*uiVol = get_average16(uiBuf+6,ContainOf(uiBuf)-6);
 	
 	return 1;
 }
@@ -258,9 +250,7 @@ uint8_t GetSpeedAdj(void)
 	if ( ucIndex >= ContainOf(uiSpeedBuf) )
 		ucIndex = 0;
 
-	for(i=0,uiAdj=0;i<ContainOf(uiSpeedBuf);i++)
-		uiAdj += uiSpeedBuf[i];
-	uiAdj /= ContainOf(uiSpeedBuf);
+	uiAdj = get_average16(uiSpeedBuf,ContainOf(uiSpeedBuf));
 	
 	if ( uiAdj > 99 )
 		uiAdj = 99;
@@ -273,7 +263,6 @@ uint8_t GetSpeed(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiSpeed;
-	uint8_t i;
 
 	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
 	//ADC1_DeInit();  
@@ -292,9 +281,7 @@ uint8_t GetSpeed(void)
 	if ( ucIndex >= ContainOf(uiSpeedBuf) )
 		ucIndex = 0;
 
-	for(i=0,uiSpeed=0;i<ContainOf(uiSpeedBuf);i++)
-		uiSpeed += uiSpeedBuf[i];
-	uiSpeed /= ContainOf(uiSpeedBuf);
+	uiSpeed = get_average16(uiSpeedBuf,ContainOf(uiSpeedBuf));
 	
 	if ( sConfig.uiSysVoltage		== 48 ){
 		uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
@@ -572,8 +559,8 @@ void main(void)
 			if ( (uiCount % 5) == 0 ) 
 			{
 			#ifdef JINPENG_MR9737
-					sBike.uiBatVoltage  = (uint32_t)GetVol();
-					sBike.uiBatVoltage2	= (uint32_t)GetVol2();
+					sBike.uiBatVoltage  = GetVol();
+					sBike.uiBatVoltage2	= GetVol2();
 			#else
 				if ( GetVolStabed(&uiVol) ){
 					sBike.uiBatVoltage  = (uint32_t)(uiVol+300)*1000UL/sConfig.uiVolScale;

@@ -447,8 +447,9 @@ uint8_t MileSetupTask(void);
 void MileTask(void);
 uint8_t SpeedCaltTask(void);
 void TimeTask(void);
-
 void LRFlashTask(void);
+void exchange_sort16(uint16_t* pData,uint16_t Count);
+uint16_t get_average16(uint16_t* dat, uint16_t len);
 /******************************************************************************/
 
 #if ( PCB_VER == 0200 )

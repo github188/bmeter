@@ -39,6 +39,33 @@ __no_init BIKE_CONFIG sConfig;
 volatile uint16_t  uiSysTick = 0;
 
 /*----------------------------------------------------------*/
+
+void exchange_sort16(uint16_t* pData,uint16_t Count)
+{
+	uint16_t iTemp;
+	uint16_t i,j;
+	
+	for(i=0;i<Count-1;i++){
+		for(j=i+1;j<Count;j++){
+			if(pData[j]<pData[i]){
+				iTemp = pData[i];
+				pData[i] = pData[j];
+				pData[j] = iTemp;
+			}
+		}
+	}
+}
+
+uint16_t get_average16(uint16_t* dat, uint16_t len)
+{
+	uint32_t sum;
+	uint16_t i;
+	
+	for(sum=0,i=0;i<len;i++)
+		sum += dat[i];	
+	return (sum/len);
+}
+
 uint16_t Get_SysTick(void)
 {
 	uint16_t uiTick;
