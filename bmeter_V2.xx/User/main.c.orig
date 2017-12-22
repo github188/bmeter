@@ -41,11 +41,16 @@ const uint16_t uiBatStatus72[8] = {630,642,653,664,675,687,700,715};
 
 /*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
+<<<<<<< HEAD
 uint16_t uiVolBuf[32];
+uint16_t uiTempBuf[4];
+=======
+uint16_t uiVolBuf[8];
 #ifdef BATV_ADC_CH2
 uint16_t uiVol2Buf[8];
 #endif
 uint16_t uiTempBuf[8];
+>>>>>>> 614616afeb1f3ed64c7cd17bb3a070681af7f8cd
 
 #if ( TIME_ENABLE == 1 )
 uint8_t ucUart1Buf[16];

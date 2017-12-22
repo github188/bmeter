@@ -231,6 +231,10 @@
 	#define VD48	
 	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
+
+	#define PERIMETER		2200UL	//mm
+	#define PULSE_C			56
+
 #elif defined JINPENG_12080
 	#define PCB_VER		0200
 	#define TM1640
@@ -408,6 +412,7 @@ typedef struct {
 	uint32_t 	ulMile;
 	uint32_t 	ulFMile;
 	uint16_t  	uiTick;
+	uint16_t	uiHallCounter;
 	
 	uint8_t 	ucHour;
 	uint8_t 	ucMinute;
@@ -442,12 +447,14 @@ void ResetConfig(void);
 void InitConfig(void);
 uint8_t GetBatStatus(uint16_t uiVol);
 uint8_t GetBatEnergy(uint16_t uiVol);
+void GetSpeedHall(void);
 void LRFlashTask(void);
 uint8_t MileSetupTask(void);
 void MileTask(void);
 uint8_t SpeedCaltTask(void);
 void TimeTask(void);
 void LRFlashTask(void);
+void LightTask(void);
 void exchange_sort16(uint16_t* pData,uint16_t Count);
 uint16_t get_average16(uint16_t* dat, uint16_t len);
 /******************************************************************************/
@@ -612,6 +619,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 
 	#define BATV_ADC_CH2	ADC1_CHANNEL_2
 	#define BATV_ADC_SCH2	ADC1_SCHMITTTRIG_CHANNEL2
+	
+	#define SPEED_HALL_PORT	GPIOC
+	#define SPEED_HALL_PIN	GPIO_PIN_3
 
 	#define NearLight_PORT	GPIOD
 	#define NearLight_PIN	GPIO_PIN_4

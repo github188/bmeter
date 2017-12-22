@@ -83,6 +83,10 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 	
 	if ( (uiSysTick % 10) == 0)
 		LRFlashTask();
+#ifdef SPEED_HALL_PORT	
+	if ( (uiSysTick % 500) == 0)
+		GetSpeedHall();
+#endif
 }
 
 #if ( YXT_ENABLE == 1 )
@@ -123,5 +127,19 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
 		ucUart1Index = 0;
 }
 #endif
+
+#ifdef SPEED_HALL_PORT
+/**
+  * @brief  External Interrupt PORTC Interrupt routine
+  * @param  None
+  * @retval None
+  */
+INTERRUPT_HANDLER(EXTI_PORTB_IRQHandler, 5)
+{
+	if ( GPIO_ReadInputPin(SPEED_HALL_PORT,SPEED_HALL_PIN) )
+		sBike.uiHallCounter ++;
+}
+#endif
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

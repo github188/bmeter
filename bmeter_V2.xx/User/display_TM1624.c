@@ -80,14 +80,14 @@ void Display(BIKE_STATUS* bike)
 	}
 
 	switch ( GetBatStatus(sBike.uiBatVoltage2) ){
-    case 0:		 break;
+    case 0:	break;
     case 1:
 		if ( flashflag >= 5 ) 
 			U1();break;
-    case 2: U2();break;
-    case 3: U3();break;
-    case 4: U4();break;
-    case 5: U5();break;
+    case 2: U1();U2();break;
+    case 3: U1();U2();U3();break;
+    case 4: U1();U2();U3();U4();break;
+    case 5: U1();U2();U3();U4();U5();break;
     default:break; 
 	}
 	
