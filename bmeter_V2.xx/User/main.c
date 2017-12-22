@@ -41,7 +41,7 @@ const uint16_t uiBatStatus72[8] = {630,642,653,664,675,687,700,715};
 
 /*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
-uint16_t uiVolBuf[8];
+uint16_t uiVolBuf[32];
 uint16_t uiTempBuf[4];
 
 #if ( TIME_ENABLE == 1 )
@@ -189,7 +189,7 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 {
 	static uint8_t ucIndex = 0;
 	uint32_t ulMid;
-	uint16_t uiBuf[ContainOf(uiVolBuf)];
+	uint16_t uiBuf[32];
 	uint8_t i;
 	
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
@@ -199,7 +199,7 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 				DISABLE);
 
 	ADC1_Cmd(ENABLE);
-	for(i=0;i<32;i++){
+	for(i=0;i<ContainOf(uiBuf);i++){
 		Delay(500);  
 		ADC1_StartConversion(); 
 		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
@@ -207,13 +207,11 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	}
 	ADC1_Cmd(DISABLE);
 	
-	//*uiVol = (uint32_t)uiBuf[0]*1050UL/1024UL;
-
 	ulMid = get_average16(uiBuf,ContainOf(uiBuf));
-	for( i=0;i<32;i++){
-		if ( ulMid > 5 && ((ulMid *100 / uiBuf[i]) > 101 || (ulMid *100 / uiBuf[i]) < 99) )
-			return 0;
-	}
+	// for( i=0;i<ContainOf(uiBuf);i++){
+		// if ( ulMid > 2 && ((ulMid *100 / uiBuf[i]) > 101 || (ulMid *100 / uiBuf[i]) < 99) )
+			// return 0;
+	// }
 
 	uiVolBuf[ucIndex++] = ulMid;
 	if ( ucIndex >= ContainOf(uiVolBuf) )
@@ -222,9 +220,13 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	for(i=0;i<ContainOf(uiVolBuf);i++)
 		uiBuf[i] = uiVolBuf[i];
 	
-	exchange_sort16(uiBuf,ContainOf(uiBuf));
-	*uiVol = get_average16(uiBuf+6,ContainOf(uiBuf)-6);
-	
+	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
+	ulMid = 0;
+	for(i=0;i<ContainOf(uiVolBuf);i++){
+		if ( uiBuf[i] > 10 )
+			ulMid = get_average16(uiBuf+i,ContainOf(uiVolBuf)-i);
+	}
+	*uiVol = ulMid*1050UL/1024UL;
 	return 1;
 }
 
@@ -556,7 +558,7 @@ void main(void)
 			tick_100ms = uiTick;
 			uiCount ++;
 			
-			if ( (uiCount % 5) == 0 ) 
+			//if ( (uiCount % 5) == 0 ) 
 			{
 			#ifdef JINPENG_MR9737
 					sBike.uiBatVoltage  = GetVol();
