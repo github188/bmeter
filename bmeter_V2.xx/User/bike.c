@@ -250,6 +250,30 @@ uint8_t GetBatStatus(uint16_t uiVol)
 	return i;
 }
 
+#ifdef SPEED_HALL_PORT
+void GetSpeedHall(void)
+{
+	uint16_t count;
+	uint32_t speed;
+	
+	DISABLE_INTERRUPTS();
+	count = sBike.uiHallCounter;
+	sBike.uiHallCounter = 0;
+	ENABLE_INTERRUPTS();
+	
+	//speed = PERIMETER * 60 * 60 * count / 1000 / 1000 / PULSE_C;
+	speed = count * 2;
+	speed = PERIMETER * 36 * speed / 10 / 1000 / PULSE_C;
+	if ( speed < 25 )
+		speed = (unsigned short)speed * 122 / 100;	//20170929
+	else
+		speed = (unsigned short)speed * 130 / 100;	//20171013
+	if (speed > 65)
+		speed = 65;
+	sBike.ucPHA_Speed = speed;
+}
+#endif
+
 #if 0
 #ifdef LCD8794GCT
 
@@ -732,5 +756,42 @@ void TimeTask(void)
 	 sBike.ucMinute 	= RtcTime.RTC_Minutes;
 }
 #endif 
+
+void LightTask(void)
+{
+	uint8_t ucSpeedMode;
+
+	if( GPIO_Read(NearLight_PORT, 	NearLight_PIN) ) sBike.bNearLight = 1; else sBike.bNearLight = 0;
+	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN) ) sBike.bTurnRight = 1; else sBike.bTurnRight = 0;
+	//if( GPIO_Read(TurnLeft_PORT, 	TurnLeft_PIN ) ) sBike.bTurnLeft  = 1; else sBike.bTurnLeft  = 0;
+#ifdef OverSpeed_PORT
+	if( GPIO_Read(OverSpeed_PORT, 	OverSpeed_PIN) ) sBike.bOverSpeed = 1; else sBike.bOverSpeed = 0;
+#endif
+	
+	if ( sBike.bYXTERR ){
+		ucSpeedMode = 0;
+	#ifdef SPMODE1_PORT
+		if( GPIO_Read(SPMODE1_PORT,SPMODE1_PIN) ) ucSpeedMode |= 1<<0;
+		if( GPIO_Read(SPMODE2_PORT,SPMODE2_PIN) ) ucSpeedMode |= 1<<1;
+		if( GPIO_Read(SPMODE3_PORT,SPMODE3_PIN) ) ucSpeedMode |= 1<<2;
+	#endif
+	#ifdef SPMODE4_PORT
+		if( GPIO_Read(SPMODE4_PORT,SPMODE4_PIN) ) ucSpeedMode |= 1<<3;
+	#endif
+		switch(ucSpeedMode){
+			case 0x01: 	sBike.ucSpeedMode = 1; break;
+			case 0x02: 	sBike.ucSpeedMode = 2; break;
+			case 0x04: 	sBike.ucSpeedMode = 3; break;
+			case 0x08: 	sBike.ucSpeedMode = 4; break;
+			default:	sBike.ucSpeedMode = 0; break;
+		}
+	#ifdef SPEEDV_ADC_CH
+		sBike.ucPHA_Speed	= GetSpeed();
+	#endif
+		sBike.ucSpeed 		= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
+	}
+}
+
+
 /*----------------------------------------------------------*/
 

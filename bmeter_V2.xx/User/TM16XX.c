@@ -75,29 +75,28 @@ void TM16XX_WriteReg( unsigned char reg )
 		CLK_CLR();//TM16XX_Delay(2);
 	}
 }
-
 #ifdef TM1624	
 void TM1624_Write_Data(unsigned char* buf,unsigned char len)
 {
 	unsigned char i;
-	CS_CLR();
+	CS_CLR();TM16XX_Delay(5);
 	TM16XX_WriteReg(0x03);
-	CS_SET();
+	CS_SET();TM16XX_Delay(5);
 	
-	CS_CLR();
+	CS_CLR();TM16XX_Delay(5);
 	TM16XX_WriteReg(CONFIG_CMD|ADDR_AUTO);
-	CS_SET();
+	CS_SET();TM16XX_Delay(5);
 	
-	CS_CLR();
+	CS_CLR();TM16XX_Delay(5);
 	TM16XX_WriteReg(ADDRESS_CMD|0x00);
 	
 	for(i=0;i<len;i++)
 		TM16XX_WriteReg(buf[i]);
-	CS_SET();
+	CS_SET();TM16XX_Delay(5);
 	
-	CS_CLR();
+	CS_CLR();TM16XX_Delay(5);
 	TM16XX_WriteReg(DISPLAY_CMD|DISPLAY_14);
-	CS_SET();
+	CS_SET();TM16XX_Delay(5);
 }
 #elif defined TM1640
 #pragma optimize=none

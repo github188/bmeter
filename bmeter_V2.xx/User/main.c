@@ -42,7 +42,10 @@ const uint16_t uiBatStatus72[8] = {630,642,653,664,675,687,700,715};
 /*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
 uint16_t uiVolBuf[8];
-uint16_t uiTempBuf[4];
+#ifdef BATV_ADC_CH2
+uint16_t uiVol2Buf[8];
+#endif
+uint16_t uiTempBuf[8];
 
 #if ( TIME_ENABLE == 1 )
 uint8_t ucUart1Buf[16];
@@ -84,6 +87,13 @@ void InitTimer(void)
 	TIM2_Cmd(ENABLE);     
 }
 
+#ifdef SPEED_HALL_PORT
+void SpeedHallInit(void)
+{
+	GPIO_Init(SPEED_HALL_PORT, SPEED_HALL_PIN, GPIO_MODE_IN_FL_IT);
+}
+#endif
+
 BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin)
 {
 	GPIO_Init(GPIOx, GPIO_Pin, GPIO_MODE_IN_FL_NO_IT);
@@ -99,6 +109,7 @@ int GetTemp(void)
 {
 	static uint8_t ucIndex = 0;
 	int32_t slTemp;
+	uint16_t sample;
 
 	//GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
 	//ADC1_DeInit();  
@@ -109,19 +120,16 @@ int GetTemp(void)
 	Delay(1000);
 	ADC1_StartConversion(); 
 	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	slTemp = ADC1_GetConversionValue();
+	sample = ADC1_GetConversionValue();
 	ADC1_Cmd(DISABLE);
   
-	uiTempBuf[ucIndex++] = slTemp;
+	uiTempBuf[ucIndex++] = sample;
 	if ( ucIndex >= ContainOf(uiTempBuf) )
 		ucIndex = 0;
-	slTemp = get_average16(uiTempBuf,ContainOf(uiTempBuf));
+	exchange_sort16(uiTempBuf,ContainOf(uiTempBuf));
+	sample = get_average16(uiTempBuf+4,ContainOf(uiTempBuf)-4);
 
-	//slTemp = 470UL*1024/(1024-slTemp)-470;
-	//slTemp = NTCtoTemp(slTemp)/10;
-	//slTemp = ((3600- (long)slTemp * 2905/1024)/10);
-
-	slTemp = 10000*1024UL/(1024-slTemp)-10000;
+	slTemp = 10000*1024UL/(1024-sample)-10000;
 	slTemp = NTCtoTemp(slTemp);
 	if ( slTemp > 999  ) slTemp =  999;
 	if ( slTemp < -999 ) slTemp = -999;
@@ -150,12 +158,18 @@ uint16_t GetVol(void)
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
 	uiVol = get_average16(uiVolBuf,ContainOf(uiVolBuf));
-	uiVol = (uint32_t)uiVol*1050UL/1024UL;
+	
+//	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
+#if ( PCB_VER == MR9737 )
+	uiVol = (uint32_t)uiVol*650UL/1024UL;	// 120k+10k
+#else 
+	uiVol = (uint32_t)uiVol*1050UL/1024UL;	// 200k+10k
+#endif
 	
 	return uiVol;
 }
 
-#ifdef BATV2_ADC_CH
+#ifdef BATV_ADC_CH2
 uint16_t GetVol2(void)
 {
 	static uint8_t ucIndex = 0;
@@ -163,8 +177,8 @@ uint16_t GetVol2(void)
 
 	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV2_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV2_ADC_SCH,\
+	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV_ADC_CH2, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH2,\
 				DISABLE);
 	ADC1_Cmd(ENABLE);
 	Delay(5000);  
@@ -177,7 +191,13 @@ uint16_t GetVol2(void)
 	if ( ucIndex >= ContainOf(uiVol2Buf) )
 		ucIndex = 0;
 	uiVol = get_average16(uiVol2Buf,ContainOf(uiVol2Buf));
-	uiVol = (uint32_t)uiVol*1050UL/1024UL;
+	
+//	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
+#if ( PCB_VER == MR9737 )
+	uiVol = (uint32_t)uiVol*650UL/1024UL;	// 120k+10k
+#else 
+	uiVol = (uint32_t)uiVol*1050UL/1024UL;	// 200k+10k
+#endif
 	
 	return uiVol;
 }
@@ -259,6 +279,7 @@ uint8_t GetSpeedAdj(void)
 }
 #endif
 
+#ifdef SPEEDV_ADC_CH
 uint8_t GetSpeed(void)
 {
 	static uint8_t ucIndex = 0;
@@ -295,6 +316,7 @@ uint8_t GetSpeed(void)
 	
   return uiSpeed;
 }
+#endif
 
 void GetSysVoltage(void)
 {	
@@ -363,36 +385,6 @@ void GetSysVoltage(void)
 #endif
 }
 
-void LightTask(void)
-{
-	uint8_t ucSpeedMode;
-
-	if( GPIO_Read(NearLight_PORT, 	NearLight_PIN) ) sBike.bNearLight = 1; else sBike.bNearLight = 0;
-	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN) ) sBike.bTurnRight = 1; else sBike.bTurnRight = 0;
-	//if( GPIO_Read(TurnLeft_PORT, 	TurnLeft_PIN ) ) sBike.bTurnLeft  = 1; else sBike.bTurnLeft  = 0;
-#ifdef OverSpeed_PORT
-	if( GPIO_Read(OverSpeed_PORT, 	OverSpeed_PIN) ) sBike.bOverSpeed = 1; else sBike.bOverSpeed = 0;
-#endif
-	
-	if ( sBike.bYXTERR ){
-		ucSpeedMode = 0;
-		if( GPIO_Read(SPMODE1_PORT,SPMODE1_PIN) ) ucSpeedMode |= 1<<0;
-		if( GPIO_Read(SPMODE2_PORT,SPMODE2_PIN) ) ucSpeedMode |= 1<<1;
-		if( GPIO_Read(SPMODE3_PORT,SPMODE3_PIN) ) ucSpeedMode |= 1<<2;
-	#ifdef SPMODE4_PORT
-		if( GPIO_Read(SPMODE4_PORT,SPMODE4_PIN) ) ucSpeedMode |= 1<<3;
-	#endif
-		switch(ucSpeedMode){
-			case 0x01: 	sBike.ucSpeedMode = 1; break;
-			case 0x02: 	sBike.ucSpeedMode = 2; break;
-			case 0x04: 	sBike.ucSpeedMode = 3; break;
-			case 0x08: 	sBike.ucSpeedMode = 4; break;
-			default:	sBike.ucSpeedMode = 0; break;
-		}
-		sBike.ucPHA_Speed	= GetSpeed();
-		sBike.ucSpeed 		= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
-	}
-}
 
 #if ( TIME_ENABLE == 1 )
 void InitUART(void)
@@ -459,6 +451,7 @@ void Calibration(void)
 	//¶Ì½ÓµÍËÙ¡¢SWIMÐÅºÅ
 	GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
 
+#ifdef SPMODE1_PORT
 	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
@@ -467,6 +460,8 @@ void Calibration(void)
 		Delay(1000);
 		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
 	}
+#endif
+	
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&uiVol) && (uiVol > 500) ) break;
@@ -535,6 +530,10 @@ void main(void)
 
 #if ( YXT_ENABLE == 1 )
 	YXT_Init();  
+#endif
+
+#ifdef SPEED_HALL_PORT
+	SpeedHallInit();
 #endif
   
 	ENABLE_INTERRUPTS();
