@@ -14,29 +14,29 @@
 
 /*----------------------------------------------------------*/
 #ifdef JINPENG_4860
-const uint16_t uiBatStatus48[8] = {420,426,432,439,445,451,457,464};
-const uint16_t uiBatStatus60[8] = {520,528,536,542,550,558,566,574};
-const uint16_t uiBatStatus72[8] = {0xFFFF};
+const uint16_t uiBatStatus48[] = {420,426,432,439,445,451,457,464};
+const uint16_t uiBatStatus60[] = {520,528,536,542,550,558,566,574};
+const uint16_t uiBatStatus72[] = {0xFFFF};
 #elif defined JINPENG_6072
-const uint16_t uiBatStatus48[8] = {0xFFFF};
-const uint16_t uiBatStatus60[8] = {480,493,506,519,532,545,558,570};
-const uint16_t uiBatStatus72[8] = {550,569,589,608,628,647,667,686};
+const uint16_t uiBatStatus48[] = {0xFFFF};
+const uint16_t uiBatStatus60[] = {480,493,506,519,532,545,558,570};
+const uint16_t uiBatStatus72[] = {550,569,589,608,628,647,667,686};
 #elif defined JINPENG_MR9737
-const uint16_t uiBatStatus48[8] = {300,410,438,464,490,516};
-const uint16_t uiBatStatus60[8] = {0xFFFF};
-const uint16_t uiBatStatus72[8] = {0xFFFF};
+const uint16_t uiBatStatus48[] = {300,410,438,464,490,516};
+const uint16_t uiBatStatus60[] = {0xFFFF};
+const uint16_t uiBatStatus72[] = {0xFFFF};
 #elif defined JINPENG_12080
-const uint16_t uiBatStatus48[8] = {420,426,433,440,447,454,462,470};
-const uint16_t uiBatStatus60[8] = {520,528,537,546,555,563,571,579};
-const uint16_t uiBatStatus72[8] = {0xFFFF};
+const uint16_t uiBatStatus48[] = {420,426,433,440,447,454,462,470};
+const uint16_t uiBatStatus60[] = {520,528,537,546,555,563,571,579};
+const uint16_t uiBatStatus72[] = {0xFFFF};
 #elif defined LCD6040
 const uint16_t uiBatStatus48[] 	= {425,432,444,456,468};
 const uint16_t uiBatStatus60[] 	= {525,537,553,566,578};
 const uint16_t uiBatStatus72[] 	= {630,641,661,681,701};
 #else
-const uint16_t uiBatStatus48[8] = {420,427,435,444,453,462,471,481};
-const uint16_t uiBatStatus60[8] = {520,531,544,556,568,577,587,595};
-const uint16_t uiBatStatus72[8] = {630,642,653,664,675,687,700,715};
+const uint16_t uiBatStatus48[] = {420,427,435,444,453,462,471,481};
+const uint16_t uiBatStatus60[] = {520,531,544,556,568,577,587,595};
+const uint16_t uiBatStatus72[] = {630,642,653,664,675,687,700,715};
 #endif
 
 /*----------------------------------------------------------*/
@@ -91,6 +91,7 @@ void InitTimer(void)
 void SpeedHallInit(void)
 {
 	GPIO_Init(SPEED_HALL_PORT, SPEED_HALL_PIN, GPIO_MODE_IN_FL_IT);
+    EXTI_SetExtIntSensitivity(SPEED_EXTI_PORT,EXTI_SENSITIVITY_RISE_ONLY);
 }
 #endif
 
@@ -141,6 +142,8 @@ uint16_t GetVol(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiVol;
+	uint16_t uiBuf[32];
+	uint8_t i;
 
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	//ADC1_DeInit();  
@@ -157,7 +160,11 @@ uint16_t GetVol(void)
 	uiVolBuf[ucIndex++] = uiVol;
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
-	uiVol = get_average16(uiVolBuf,ContainOf(uiVolBuf));
+
+	for(i=0;i<ContainOf(uiVolBuf);i++)
+		uiBuf[i] = uiVolBuf[i];
+	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
+	uiVol = get_average16(uiBuf+8,ContainOf(uiVolBuf)-8);
 	
 //	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
 #if ( PCB_VER == MR9737 )
@@ -243,9 +250,10 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
 	ulMid = 0;
 	for(i=0;i<ContainOf(uiVolBuf);i++){
-		if ( uiBuf[i] > 10 )
-			ulMid = get_average16(uiBuf+i,ContainOf(uiVolBuf)-i);
+		if ( uiBuf[i] > 100 )	break;
 	}
+	if ( i + 5 < ContainOf(uiVolBuf) )
+		ulMid = get_average16(uiBuf+i+5,ContainOf(uiVolBuf)-i-5);
 	*uiVol = ulMid*1050UL/1024UL;
 	return 1;
 }
@@ -449,32 +457,30 @@ void Calibration(void)
 	uint8_t i;
 	uint16_t uiVol;
 	
+	//短接CALI_PIN、SWIM信号
 	CFG->GCR = CFG_GCR_SWD;
-	//短接低速、SWIM信号
 	GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
 
-#ifdef SPMODE1_PORT
 	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
 		Delay(1000);
-		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN) ) break;
+		if( GPIO_Read(CALI_PORT	, CALI_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
 		Delay(1000);
-		if( GPIO_Read(SPMODE1_PORT	, SPMODE1_PIN)  == RESET ) break;
+		if( GPIO_Read(CALI_PORT	, CALI_PIN)  == RESET ) break;
 	}
-#endif
 	
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
 			if ( GetVolStabed(&uiVol) && (uiVol > 500) ) break;
 			FEED_DOG();  
 		}
-		sBike.uiBatVoltage		= uiVol;
-		//sBike.siTemperature= GetTemp();
-		//sBike.ucSpeed		= GetSpeed();
+		sBike.uiBatVoltage	= uiVol;
+	//	sBike.siTemperature	= GetTemp();
+	//	sBike.ucSpeed		= GetSpeed();
 
-		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL/VOL_CALIBRATIOIN;	//60.00V
-		//sConfig.TempScale	= (long)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
+		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL /VOL_CALIBRATIOIN;	//60.00V
+	//	sConfig.TempScale	= (uint32_t)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
 		WriteConfig();
 	}
 
@@ -509,15 +515,18 @@ void main(void)
 
 	InitTimer();  
 	HotReset();
-    //sBike.bHotReset = 0;
+    sBike.bHotReset = 0;
 	if ( sBike.bHotReset == 0 ) {
 		DisplayInit(1);
 	} else
 		DisplayInit(0);
-	
-	for(i=0;i<32;i++){	GetVol();	/*FEED_DOG(); */ }
-//	for(i=0;i<16;i++){	GetSpeed();	/*FEED_DOG(); */ }
-	for(i=0;i<4;i++) {	GetTemp();	FEED_DOG(); }
+
+#if ( PCB_VER == MR9737 )
+	for(i=0;i<ContainOf(uiVolBuf)/2;i++){ GetVol();		FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVol2Buf)/2;i++){ GetVol();		FEED_DOG(); }
+#endif
+//	for(i=0;i<ContainOf(uiSpeedBuf);i++){ GetSpeed();/*	FEED_DOG(); */ }
+	for(i=0;i<ContainOf(uiTempBuf);i++)	{ GetTemp();	FEED_DOG(); }
 
 	InitConfig();
 	Calibration();
@@ -545,21 +554,16 @@ void main(void)
 		DisplayInit(0);
 	}
 	
-	GetVolStabed(&uiVol);
-	sBike.uiBatVoltage = (uint32_t)uiVol*1000UL/sConfig.uiVolScale;
-	sBike.siTemperature = GetTemp();
-	
 	while(1){
 		uiTick = Get_SysTick();
 		
 		if ( (uiTick >= tick_100ms && (uiTick - tick_100ms) >= 100 ) || \
 			 (uiTick <  tick_100ms && (0xFFFF - tick_100ms + uiTick) >= 100 ) ) {
 			tick_100ms = uiTick;
-			uiCount ++;
 			
-			//if ( (uiCount % 5) == 0 ) 
+			if ( (uiCount % 2) == 0 ) 
 			{
-			#ifdef JINPENG_MR9737
+			#if ( PCB_VER == MR9737 )
 					sBike.uiBatVoltage  = GetVol();
 					sBike.uiBatVoltage2	= GetVol2();
 			#else
@@ -573,6 +577,7 @@ void main(void)
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
 				sBike.siTemperature= GetTemp();
 			}
+			uiCount ++;
 		
 			LightTask();
 			MileTask(); 
@@ -595,9 +600,6 @@ void main(void)
 			sBike.ulMile		= uiCount/10 + uiCount/10*10UL + uiCount/10*100UL + uiCount/10*1000UL + uiCount/10*10000UL;
 			sBike.ucHour       	= uiCount/10 + uiCount/10*10;
 			sBike.ucMinute     	= uiCount/10 + uiCount/10*10;
-			#ifdef LCD8794GCT
-		//	sBike.ucEnergy     	= uiCount/10 + uiCount/10*10UL;
-			#endif
 		#endif
 	
 			Display(&sBike);

@@ -3,46 +3,46 @@
 #include "TM16XX.H"
 
 #define A12()   TM16XX[0] |=  0x0C;
-#define A34()   TM16XX[1] |=  0x03;
+#define A34()   TM16XX[2] |=  0x03;
 #define B12()   TM16XX[0] |=  0x03;
 #define B34()   TM16XX[0] |=  0xC0;
-#define C12()   TM16XX[1] |=  0x30;
-#define C34()   TM16XX[2] |=  0x0C;
-#define D12()   TM16XX[1] |=  0xC0;
-#define D34()   TM16XX[2] |=  0x30;
-#define E12()   TM16XX[2] |=  0x03;
-#define E34()   TM16XX[2] |=  0xC0;
+#define C12()   TM16XX[2] |=  0x30;
+#define C34()   TM16XX[4] |=  0x0C;
+#define D12()   TM16XX[2] |=  0xC0;
+#define D34()   TM16XX[4] |=  0x30;
+#define E12()   TM16XX[4] |=  0x03;
+#define E34()   TM16XX[4] |=  0xC0;
 #define F12()   TM16XX[0] |=  0x30;
-#define F34()   TM16XX[1] |=  0x0C;
-#define G12()   TM16XX[5] |=  0x30;
-#define G34()   TM16XX[5] |=  0xC0;
+#define F34()   TM16XX[2] |=  0x0C;
+#define G12()   TM16XX[10] |=  0x30;
+#define G34()   TM16XX[10] |=  0xC0;
 
-#define T1()	TM16XX[5] |=  1<<0
-#define T2()	TM16XX[3] |=  1<<3
-#define T3()	TM16XX[3] |=  1<<2
-#define T4()	TM16XX[3] |=  1<<1
-#define T5()	TM16XX[3] |=  1<<0
-#define U1()	TM16XX[5] |=  1<<1
-#define U2()	TM16XX[3] |=  1<<7
-#define U3()	TM16XX[3] |=  1<<6
-#define U4()	TM16XX[3] |=  1<<5
-#define U5()	TM16XX[3] |=  1<<4
-#define X1()	TM16XX[5] |=  1<<2
-#define X2()	TM16XX[4] |=  1<<3
-#define X3()	TM16XX[4] |=  1<<2
-#define X4()	TM16XX[4] |=  1<<1
-#define X5()	TM16XX[4] |=  1<<0
-#define V1()	TM16XX[5] |=  1<<3
-#define V2()	TM16XX[4] |=  1<<7
-#define V3()	TM16XX[4] |=  1<<6
-#define V4()	TM16XX[4] |=  1<<5
-#define V5()	TM16XX[4] |=  1<<4
-#define S1()	TM16XX[6] |=  1<<0
-#define S2()	TM16XX[6] |=  1<<1
-#define S3()	TM16XX[5] |=  1<<2
-#define S4()	TM16XX[5] |=  1<<3
-#define S5()	TM16XX[5] |=  1<<5
-#define S6()	TM16XX[5] |=  1<<4
+#define T1()	TM16XX[10] |=  1<<0
+#define T2()	TM16XX[6] |=  1<<3
+#define T3()	TM16XX[6] |=  1<<2
+#define T4()	TM16XX[6] |=  1<<1
+#define T5()	TM16XX[6] |=  1<<0
+#define U1()	TM16XX[10] |=  1<<1
+#define U2()	TM16XX[6] |=  1<<7
+#define U3()	TM16XX[6] |=  1<<6
+#define U4()	TM16XX[6] |=  1<<5
+#define U5()	TM16XX[6] |=  1<<4
+#define X1()	TM16XX[10] |=  1<<2
+#define X2()	TM16XX[8] |=  1<<3
+#define X3()	TM16XX[8] |=  1<<2
+#define X4()	TM16XX[8] |=  1<<1
+#define X5()	TM16XX[8] |=  1<<0
+#define V1()	TM16XX[10] |=  1<<3
+#define V2()	TM16XX[8] |=  1<<7
+#define V3()	TM16XX[8] |=  1<<6
+#define V4()	TM16XX[8] |=  1<<5
+#define V5()	TM16XX[8] |=  1<<4
+#define S1()	TM16XX[12] |=  1<<0
+#define S2()	TM16XX[12] |=  1<<1
+#define S3()	TM16XX[12] |=  1<<2
+#define S4()	TM16XX[12] |=  1<<3
+#define S5()	TM16XX[12] |=  1<<5
+#define S6()	TM16XX[12] |=  1<<4
 
 unsigned char flashflag = 0;
 
@@ -53,7 +53,7 @@ void Display(BIKE_STATUS* bike)
 	flashflag++;
 	flashflag %= 10;
 	
-	for(i=0;i<18;i++)	TM16XX[i] = 0x00;
+	for(i=0;i<ContainOf(TM16XX);i++)	TM16XX[i] = 0x00;
 	
     if( bike->bLFlashType || flashflag >= 5 ){ if ( bike->bLeftFlash ) S4(); }
     if( bike->bRFlashType || flashflag >= 5 ){ if ( bike->bRightFlash) S6(); }
@@ -72,10 +72,11 @@ void Display(BIKE_STATUS* bike)
     case 1:
 		if ( flashflag >= 5 ) 
 			T1();break;
-    case 2: T1();T2();break;
-    case 3: T1();T2();T3();break;
-    case 4: T1();T2();T3();T4();break;
-    case 5: T1();T2();T3();T4();T5();break;
+    case 2: T1();break;
+    case 3: T1();T2();break;
+    case 4: T1();T2();T3();break;
+    case 5: T1();T2();T3();T4();break;
+    case 6: T1();T2();T3();T4();T5();break;
     default:break; 
 	}
 
@@ -84,10 +85,11 @@ void Display(BIKE_STATUS* bike)
     case 1:
 		if ( flashflag >= 5 ) 
 			U1();break;
-    case 2: U1();U2();break;
-    case 3: U1();U2();U3();break;
-    case 4: U1();U2();U3();U4();break;
-    case 5: U1();U2();U3();U4();U5();break;
+    case 2: U1();break;
+    case 3: U1();U2();break;
+    case 4: U1();U2();U3();break;
+    case 5: U1();U2();U3();U4();break;
+    case 6: U1();U2();U3();U4();U5();break;
     default:break; 
 	}
 	

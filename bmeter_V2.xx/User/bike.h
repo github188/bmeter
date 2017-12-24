@@ -227,7 +227,7 @@
 	#define PCB_VER		MR9737
 	#define TM1624
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1
+	#define YXT_ENABLE  0
 	#define VD48	
 	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
 	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
@@ -483,6 +483,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	//#define SPMODE4_PORT	GPIOA
 	//#define SPMODE4_PIN	GPIO_PIN_3
 	
+	#define CALI_PORT		SPMODE1_PORT
+	#define CALI_PIN		SPMODE1_PIN
+	
 	#define NearLight_PORT	GPIOC
 	#define NearLight_PIN	GPIO_PIN_7
 	#define TurnRight_PORT	GPIOC
@@ -514,6 +517,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	#define SPMODE3_PIN		GPIO_PIN_1
 	#define SPMODE4_PORT	GPIOA
 	#define SPMODE4_PIN		GPIO_PIN_3
+	
+	#define CALI_PORT		SPMODE1_PORT
+	#define CALI_PIN		SPMODE1_PIN
 	
 	#define NearLight_PORT	GPIOC
 	#define NearLight_PIN	GPIO_PIN_7
@@ -547,6 +553,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 //	#define SPMODE4_PORT	
 //	#define SPMODE4_PIN		
 	
+	#define CALI_PORT		SPMODE1_PORT
+	#define CALI_PIN		SPMODE1_PIN
+	
 	#define NearLight_PORT	GPIOC
 	#define NearLight_PIN	GPIO_PIN_7
 	#define TurnRight_PORT	GPIOC
@@ -568,6 +577,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	#define SPMODE3_PIN		GPIO_PIN_2
 	#define SPMODE4_PORT	GPIOA
 	#define SPMODE4_PIN		GPIO_PIN_3
+	
+	#define CALI_PORT		SPMODE1_PORT
+	#define CALI_PIN		SPMODE1_PIN
 	
 	#define NearLight_PORT	GPIOD
 	#define NearLight_PIN	GPIO_PIN_3
@@ -604,6 +616,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	#define SPMODE3_PORT	GPIOA
 	#define SPMODE3_PIN		GPIO_PIN_2
 	
+	#define CALI_PORT		SPMODE1_PORT
+	#define CALI_PIN		SPMODE1_PIN
+	
 	#define NearLight_PORT	GPIOC
 	#define NearLight_PIN	GPIO_PIN_7
 	#define TurnRight_PORT	GPIOD
@@ -623,6 +638,11 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	#define SPEED_HALL_PORT	GPIOC
 	#define SPEED_HALL_PIN	GPIO_PIN_3
 
+    #define SPEED_EXTI_PORT EXTI_PORT_GPIOC
+
+	#define CALI_PORT		GPIOA
+	#define CALI_PIN		GPIO_PIN_3
+	
 	#define NearLight_PORT	GPIOD
 	#define NearLight_PIN	GPIO_PIN_4
 	#define FarLight_PORT	GPIOD
@@ -630,9 +650,9 @@ uint16_t get_average16(uint16_t* dat, uint16_t len);
 	#define OverSpeed_PORT	GPIOA
 	#define OverSpeed_PIN	GPIO_PIN_3
 	#define TurnRight_PORT	GPIOB
-	#define TurnRight_PIN	GPIO_PIN_5
+	#define TurnRight_PIN	GPIO_PIN_4
 	#define TurnLeft_PORT	GPIOB
-	#define TurnLeft_PIN	GPIO_PIN_4
+	#define TurnLeft_PIN	GPIO_PIN_5
 
 	#define TM16XX_PORT		GPIOC
 	#define TM16XX_CLK		GPIO_PIN_5

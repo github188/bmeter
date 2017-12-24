@@ -1,5 +1,5 @@
 [DebugChecksum]
-Checksum=-759126990
+Checksum=1230049309
 [CodeCoverage]
 Enabled=_ 0
 [Stack]
@@ -66,8 +66,7 @@ Category=_ 0
 LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.498.2" 1 0 0 0 "" 0 ""
-Count=1
+Count=0
 [Aliases]
 Count=0
 SuppressDialog=0

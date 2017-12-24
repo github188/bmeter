@@ -27,6 +27,7 @@
 /*----------------------------------------------------------*/
 void GetSysVoltage(void);
 BitStatus GPIO_Read(GPIO_TypeDef* GPIOx, GPIO_Pin_TypeDef GPIO_Pin);
+uint8_t GetSpeed(void);
 
 /*----------------------------------------------------------*/
 extern const uint16_t uiBatStatus48[8];
@@ -237,15 +238,16 @@ uint8_t GetBatStatus(uint16_t uiVol)
 {
 	uint8_t i;
 	const uint16_t *uiBatStatus;
+	uint8_t ucLength;
 
 	switch ( sConfig.uiSysVoltage ){
-	case 48:uiBatStatus = uiBatStatus48;break;
-	case 60:uiBatStatus = uiBatStatus60;break;
-	case 72:uiBatStatus = uiBatStatus72;break;
-	default:uiBatStatus = uiBatStatus60;break;
+	case 48:uiBatStatus = uiBatStatus48;ucLength = ContainOf(uiBatStatus48);break;
+	case 60:uiBatStatus = uiBatStatus60;ucLength = ContainOf(uiBatStatus60);break;
+	case 72:uiBatStatus = uiBatStatus72;ucLength = ContainOf(uiBatStatus72);break;
+	default:uiBatStatus = uiBatStatus60;ucLength = ContainOf(uiBatStatus60);break;
 	}
 
-	for(i=0;i<ContainOf(uiBatStatus60);i++)
+	for(i=0;i<ucLength;i++)
 		if ( uiVol < uiBatStatus[i] ) break;
 	return i;
 }
@@ -265,9 +267,9 @@ void GetSpeedHall(void)
 	speed = count * 2;
 	speed = PERIMETER * 36 * speed / 10 / 1000 / PULSE_C;
 	if ( speed < 25 )
-		speed = (unsigned short)speed * 122 / 100;	//20170929
+		speed = speed * 122 / 100;	//20170929
 	else
-		speed = (unsigned short)speed * 130 / 100;	//20171013
+		speed = speed * 130 / 100;	//20171013
 	if (speed > 65)
 		speed = 65;
 	sBike.ucPHA_Speed = speed;
@@ -765,7 +767,10 @@ void LightTask(void)
 	//if( GPIO_Read(TurnRight_PORT, TurnRight_PIN) ) sBike.bTurnRight = 1; else sBike.bTurnRight = 0;
 	//if( GPIO_Read(TurnLeft_PORT, 	TurnLeft_PIN ) ) sBike.bTurnLeft  = 1; else sBike.bTurnLeft  = 0;
 #ifdef OverSpeed_PORT
-	if( GPIO_Read(OverSpeed_PORT, 	OverSpeed_PIN) ) sBike.bOverSpeed = 1; else sBike.bOverSpeed = 0;
+	if( GPIO_Read(OverSpeed_PORT, 	OverSpeed_PIN) ) sBike.bOverSpeed = 0; else sBike.bOverSpeed = 1;
+#endif
+#ifdef FarLight_PORT
+	if( GPIO_Read(FarLight_PORT, 	FarLight_PIN ) ) sBike.bFarLight  = 1; else sBike.bFarLight  = 0;
 #endif
 	
 	if ( sBike.bYXTERR ){

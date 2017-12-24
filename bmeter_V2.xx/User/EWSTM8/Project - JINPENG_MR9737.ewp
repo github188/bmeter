@@ -806,6 +806,9 @@
       <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_clk.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_exti.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\..\STM8S_StdPeriph_Driver\src\stm8s_flash.c</name>
     </file>
     <file>
@@ -858,6 +861,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\display_9040.c</name>
+      <excluded>
+        <configuration>STM8S208</configuration>
+      </excluded>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\display_TM1624.c</name>
       <excluded>
         <configuration>STM8S208</configuration>
       </excluded>

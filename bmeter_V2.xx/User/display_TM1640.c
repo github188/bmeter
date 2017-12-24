@@ -13,7 +13,7 @@ void Display(BIKE_STATUS* bike)
 	flashflag++;
 	flashflag %= 10;
 	
-	for(i=0;i<18;i++)	TM16XX[i] = 0x00;
+	for(i=0;i<ContainOf(TM16XX);i++)	TM16XX[i] = 0x00;
 	
     if( bike->bLFlashType || flashflag >= 5){ if ( bike->bLeftFlash )	TM16XX[ 2] |= 0x80;	}	//S1
     if( bike->bRFlashType || flashflag >= 5){ if ( bike->bRightFlash)	TM16XX[ 3] |= 0x80;	}	//S3

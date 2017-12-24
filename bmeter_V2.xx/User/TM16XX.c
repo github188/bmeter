@@ -39,11 +39,12 @@ void TM16XX_Init(unsigned char st)
 	unsigned char i,dat;
 	
 #ifdef TM1624	
-	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_OD_HIZ_FAST);
+	GPIO_Init(TM16XX_PORT, TM16XX_CS , GPIO_MODE_OUT_PP_HIGH_FAST);
 #endif
-	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_OD_HIZ_FAST);
-	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_OD_HIZ_FAST);
-	
+	GPIO_Init(TM16XX_PORT, TM16XX_CLK, GPIO_MODE_OUT_PP_HIGH_FAST);
+	GPIO_Init(TM16XX_PORT, TM16XX_DAT, GPIO_MODE_OUT_PP_HIGH_FAST);
+	DAT_SET();
+    CLK_SET();
 	switch(st){
 		case 0:	dat = 0x00; break;	
 		case 1:	dat = 0xFF; break;	
@@ -76,6 +77,7 @@ void TM16XX_WriteReg( unsigned char reg )
 	}
 }
 #ifdef TM1624	
+#pragma optimize=none
 void TM1624_Write_Data(unsigned char* buf,unsigned char len)
 {
 	unsigned char i;
