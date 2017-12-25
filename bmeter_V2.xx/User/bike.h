@@ -426,6 +426,7 @@ typedef struct {
 	uint16_t	uiVersion;
 	uint16_t  	uiSysVoltage;
 	uint16_t  	uiVolScale;
+	uint16_t  	uiVolScale2;
 	uint16_t  	uiTempScale;
 	uint16_t  	uiSpeedScale;
 	uint16_t  	uiYXT_SpeedScale;

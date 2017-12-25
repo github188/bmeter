@@ -41,7 +41,7 @@ const uint16_t uiBatStatus72[] = {630,642,653,664,675,687,700,715};
 
 /*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
-uint16_t uiVolBuf[32];
+uint16_t uiVolBuf[16];
 #ifdef BATV_ADC_CH2
 uint16_t uiVol2Buf[8];
 #endif
@@ -164,7 +164,7 @@ uint16_t GetVol(void)
 	for(i=0;i<ContainOf(uiVolBuf);i++)
 		uiBuf[i] = uiVolBuf[i];
 	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
-	uiVol = get_average16(uiBuf+8,ContainOf(uiVolBuf)-8);
+	uiVol = get_average16(uiBuf+4,ContainOf(uiVolBuf)-4*2);
 	
 //	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
 #if ( PCB_VER == MR9737 )
@@ -212,10 +212,10 @@ uint16_t GetVol2(void)
 
 
 
-uint8_t GetVolStabed(uint16_t* uiVol)
+uint16_t GetVolStabed(void)
 {
 	static uint8_t ucIndex = 0;
-	uint32_t ulMid;
+	uint32_t ulVol;
 	uint16_t uiBuf[32];
 	uint8_t i;
 	
@@ -234,28 +234,20 @@ uint8_t GetVolStabed(uint16_t* uiVol)
 	}
 	ADC1_Cmd(DISABLE);
 	
-	ulMid = get_average16(uiBuf,ContainOf(uiBuf));
-	// for( i=0;i<ContainOf(uiBuf);i++){
-		// if ( ulMid > 2 && ((ulMid *100 / uiBuf[i]) > 101 || (ulMid *100 / uiBuf[i]) < 99) )
-			// return 0;
-	// }
-
-	uiVolBuf[ucIndex++] = ulMid;
+	uiVolBuf[ucIndex++] = get_average16(uiBuf,ContainOf(uiBuf));
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
 		
 	for(i=0;i<ContainOf(uiVolBuf);i++)
 		uiBuf[i] = uiVolBuf[i];
-	
+	 
 	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
-	ulMid = 0;
 	for(i=0;i<ContainOf(uiVolBuf);i++){
 		if ( uiBuf[i] > 100 )	break;
 	}
 	if ( i + 5 < ContainOf(uiVolBuf) )
-		ulMid = get_average16(uiBuf+i+5,ContainOf(uiVolBuf)-i-5);
-	*uiVol = ulMid*1050UL/1024UL;
-	return 1;
+		return get_average16(uiBuf+i+5,ContainOf(uiVolBuf)-i-5)*1050UL/1024UL;
+	return 0;
 }
 
 #if ( PCB_VER == 0013 )
@@ -333,7 +325,8 @@ void GetSysVoltage(void)
 #if defined BENLING_OUSHANG
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
-		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
+		uiVol = GetVolStabed();
+		if ( uiVol > 120 ) break;
 		FEED_DOG();  
 	}
 	if ( 720 <= uiVol && uiVol <= 870 ){
@@ -346,7 +339,8 @@ void GetSysVoltage(void)
 #elif defined VD61723650
 	uint16_t uiVol;
 	for(i=0;i<0xFF;i++){
-		if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
+		uiVol = GetVolStabed();
+		if ( uiVol > 120 ) break;
 		FEED_DOG();  
 	}
 	if ( 610 <= uiVol && uiVol <= 720 ){
@@ -435,7 +429,8 @@ void UartTask(void)
 			PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
 		} else if ( ucUart1Index >= 5 && ucUart1Buf[0] == 'C' /*&& ucUart1Buf[1] == 'a' && ucUart1Buf[2] == 'l' && ucUart1Buf[3] == 'i' */){
 			for(i=0;i<0xFF;i++){
-				if ( GetVolStabed(&uiVol) && (uiVol > 120) ) break;
+				uiVol = GetVolStabed();
+				if ( uiVol > 120 ) break;
 				FEED_DOG();  
 			}
 			sBike.uiBatVoltage	 	= uiVol;
@@ -472,7 +467,8 @@ void Calibration(void)
 	
 	if ( i == 32 ){
 		for(i=0;i<0xFF;i++){
-			if ( GetVolStabed(&uiVol) && (uiVol > 500) ) break;
+			uiVol = GetVolStabed();
+			if ( uiVol > 120 ) break;
 			FEED_DOG();  
 		}
 		sBike.uiBatVoltage	= uiVol;
@@ -492,7 +488,7 @@ void main(void)
 	uint8_t i;
 	uint16_t uiTick=0;
 	uint16_t uiCount=0;
-	uint16_t uiVol=0;
+	uint16_t uiVol=0,uiVol2=0;
 	uint16_t tick_100ms=0;
 	
 	/* select Clock = 8 MHz */
@@ -522,8 +518,11 @@ void main(void)
 		DisplayInit(0);
 
 #if ( PCB_VER == MR9737 )
-	for(i=0;i<ContainOf(uiVolBuf)/2;i++){ GetVol();		FEED_DOG(); }
-	for(i=0;i<ContainOf(uiVol2Buf)/2;i++){ GetVol();		FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf )/2;i++){ GetVol(); FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVol2Buf)/2;i++){ GetVol(); FEED_DOG(); }
+#else
+	//for(i=0;i<ContainOf(uiVolBuf )/2;i++){ GetVolStabed();FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf );i++){ GetVol(); FEED_DOG(); }
 #endif
 //	for(i=0;i<ContainOf(uiSpeedBuf);i++){ GetSpeed();/*	FEED_DOG(); */ }
 	for(i=0;i<ContainOf(uiTempBuf);i++)	{ GetTemp();	FEED_DOG(); }
@@ -564,14 +563,14 @@ void main(void)
 			if ( (uiCount % 2) == 0 ) 
 			{
 			#if ( PCB_VER == MR9737 )
-					sBike.uiBatVoltage  = GetVol();
-					sBike.uiBatVoltage2	= GetVol2();
+				uiVol  = GetVol();
+				uiVol2 = GetVol2();
 			#else
-				if ( GetVolStabed(&uiVol) ){
-					sBike.uiBatVoltage  = (uint32_t)(uiVol+300)*1000UL/sConfig.uiVolScale;
-				}
-				//sBike.uiBatVoltage  = (uint32_t)GetVol()+300;
+				//uiVol  = GetVolStabed();
+				uiVol  = GetVol();
 			#endif
+				sBike.uiBatVoltage  = (uint32_t)(uiVol +0)*1000UL/sConfig.uiVolScale;
+				sBike.uiBatVoltage2 = (uint32_t)(uiVol2+0)*1000UL/sConfig.uiVolScale2;
 			}
 			if ( (uiCount % 10) == 0 ){
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;

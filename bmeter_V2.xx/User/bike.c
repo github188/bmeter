@@ -279,9 +279,9 @@ void GetSpeedHall(void)
 #if 0
 #ifdef LCD8794GCT
 
-const uint16_t BatEnergy48[8] = {420,490};
-const uint16_t BatEnergy60[8] = {520,620};
-const uint16_t BatEnergy72[8] = {630,740};
+const uint16_t BatEnergy48[] = {420,490};
+const uint16_t BatEnergy60[] = {520,620};
+const uint16_t BatEnergy72[] = {630,740};
 
 uint8_t GetBatEnergy(uint16_t uiVol)
 {
@@ -295,7 +295,7 @@ uint8_t GetBatEnergy(uint16_t uiVol)
 	default:BatEnergy = BatEnergy60;break;
 	}
 
-	if ( sBike.uiVoltage <= BatEnergy[0] ) uiEnergy = 0;
+	if 		( sBike.uiVoltage <= BatEnergy[0] ) uiEnergy = 0;
 	else if ( sBike.uiVoltage >= BatEnergy[1] ) uiEnergy = 100;
 	else {
 		uiEnergy = (sBike.uiVoltage - BatEnergy[0])*100/(BatEnergy[1] - BatEnergy[0]);
