@@ -267,9 +267,9 @@ void GetSpeedHall(void)
 	speed = count * 2;
 	speed = PERIMETER * 36 * speed / 10 / 1000 / PULSE_C;
 	if ( speed < 25 )
-		speed = speed * 122 / 100;	//20170929
+		speed = speed * 244 / 100;
 	else
-		speed = speed * 130 / 100;	//20171013
+		speed = speed * 260 / 100;
 	if (speed > 65)
 		speed = 65;
 	sBike.ucPHA_Speed = speed;

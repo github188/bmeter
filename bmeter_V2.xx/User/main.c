@@ -13,33 +13,10 @@
 #include "YXT.h"
 
 /*----------------------------------------------------------*/
-#ifdef JINPENG_4860
-const uint16_t uiBatStatus48[] = {420,426,432,439,445,451,457,464};
-const uint16_t uiBatStatus60[] = {520,528,536,542,550,558,566,574};
-const uint16_t uiBatStatus72[] = {0xFFFF};
-#elif defined JINPENG_6072
-const uint16_t uiBatStatus48[] = {0xFFFF};
-const uint16_t uiBatStatus60[] = {480,493,506,519,532,545,558,570};
-const uint16_t uiBatStatus72[] = {550,569,589,608,628,647,667,686};
-#elif defined JINPENG_MR9737
-const uint16_t uiBatStatus48[] = {300,410,438,464,490,516};
-const uint16_t uiBatStatus60[] = {0xFFFF};
-const uint16_t uiBatStatus72[] = {0xFFFF};
-#elif defined JINPENG_12080
-const uint16_t uiBatStatus48[] = {420,426,433,440,447,454,462,470};
-const uint16_t uiBatStatus60[] = {520,528,537,546,555,563,571,579};
-const uint16_t uiBatStatus72[] = {0xFFFF};
-#elif defined LCD6040
-const uint16_t uiBatStatus48[] 	= {425,432,444,456,468};
-const uint16_t uiBatStatus60[] 	= {525,537,553,566,578};
-const uint16_t uiBatStatus72[] 	= {630,641,661,681,701};
-#else
-const uint16_t uiBatStatus48[] = {420,427,435,444,453,462,471,481};
-const uint16_t uiBatStatus60[] = {520,531,544,556,568,577,587,595};
-const uint16_t uiBatStatus72[] = {630,642,653,664,675,687,700,715};
-#endif
+const uint16_t uiBatStatus48[] = BAT_STATUS_48V;
+const uint16_t uiBatStatus60[] = BAT_STATUS_60V;
+const uint16_t uiBatStatus72[] = BAT_STATUS_72V;
 
-/*----------------------------------------------------------*/
 uint16_t uiSpeedBuf[16];
 uint16_t uiVolBuf[16];
 #ifdef BATV_ADC_CH2
@@ -142,7 +119,7 @@ uint16_t GetVol(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiVol;
-	uint16_t uiBuf[32];
+	uint16_t uiBuf[ContainOf(uiVolBuf)];
 	uint8_t i;
 
 	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
@@ -151,27 +128,30 @@ uint16_t GetVol(void)
 				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH,\
 				DISABLE);
 	ADC1_Cmd(ENABLE);
-	Delay(5000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiVol = ADC1_GetConversionValue();
+	for(i=0;i<ContainOf(uiBuf);i++){
+		Delay(500);  
+		ADC1_StartConversion(); 
+		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+		uiBuf[i] = ADC1_GetConversionValue();
+	}
 	ADC1_Cmd(DISABLE);
 
-	uiVolBuf[ucIndex++] = uiVol;
+	uiVolBuf[ucIndex++] = get_average16(uiBuf,ContainOf(uiBuf));
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
 
 	for(i=0;i<ContainOf(uiVolBuf);i++)
 		uiBuf[i] = uiVolBuf[i];
-	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
-	uiVol = get_average16(uiBuf+4,ContainOf(uiVolBuf)-4*2);
-	
+	exchange_sort16(uiBuf,ContainOf(uiBuf));
+	for(i=0;i<ContainOf(uiBuf);i++){
+		if ( uiBuf[i] > 100 )	break;
+	}
+	uiVol = 0;
+	if ( i + 3*2 < ContainOf(uiBuf) )
+		uiVol = get_average16(uiBuf+i+3,ContainOf(uiBuf)-i-3*2);
+
 //	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
-#if ( PCB_VER == MR9737 )
-	uiVol = (uint32_t)uiVol*650UL/1024UL;	// 120k+10k
-#else 
-	uiVol = (uint32_t)uiVol*1050UL/1024UL;	// 200k+10k
-#endif
+	uiVol = VOL_CALC(uiVol);
 	
 	return uiVol;
 }
@@ -180,7 +160,9 @@ uint16_t GetVol(void)
 uint16_t GetVol2(void)
 {
 	static uint8_t ucIndex = 0;
+	uint16_t uiBuf[ContainOf(uiVol2Buf)];
 	uint16_t uiVol;
+	uint8_t i;
 
 	GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
 	ADC1_DeInit();  
@@ -188,34 +170,39 @@ uint16_t GetVol2(void)
 				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH2,\
 				DISABLE);
 	ADC1_Cmd(ENABLE);
-	Delay(5000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiVol = ADC1_GetConversionValue();
+	for(i=0;i<ContainOf(uiBuf);i++){
+		Delay(500);  
+		ADC1_StartConversion(); 
+		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+		uiBuf[i] = ADC1_GetConversionValue();
+	}
 	ADC1_Cmd(DISABLE);
 
-	uiVol2Buf[ucIndex++] = uiVol;
+	uiVol2Buf[ucIndex++] = get_average16(uiBuf,ContainOf(uiBuf));
 	if ( ucIndex >= ContainOf(uiVol2Buf) )
 		ucIndex = 0;
-	uiVol = get_average16(uiVol2Buf,ContainOf(uiVol2Buf));
+	
+	for(i=0;i<ContainOf(uiVol2Buf);i++)
+		uiBuf[i] = uiVol2Buf[i];
+	exchange_sort16(uiBuf,ContainOf(uiBuf));
+	for(i=0;i<ContainOf(uiBuf);i++){
+		if ( uiBuf[i] > 100 )	break;
+	}
+	uiVol = 0;
+	if ( i + 3*2 < ContainOf(uiBuf) )
+		uiVol = get_average16(uiBuf+i+3,ContainOf(uiBuf)-i-3*2);
 	
 //	uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	// 200k+10k
-#if ( PCB_VER == MR9737 )
-	uiVol = (uint32_t)uiVol*650UL/1024UL;	// 120k+10k
-#else 
-	uiVol = (uint32_t)uiVol*1050UL/1024UL;	// 200k+10k
-#endif
+	uiVol = VOL_CALC(uiVol);
 	
 	return uiVol;
 }
 #endif
 
-
-
 uint16_t GetVolStabed(void)
 {
 	static uint8_t ucIndex = 0;
-	uint32_t ulVol;
+//	uint32_t ulVol;
 	uint16_t uiBuf[32];
 	uint8_t i;
 	
@@ -323,7 +310,7 @@ uint8_t GetSpeed(void)
 void GetSysVoltage(void)
 {	
 #if defined BENLING_OUSHANG
-	uint16_t uiVol;
+	uint16_t uiVol,i;
 	for(i=0;i<0xFF;i++){
 		uiVol = GetVolStabed();
 		if ( uiVol > 120 ) break;
@@ -337,7 +324,7 @@ void GetSysVoltage(void)
 		WriteConfig();
 	}
 #elif defined VD61723650
-	uint16_t uiVol;
+	uint16_t uiVol,i;
 	for(i=0;i<0xFF;i++){
 		uiVol = GetVolStabed();
 		if ( uiVol > 120 ) break;
@@ -494,7 +481,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
@@ -511,21 +498,21 @@ void main(void)
 
 	InitTimer();  
 	HotReset();
-    sBike.bHotReset = 0;
+    //sBike.bHotReset = 0;
 	if ( sBike.bHotReset == 0 ) {
 		DisplayInit(1);
 	} else
 		DisplayInit(0);
 
 #if ( PCB_VER == MR9737 )
-	for(i=0;i<ContainOf(uiVolBuf )/2;i++){ GetVol(); FEED_DOG(); }
-	for(i=0;i<ContainOf(uiVol2Buf)/2;i++){ GetVol(); FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVol();  FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) { GetVol2(); FEED_DOG(); }
 #else
-	//for(i=0;i<ContainOf(uiVolBuf )/2;i++){ GetVolStabed();FEED_DOG(); }
-	for(i=0;i<ContainOf(uiVolBuf );i++){ GetVol(); FEED_DOG(); }
+//	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVolStabed();FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf );	 i++) { GetVol(); FEED_DOG(); }
 #endif
-//	for(i=0;i<ContainOf(uiSpeedBuf);i++){ GetSpeed();/*	FEED_DOG(); */ }
-	for(i=0;i<ContainOf(uiTempBuf);i++)	{ GetTemp();	FEED_DOG(); }
+//	for(i=0;i<ContainOf(uiSpeedBuf); i++) { GetSpeed();FEED_DOG(); }
+	for(i=0;i<ContainOf(uiTempBuf);  i++) { GetTemp(); FEED_DOG(); }
 
 	InitConfig();
 	Calibration();

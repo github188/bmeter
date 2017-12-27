@@ -190,7 +190,7 @@
         <option>
           <name>CCDefines</name>
           <state>STM8S003</state>
-          <state>JINPENG_12080</state>
+          <state>JINPENG_QD</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -491,7 +491,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>Vxxx_JINPENG_12080.HEX</state>
+          <state>Vxxx_JINPENG_QD.HEX</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>

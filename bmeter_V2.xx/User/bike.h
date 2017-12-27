@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.34 - 20171226
+  * 改BAT_STATUS_xxV，在bike.h文件中定义；调整电压采样滤波效果；
+  * 
   * V2.33 - 20171219
   * 改电量外框常亮，调整TM1640通讯速度；
   * 
@@ -138,7 +141,7 @@
 //#define JINPENG_4860
 //#define JINPENG_6072
 //#define JINPENG_MR9737
-//#define JINPENG_12080
+//#define JINPENG_QD
 //#define LCD6040
 //#define LCD9040
 //#define LCD9040_4860
@@ -197,9 +200,9 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
 	#define VD72L48L	
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*525UL /4096UL	/*36V->45KM/H*/
+	#define SPEED_CALC_48V(spd) spd*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(spd) spd*315UL /2048UL	/*30V->45KM/H*/
+	#define SPEED_CALC_72V(spd) spd*525UL /4096UL	/*36V->45KM/H*/
 #elif defined JIKE13050
 	#define PCB_VER		201745UL
 	#define LCD8794GCT
@@ -213,36 +216,46 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
 	#define VD48L72N
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
+	#define SPEED_CALC_48V(spd) spd*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(spd) spd*315UL /2048UL	/*30V->45KM/H*/
+	#define BAT_STATUS_48V 		{420,426,432,439,445,451,457,464}
+	#define BAT_STATUS_60V 		{520,528,536,542,550,558,566,574}
+	#define BAT_STATUS_72V 		{0xFFFF}	
 #elif defined JINPENG_6072
 	#define PCB_VER		0100
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48N72L	
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*1505UL/8192UL	/*24V->43KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*1505UL/12288UL	/*36V->43KM/H*/
+	#define SPEED_CALC_60V(spd) spd*1505UL/8192UL	/*24V->43KM/H*/
+	#define SPEED_CALC_72V(spd) spd*1505UL/12288UL	/*36V->43KM/H*/
+	#define BAT_STATUS_48V 		{0xFFFF}
+	#define BAT_STATUS_60V 		{480,493,506,519,532,545,558,570}
+	#define BAT_STATUS_72V 		{550,569,589,608,628,647,667,686}
 #elif defined JINPENG_MR9737
 	#define PCB_VER		MR9737
 	#define TM1624
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  0
 	#define VD48	
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
+	#define VOL_CALC(uiVol) 	(uint32_t)uiVol*650UL/1024UL	/* 120K+10K */
+	#define BAT_STATUS_48V 		{300,410,438,464,490,516};
+	#define BAT_STATUS_60V 		{0xFFFF};
+	#define BAT_STATUS_72V 		{0xFFFF};
 
-	#define PERIMETER		2200UL	//mm
-	#define PULSE_C			56
-
-#elif defined JINPENG_12080
+	#define PERIMETER			2200UL	//mm
+	#define PULSE_C				56
+#elif defined JINPENG_QD
 	#define PCB_VER		0200
 	#define TM1640
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48L72N	
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*1575UL/8192UL	/*24V->45KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*315UL /2048UL	/*30V->45KM/H*/
+	#define SPEED_CALC_48V(spd) spd*1575UL/8192UL	/*24V->45KM/H*/
+	#define SPEED_CALC_60V(spd) spd*315UL /2048UL	/*30V->45KM/H*/
+	#define BAT_STATUS_48V 		{420,426,433,440,447,454,462,470};
+	#define BAT_STATUS_60V 		{520,528,537,546,555,563,571,579};
+	#define BAT_STATUS_72V 		{0xFFFF};
 #elif defined LCD9040_4860
 	#define PCB_VER		0100
 	#define LCD9040
@@ -262,6 +275,9 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define VD72L48L	
+	#define BAT_STATUS_48V {425,432,444,456,468};
+	#define BAT_STATUS_60V {525,537,553,566,578};
+	#define BAT_STATUS_72V {630,641,661,681,701};
 #elif defined DENGGUAN_XUNYING
 	#define PCB_VER		0100
 	#define LCD9040
@@ -304,16 +320,16 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1		
 	#define VD48L72N	
-	#define SPEED_CALC_48V(uiSpeed) uiSpeed*57750UL/242688UL	/*23.7V->55KM/H*/
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*63000UL/258048UL	/*25.2V->60KM/H*/
+	#define SPEED_CALC_48V(spd) spd*57750UL/242688UL	/*23.7V->55KM/H*/
+	#define SPEED_CALC_60V(spd) spd*63000UL/258048UL	/*25.2V->60KM/H*/
 #elif defined OUPAINONG_6072
 	#define PCB_VER		0100
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
 	#define VD48N72L	
-	#define SPEED_CALC_60V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
-	#define SPEED_CALC_72V(uiSpeed) uiSpeed*68250UL/339968UL	/*33.2V->65KM/H*/
+	#define SPEED_CALC_60V(spd) spd*68250UL/339968UL	/*33.2V->65KM/H*/
+	#define SPEED_CALC_72V(spd) spd*68250UL/339968UL	/*33.2V->65KM/H*/
 #elif defined OUPAINONG_ADJ_4860
 	#define PCB_VER		0013
 	#define LCD5535
@@ -343,17 +359,34 @@
 	#define YXT_ENABLE      1				
 #endif
 
-// uiSpeed*5V*21/1024/fullV*fullSpeed
+// spd*5V*(200+10)/10/1024/fullV*fullSpeed	/*200k+10k*/
 #ifndef SPEED_CALC_48V
-#define SPEED_CALC_48V(uiSpeed) uiSpeed*1925UL/8192UL	/*24V->55KM/H*/
+#define SPEED_CALC_48V(spd) spd*1925UL/8192UL	/*200k+10k 24V->55KM/H*/
 #endif
 
 #ifndef SPEED_CALC_60V
-#define SPEED_CALC_60V(uiSpeed) uiSpeed*385UL /2048UL;	/*30V->55KM/H*/
+#define SPEED_CALC_60V(spd) spd*385UL /2048UL;	/*200k+10k 30V->55KM/H*/
 #endif
 
 #ifndef SPEED_CALC_72V
-#define SPEED_CALC_72V(uiSpeed) uiSpeed*1925UL/12288UL	/*36V->55KM/H*/
+#define SPEED_CALC_72V(spd) spd*1925UL/12288UL	/*200k+10k 36V->55KM/H*/
+#endif
+
+// uiVol = (uint32_t)uiVol / 1024UL / 10 * (200+10) * 5 * 10;	/* 200k+10k */
+#ifndef VOL_CALC
+#define VOL_CALC(uiVol) (uint32_t)uiVol*1050UL/1024UL	/* 200k+10k */
+#endif
+
+#ifndef BAT_STATUS_48V
+#define BAT_STATUS_48V {420,427,435,444,453,462,471,481}
+#endif
+
+#ifndef BAT_STATUS_60V
+#define BAT_STATUS_60V {520,531,544,556,568,577,587,595}
+#endif
+
+#ifndef BAT_STATUS_72V
+#define BAT_STATUS_72V {630,642,653,664,675,687,700,715}
 #endif
 
 /******************************************************************************/
