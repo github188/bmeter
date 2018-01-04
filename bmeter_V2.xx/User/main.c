@@ -58,7 +58,7 @@ void InitTimer(void)
 {
 	/** ≈‰÷√Timer2 **/ 
 	CLK_PeripheralClockConfig(CLK_PERIPHERAL_TIMER2, ENABLE);
-	TIM2_TimeBaseInit(TIM2_PRESCALER_8, 1000);   //1ms
+	TIM2_TimeBaseInit(TIM2_PRESCALER_8, 10000);   //10ms
 	TIM2_ClearFlag(TIM2_FLAG_UPDATE);
 	TIM2_ITConfig(TIM2_IT_UPDATE, ENABLE);            
 	TIM2_Cmd(ENABLE);     
@@ -445,22 +445,18 @@ void Calibration(void)
 
 	for(i=0;i<32;i++){
 		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
-		Delay(1000);
+		Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
-		Delay(1000);
+		Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN)  == RESET ) break;
 	}
 	
 	if ( i == 32 ){
-		for(i=0;i<0xFF;i++){
-			uiVol = GetVolStabed();
-			if ( uiVol > 120 ) break;
-			FEED_DOG();  
-		}
-		sBike.uiBatVoltage	= uiVol;
+		for(i=0;i<64;i++){ GetVolStabed();	FEED_DOG();  }
+		sBike.uiBatVoltage	= GetVolStabed();
+        
 	//	sBike.siTemperature	= GetTemp();
-	//	sBike.ucSpeed		= GetSpeed();
 
 		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL /VOL_CALIBRATIOIN;	//60.00V
 	//	sConfig.TempScale	= (uint32_t)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
@@ -481,7 +477,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	IWDG_Config();
+	//IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();

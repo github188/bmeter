@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=343151399
+Checksum=-1194367217
 [CodeCoverage]
 Enabled=_ 0
 [CallStack]
@@ -56,6 +56,8 @@ Enabled=0
 ShowSource=1
 [Simulator]
 Freq=16000000
+[BreakpointUsageDialog]
+Placement=_ 665 343 1255 690
 [DataSample]
 LogEnabled=0
 GraphEnabled=0
@@ -69,8 +71,7 @@ Category=_ 0
 LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
-Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.244.2" 1 0 0 0 "" 0 ""
-Count=1
+Count=0
 [Aliases]
 Count=0
 SuppressDialog=0

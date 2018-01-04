@@ -68,7 +68,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 {
 	TIM2_ClearITPendingBit(TIM2_IT_UPDATE);
 
-	uiSysTick++;
+	uiSysTick += 10;
 	// if ( (uiSysTick % 1000) == 0 ){
 		// //if ( ++bike.Second == 60 )
         // {
@@ -81,10 +81,9 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 		// }
 	// }
 	
-	if ( (uiSysTick % 10) == 0)
-		LRFlashTask();
+	LRFlashTask();
 #ifdef SPEED_HALL_PORT	
-	if ( (uiSysTick % 500) == 0)
+	if ( (uiSysTick % 50) == 0)
 		GetSpeedHall();
 #endif
 }
