@@ -253,18 +253,17 @@ uint8_t GetBatStatus(uint16_t uiVol)
 }
 
 #ifdef SPEED_HALL_PORT
-void GetSpeedHall(void)
+uint8_t GetSpeedHall(void)
 {
 	uint16_t count;
 	uint32_t speed;
 	
 	DISABLE_INTERRUPTS();
-	count = sBike.uiHallCounter;
-	sBike.uiHallCounter = 0;
+	count = sBike.uiHallCounter_250ms;
 	ENABLE_INTERRUPTS();
 	
 	//speed = PERIMETER * 60 * 60 * count / 1000 / 1000 / PULSE_C;
-	speed = count * 2;
+	speed = count * 4;
 	speed = PERIMETER * 36 * speed / 10 / 1000 / PULSE_C;
 	if ( speed < 25 )
 		speed = speed * 244 / 100;
@@ -272,7 +271,7 @@ void GetSpeedHall(void)
 		speed = speed * 260 / 100;
 	if (speed > 65)
 		speed = 65;
-	sBike.ucPHA_Speed = speed;
+	return speed;
 }
 #endif
 
@@ -790,9 +789,7 @@ void LightTask(void)
 			case 0x08: 	sBike.ucSpeedMode = 4; break;
 			default:	sBike.ucSpeedMode = 0; break;
 		}
-	#ifdef SPEEDV_ADC_CH
 		sBike.ucPHA_Speed	= GetSpeed();
-	#endif
 		sBike.ucSpeed 		= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
 	}
 }

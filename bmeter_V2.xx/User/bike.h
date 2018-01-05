@@ -9,6 +9,8 @@
   * @Changlog
   * V2.35 - 20180104
   * 修改48V系统电量显示最后一格电压值从481到479；
+  * 增加电压标定延时，等待电压稳定；
+  * 修改霍尔速度处理方式；
   * 
   * V2.34 - 20171226
   * 改BAT_STATUS_xxV，在bike.h文件中定义；调整电压采样滤波效果；
@@ -214,7 +216,7 @@
 //	#define VD48L72N	
 	#define VD48N72L	
 #elif JINPENG_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
@@ -225,7 +227,7 @@
 	#define BAT_STATUS_60V 		{520,528,536,542,550,558,566,574}
 	#define BAT_STATUS_72V 		{0xFFFF}	
 #elif defined JINPENG_6072
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
@@ -260,20 +262,20 @@
 	#define BAT_STATUS_60V 		{520,528,537,546,555,563,571,579};
 	#define BAT_STATUS_72V 		{0xFFFF};
 #elif defined LCD9040_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
 	#define VD48H72L	
 	#define SINGLE_TRIP
 #elif defined LCD9040T
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  1				
 	#define VD72L48L	
 #elif defined LCD6040
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	//#define LCD6040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
@@ -282,43 +284,43 @@
 	#define BAT_STATUS_60V {525,537,553,566,578};
 	#define BAT_STATUS_72V {630,641,661,681,701};
 #elif defined DENGGUAN_XUNYING
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD72L48L	
 #elif defined DENGGUAN_XUNYING_T
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 1
 	#define YXT_ENABLE  0
 	#define VD72L48L	
 #elif defined BENLING_OUSHANG
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD72L48L	
 #elif defined BENLING_BL48_60
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD72L48L	
 #elif defined BENLING_ZHONGSHA
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD72
 #elif defined OUJUN
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
 	#define VD48N72L
 #elif defined OUPAINONG_4860
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1		
@@ -326,7 +328,7 @@
 	#define SPEED_CALC_48V(spd) spd*57750UL/242688UL	/*23.7V->55KM/H*/
 	#define SPEED_CALC_60V(spd) spd*63000UL/258048UL	/*25.2V->60KM/H*/
 #elif defined OUPAINONG_6072
-	#define PCB_VER		0100
+	#define PCB_VER		0200
 	#define LCD5535
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
@@ -351,7 +353,7 @@
 
 /******************************************************************************/
 #ifndef PCB_VER
-	#define PCB_VER	0100
+	#define PCB_VER	0200
 #endif
 
 #ifndef TIME_ENABLE
@@ -450,6 +452,7 @@ typedef struct {
 	uint32_t 	ulFMile;
 	uint16_t  	uiTick;
 	uint16_t	uiHallCounter;
+	uint16_t	uiHallCounter_250ms;
 	
 	uint8_t 	ucHour;
 	uint8_t 	ucMinute;
@@ -485,7 +488,7 @@ void ResetConfig(void);
 void InitConfig(void);
 uint8_t GetBatStatus(uint16_t uiVol);
 uint8_t GetBatEnergy(uint16_t uiVol);
-void GetSpeedHall(void);
+uint8_t GetSpeedHall(void);
 void LRFlashTask(void);
 uint8_t MileSetupTask(void);
 void MileTask(void);

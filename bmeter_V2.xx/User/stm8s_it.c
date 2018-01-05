@@ -83,8 +83,10 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 	
 	LRFlashTask();
 #ifdef SPEED_HALL_PORT	
-	if ( (uiSysTick % 50) == 0)
-		GetSpeedHall();
+	if ( (uiSysTick % 25) == 0){
+		sBike.uiHallCounter_250ms = sBike.uiHallCounter;
+		sBike.uiHallCounter = 0;
+	}
 #endif
 }
 

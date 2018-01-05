@@ -199,44 +199,6 @@ uint16_t GetVol2(void)
 }
 #endif
 
-uint16_t GetVolStabed(void)
-{
-	static uint8_t ucIndex = 0;
-//	uint32_t ulVol;
-	uint16_t uiBuf[32];
-	uint8_t i;
-	
-	//GPIO_Init(GPIOC, GPIO_PIN_4, GPIO_MODE_IN_FL_NO_IT);  //B+  
-	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, BATV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
-				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, BATV_ADC_SCH,\
-				DISABLE);
-
-	ADC1_Cmd(ENABLE);
-	for(i=0;i<ContainOf(uiBuf);i++){
-		Delay(500);  
-		ADC1_StartConversion(); 
-		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-		uiBuf[i] = ADC1_GetConversionValue();
-	}
-	ADC1_Cmd(DISABLE);
-	
-	uiVolBuf[ucIndex++] = get_average16(uiBuf,ContainOf(uiBuf));
-	if ( ucIndex >= ContainOf(uiVolBuf) )
-		ucIndex = 0;
-		
-	for(i=0;i<ContainOf(uiVolBuf);i++)
-		uiBuf[i] = uiVolBuf[i];
-	 
-	exchange_sort16(uiBuf,ContainOf(uiVolBuf));
-	for(i=0;i<ContainOf(uiVolBuf);i++){
-		if ( uiBuf[i] > 100 )	break;
-	}
-	if ( i + 5 < ContainOf(uiVolBuf) )
-		return get_average16(uiBuf+i+5,ContainOf(uiVolBuf)-i-5)*1050UL/1024UL;
-	return 0;
-}
-
 #if ( PCB_VER == 0013 )
 uint8_t GetSpeedAdj(void)
 {
@@ -268,12 +230,12 @@ uint8_t GetSpeedAdj(void)
 }
 #endif
 
-#ifdef SPEEDV_ADC_CH
 uint8_t GetSpeed(void)
 {
 	static uint8_t ucIndex = 0;
 	uint16_t uiSpeed;
 
+#ifdef SPEEDV_ADC_CH
 	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
 	//ADC1_DeInit();  
 	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
@@ -287,25 +249,28 @@ uint8_t GetSpeed(void)
 	uiSpeed = ADC1_GetConversionValue();
 	ADC1_Cmd(DISABLE);
   	
-	uiSpeedBuf[ucIndex++] = uiSpeed;
-	if ( ucIndex >= ContainOf(uiSpeedBuf) )
-		ucIndex = 0;
-
-	uiSpeed = get_average16(uiSpeedBuf,ContainOf(uiSpeedBuf));
-	
 	if ( sConfig.uiSysVoltage		== 48 ){
 		uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
 	} else if ( sConfig.uiSysVoltage== 60 ) {
 		uiSpeed = SPEED_CALC_60V((uint32_t)uiSpeed);
 	} else if ( sConfig.uiSysVoltage== 72 )	{
 		uiSpeed = SPEED_CALC_72V((uint32_t)uiSpeed);
-	}
+	} else
+		uiSpeed = 0;
+#else	
+	uiSpeed = GetSpeedHall();
+#endif
+
+	uiSpeedBuf[ucIndex++] = uiSpeed;
+	if ( ucIndex >= ContainOf(uiSpeedBuf) )
+		ucIndex = 0;
+
+	uiSpeed = get_average16(uiSpeedBuf,ContainOf(uiSpeedBuf));
 	if ( uiSpeed > 99 )
 		uiSpeed = 99;
 	
   return uiSpeed;
 }
-#endif
 
 void GetSysVoltage(void)
 {	
@@ -404,7 +369,7 @@ void InitUART(void)
 
 void UartTask(void)
 {   
-	uint16_t uiVol,i;
+	uint16_t uiVol,uiVol2,i;
 	
 	if ( sBike.bUart == 0 )
 		return ;
@@ -416,7 +381,7 @@ void UartTask(void)
 			PCF8563_SetTime(PCF_Format_BIN,&RtcTime);
 		} else if ( ucUart1Index >= 5 && ucUart1Buf[0] == 'C' /*&& ucUart1Buf[1] == 'a' && ucUart1Buf[2] == 'l' && ucUart1Buf[3] == 'i' */){
 			for(i=0;i<0xFF;i++){
-				uiVol = GetVolStabed();
+				uiVol = GetVol();
 				if ( uiVol > 120 ) break;
 				FEED_DOG();  
 			}
@@ -437,29 +402,32 @@ void UartTask(void)
 void Calibration(void)
 {
 	uint8_t i;
-	uint16_t uiVol;
 	
 	//¶Ì½ÓCALI_PIN¡¢SWIMÐÅºÅ
 	CFG->GCR = CFG_GCR_SWD;
 	GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
 
 	for(i=0;i<32;i++){
-		GPIO_WriteLow (GPIOD,GPIO_PIN_1);
-		Delay(10000);
+		GPIO_WriteLow  (GPIOD,GPIO_PIN_1); FEED_DOG(); Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN) ) break;
-		GPIO_WriteHigh (GPIOD,GPIO_PIN_1);
-		Delay(10000);
+		GPIO_WriteHigh (GPIOD,GPIO_PIN_1); FEED_DOG(); Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN)  == RESET ) break;
 	}
 	
 	if ( i == 32 ){
-		for(i=0;i<64;i++){ GetVolStabed();	FEED_DOG();  }
-		sBike.uiBatVoltage	= GetVolStabed();
+		for(i=0;i<64;i++){ GetVol();	FEED_DOG();  }
+		sBike.uiBatVoltage	= GetVol();
+		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL /VOL_CALIBRATIOIN;	//60.00V
+
+	#if ( PCB_VER == MR9737 )
+		for(i=0;i<64;i++){ GetVol2();	FEED_DOG();  }
+		sBike.uiBatVoltage2	= GetVol2();
+		sConfig.uiVolScale2	= (uint32_t)sBike.uiBatVoltage2*1000UL /VOL_CALIBRATIOIN;	//60.00V
+	#endif
         
 	//	sBike.siTemperature	= GetTemp();
-
-		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL /VOL_CALIBRATIOIN;	//60.00V
 	//	sConfig.TempScale	= (uint32_t)sBike.siTemperature*1000UL/TEMP_CALIBRATIOIN;	//25.0C
+
 		WriteConfig();
 	}
 
@@ -469,21 +437,20 @@ void Calibration(void)
 void main(void)
 {
 	uint8_t i;
-	uint16_t uiTick=0;
+	uint16_t uiPreTick=0;
 	uint16_t uiCount=0;
 	uint16_t uiVol=0,uiVol2=0;
-	uint16_t tick_100ms=0;
 	
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
 	while(1){ 
-		if ( Get_ElapseTick(uiTick) > 1000 ){
-			uiTick = Get_SysTick();
+		if ( Get_ElapseTick(uiPreTick) > 1000 ){
+			uiPreTick = Get_SysTick();
 			if ( i ){ i = 0; DisplayInit(i); } 
 			else 	{ i = 1; DisplayInit(i); }
 			MenuUpdate(&sBike);
@@ -504,7 +471,6 @@ void main(void)
 	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVol();  FEED_DOG(); }
 	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) { GetVol2(); FEED_DOG(); }
 #else
-//	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVolStabed();FEED_DOG(); }
 	for(i=0;i<ContainOf(uiVolBuf );	 i++) { GetVol(); FEED_DOG(); }
 #endif
 //	for(i=0;i<ContainOf(uiSpeedBuf); i++) { GetSpeed();FEED_DOG(); }
@@ -537,23 +503,17 @@ void main(void)
 	}
 	
 	while(1){
-		uiTick = Get_SysTick();
-		
-		if ( (uiTick >= tick_100ms && (uiTick - tick_100ms) >= 100 ) || \
-			 (uiTick <  tick_100ms && (0xFFFF - tick_100ms + uiTick) >= 100 ) ) {
-			tick_100ms = uiTick;
+		if ( Get_ElapseTick(uiPreTick) >= 100 ){
+			uiPreTick = Get_SysTick();
 			
 			if ( (uiCount % 2) == 0 ) 
 			{
-			#if ( PCB_VER == MR9737 )
 				uiVol  = GetVol();
-				uiVol2 = GetVol2();
-			#else
-				//uiVol  = GetVolStabed();
-				uiVol  = GetVol();
-			#endif
 				sBike.uiBatVoltage  = (uint32_t)(uiVol +0)*1000UL/sConfig.uiVolScale;
+			#if ( PCB_VER == MR9737 )
+				uiVol2 = GetVol2();
 				sBike.uiBatVoltage2 = (uint32_t)(uiVol2+0)*1000UL/sConfig.uiVolScale2;
+			#endif
 			}
 			if ( (uiCount % 10) == 0 ){
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
