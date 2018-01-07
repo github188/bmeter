@@ -24,6 +24,9 @@
 #define DISPLAY_CMD	0x80
 #define DISPLAY_ON	0x08
 #define DISPLAY_OFF	0x00
+#define DISPLAY_4	0x0A
+#define DISPLAY_12	0x0D
+#define DISPLAY_13	0x0E
 #define DISPLAY_14	0x0F
 
 #define ADDRESS_CMD	0xC0

@@ -65,7 +65,7 @@ void InitTimer(void)
 }
 
 #ifdef SPEED_HALL_PORT
-void SpeedHallInit(void)
+ void SpeedHallInit(void)
 {
 	GPIO_Init(SPEED_HALL_PORT, SPEED_HALL_PIN, GPIO_MODE_IN_FL_IT);
     EXTI_SetExtIntSensitivity(SPEED_EXTI_PORT,EXTI_SENSITIVITY_RISE_ONLY);
@@ -107,7 +107,8 @@ int GetTemp(void)
 	exchange_sort16(uiTempBuf,ContainOf(uiTempBuf));
 	sample = get_average16(uiTempBuf+4,ContainOf(uiTempBuf)-4);
 
-	slTemp = 10000*1024UL/(1024-sample)-10000;
+	//slTemp = 10000*1024UL/(1024-sample)-10000;
+	slTemp = 10000UL*(int32_t)sample/(1024-sample);
 	slTemp = NTCtoTemp(slTemp);
 	if ( slTemp > 999  ) slTemp =  999;
 	if ( slTemp < -999 ) slTemp = -999;
@@ -407,14 +408,19 @@ void Calibration(void)
 	CFG->GCR = CFG_GCR_SWD;
 	GPIO_Init(GPIOD, GPIO_PIN_1, GPIO_MODE_OUT_OD_HIZ_SLOW);
 
-	for(i=0;i<32;i++){
+	#if ( PCB_VER == MR9737 )
+		DisplayInit(0);
+        Display(&sBike);
+	#endif
+       
+    for(i=0;i<64;i++){
 		GPIO_WriteLow  (GPIOD,GPIO_PIN_1); FEED_DOG(); Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN) ) break;
 		GPIO_WriteHigh (GPIOD,GPIO_PIN_1); FEED_DOG(); Delay(10000);
 		if( GPIO_Read(CALI_PORT	, CALI_PIN)  == RESET ) break;
 	}
 	
-	if ( i == 32 ){
+	if ( i == 64 ){
 		for(i=0;i<64;i++){ GetVol();	FEED_DOG();  }
 		sBike.uiBatVoltage	= GetVol();
 		sConfig.uiVolScale	= (uint32_t)sBike.uiBatVoltage*1000UL /VOL_CALIBRATIOIN;	//60.00V
@@ -444,7 +450,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	IWDG_Config();
+	//IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
@@ -466,15 +472,6 @@ void main(void)
 		DisplayInit(1);
 	} else
 		DisplayInit(0);
-
-#if ( PCB_VER == MR9737 )
-	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVol();  FEED_DOG(); }
-	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) { GetVol2(); FEED_DOG(); }
-#else
-	for(i=0;i<ContainOf(uiVolBuf );	 i++) { GetVol(); FEED_DOG(); }
-#endif
-//	for(i=0;i<ContainOf(uiSpeedBuf); i++) { GetSpeed();FEED_DOG(); }
-	for(i=0;i<ContainOf(uiTempBuf);  i++) { GetTemp(); FEED_DOG(); }
 
 	InitConfig();
 	Calibration();
@@ -501,6 +498,15 @@ void main(void)
 		while ( Get_SysTick() < PON_ALLON_TIME ) FEED_DOG();
 		DisplayInit(0);
 	}
+
+#if ( PCB_VER == MR9737 )
+	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVol();  FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) { GetVol2(); FEED_DOG(); }
+#else
+	for(i=0;i<ContainOf(uiVolBuf );	 i++) { GetVol(); FEED_DOG(); }
+#endif
+//	for(i=0;i<ContainOf(uiSpeedBuf); i++) { GetSpeed();FEED_DOG(); }
+	for(i=0;i<ContainOf(uiTempBuf);  i++) { GetTemp(); FEED_DOG(); }
 	
 	while(1){
 		if ( Get_ElapseTick(uiPreTick) >= 100 ){
