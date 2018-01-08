@@ -3,6 +3,8 @@
 #include "bike.h"
 #include "TM16XX.h"
 
+#ifdef TM16XX_PORT
+
 /******************************************************************************/
 
 #ifdef TM16XX_CS	
@@ -136,5 +138,6 @@ void TM1640_Write_Data(unsigned char* buf,unsigned char len)
 	CLK_SET();TM16XX_Delay(5);
 	DAT_SET();TM16XX_Delay(5);
 }
+#endif
 #endif
 

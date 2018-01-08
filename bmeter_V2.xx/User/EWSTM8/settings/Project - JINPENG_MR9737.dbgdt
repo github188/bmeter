@@ -51,7 +51,7 @@
           
           
           
-        <item>sBike</item><item>TM16XX</item><item>sBike.uiBatVoltage</item><item></item></expressions>
+        <item>sBike</item><item>TM16XX</item><item>sBike.uiBatVoltage</item><item/></expressions>
         <col-names>
           
           

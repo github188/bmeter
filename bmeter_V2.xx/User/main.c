@@ -450,7 +450,7 @@ void main(void)
 	/* select Clock = 8 MHz */
 	CLK_SYSCLKConfig(CLK_PRESCALER_HSIDIV2);
 	CLK_HSICmd(ENABLE);
-	//IWDG_Config();
+	IWDG_Config();
 	
 #ifdef RESET_CONFIG
 	ResetConfig();
@@ -459,7 +459,7 @@ void main(void)
 			uiPreTick = Get_SysTick();
 			if ( i ){ i = 0; DisplayInit(i); } 
 			else 	{ i = 1; DisplayInit(i); }
-			MenuUpdate(&sBike);
+			Display(&sBike);
 		}
 		FEED_DOG(); 
 	}
@@ -494,19 +494,20 @@ void main(void)
   
 	ENABLE_INTERRUPTS();
 	
-	if ( sBike.bHotReset == 0 ) {
-		while ( Get_SysTick() < PON_ALLON_TIME ) FEED_DOG();
-		DisplayInit(0);
-	}
+	while ( Get_SysTick() < PON_ALLON_TIME ) FEED_DOG();
 
 #if ( PCB_VER == MR9737 )
-	for(i=0;i<ContainOf(uiVolBuf )/2;i++) { GetVol();  FEED_DOG(); }
-	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) { GetVol2(); FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf )/2;i++) GetVol();  FEED_DOG();
+	for(i=0;i<ContainOf(uiVol2Buf)/2;i++) GetVol2(); FEED_DOG();
 #else
-	for(i=0;i<ContainOf(uiVolBuf );	 i++) { GetVol(); FEED_DOG(); }
+	for(i=0;i<ContainOf(uiVolBuf );	 i++) GetVol();  FEED_DOG();
 #endif
-//	for(i=0;i<ContainOf(uiSpeedBuf); i++) { GetSpeed();FEED_DOG(); }
-	for(i=0;i<ContainOf(uiTempBuf);  i++) { GetTemp(); FEED_DOG(); }
+//	for(i=0;i<ContainOf(uiSpeedBuf); i++) GetSpeed();FEED_DOG();
+	for(i=0;i<ContainOf(uiTempBuf);  i++) GetTemp(); FEED_DOG();
+
+	if ( sBike.bHotReset == 0 ) {
+		DisplayInit(0);
+	}
 	
 	while(1){
 		if ( Get_ElapseTick(uiPreTick) >= 100 ){

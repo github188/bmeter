@@ -11,6 +11,7 @@
   * @retval HAL status
   */
 volatile uint16_t  BLTimeout = BL_TIMEOUT;
+extern unsigned char BL_Data[19];
 
 void BL55072_Config(unsigned char status)
 {
