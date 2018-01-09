@@ -86,8 +86,10 @@ void Delay(uint32_t nCount)
 int GetTemp(void)
 {
 	static uint8_t ucIndex = 0;
+	uint16_t uiBuf[ContainOf(uiTempBuf)];
 	int32_t slTemp;
 	uint16_t sample;
+	uint8_t i;
 
 	//GPIO_Init(GPIOD, GPIO_PIN_6, GPIO_MODE_IN_FL_NO_IT);  //Temp
 	//ADC1_DeInit();  
@@ -104,8 +106,10 @@ int GetTemp(void)
 	uiTempBuf[ucIndex++] = sample;
 	if ( ucIndex >= ContainOf(uiTempBuf) )
 		ucIndex = 0;
-	exchange_sort16(uiTempBuf,ContainOf(uiTempBuf));
-	sample = get_average16(uiTempBuf+4,ContainOf(uiTempBuf)-4);
+	
+	for(i=0;i<ContainOf(uiBuf);i++) uiBuf[i] = uiTempBuf[i];
+	exchange_sort16(uiBuf,ContainOf(uiBuf));
+	sample = get_average16(uiBuf+2,ContainOf(uiBuf)-2*2);
 
 	//slTemp = 10000*1024UL/(1024-sample)-10000;
 	slTemp = 10000UL*(int32_t)sample/(1024-sample);
@@ -141,8 +145,7 @@ uint16_t GetVol(void)
 	if ( ucIndex >= ContainOf(uiVolBuf) )
 		ucIndex = 0;
 
-	for(i=0;i<ContainOf(uiVolBuf);i++)
-		uiBuf[i] = uiVolBuf[i];
+	for(i=0;i<ContainOf(uiBuf);i++) uiBuf[i] = uiVolBuf[i];
 	exchange_sort16(uiBuf,ContainOf(uiBuf));
 	for(i=0;i<ContainOf(uiBuf);i++){
 		if ( uiBuf[i] > 100 )	break;
@@ -183,8 +186,7 @@ uint16_t GetVol2(void)
 	if ( ucIndex >= ContainOf(uiVol2Buf) )
 		ucIndex = 0;
 	
-	for(i=0;i<ContainOf(uiVol2Buf);i++)
-		uiBuf[i] = uiVol2Buf[i];
+	for(i=0;i<ContainOf(uiBuf);i++) uiBuf[i] = uiVol2Buf[i];
 	exchange_sort16(uiBuf,ContainOf(uiBuf));
 	for(i=0;i<ContainOf(uiBuf);i++){
 		if ( uiBuf[i] > 100 )	break;
@@ -234,39 +236,48 @@ uint8_t GetSpeedAdj(void)
 uint8_t GetSpeed(void)
 {
 	static uint8_t ucIndex = 0;
+	uint16_t uiBuf[ContainOf(uiSpeedBuf)];
 	uint16_t uiSpeed;
+	uint8_t i;
 
-#ifdef SPEEDV_ADC_CH
-	//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
-	//ADC1_DeInit();  
-	ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
-			ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
-			DISABLE);
+	if ( sBike.bYXTERR ){
+	#ifdef SPEEDV_ADC_CH
+		//GPIO_Init(GPIOD, GPIO_PIN_2, GPIO_MODE_IN_FL_NO_IT);
+		//ADC1_DeInit();  
+		ADC1_Init(ADC1_CONVERSIONMODE_CONTINUOUS, SPEEDV_ADC_CH, ADC1_PRESSEL_FCPU_D2, \
+				ADC1_EXTTRIG_TIM, DISABLE, ADC1_ALIGN_RIGHT, SPEEDV_ADC_SCH,\
+				DISABLE);
 
-	ADC1_Cmd(ENABLE);
-	Delay(1000);  
-	ADC1_StartConversion(); 
-	while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
-	uiSpeed = ADC1_GetConversionValue();
-	ADC1_Cmd(DISABLE);
-  	
-	if ( sConfig.uiSysVoltage		== 48 ){
-		uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
-	} else if ( sConfig.uiSysVoltage== 60 ) {
-		uiSpeed = SPEED_CALC_60V((uint32_t)uiSpeed);
-	} else if ( sConfig.uiSysVoltage== 72 )	{
-		uiSpeed = SPEED_CALC_72V((uint32_t)uiSpeed);
-	} else
-		uiSpeed = 0;
-#else	
-	uiSpeed = GetSpeedHall();
-#endif
+		ADC1_Cmd(ENABLE);
+		Delay(1000);  
+		ADC1_StartConversion(); 
+		while ( ADC1_GetFlagStatus(ADC1_FLAG_EOC) == RESET );  
+		uiSpeed = ADC1_GetConversionValue();
+		ADC1_Cmd(DISABLE);
+		
+		if ( sConfig.uiSysVoltage		== 48 ){
+			uiSpeed = SPEED_CALC_48V((uint32_t)uiSpeed);
+		} else if ( sConfig.uiSysVoltage== 60 ) {
+			uiSpeed = SPEED_CALC_60V((uint32_t)uiSpeed);
+		} else if ( sConfig.uiSysVoltage== 72 )	{
+			uiSpeed = SPEED_CALC_72V((uint32_t)uiSpeed);
+		} else
+			uiSpeed = 0;
+		uiSpeed = (uint32_t)uiSpeed*1000UL/sConfig.uiSpeedScale;
+	#else	
+		uiSpeed = GetSpeedHall();
+	#endif
+	} else {
+		uiSpeed = (uint32_t)sBike.ucYXT_Speed*1000UL/sConfig.uiYXT_SpeedScale;
+	}
 
 	uiSpeedBuf[ucIndex++] = uiSpeed;
 	if ( ucIndex >= ContainOf(uiSpeedBuf) )
 		ucIndex = 0;
 
-	uiSpeed = get_average16(uiSpeedBuf,ContainOf(uiSpeedBuf));
+	for(i=0;i<ContainOf(uiBuf);i++)	uiBuf[i] = uiSpeedBuf[i];
+	exchange_sort16(uiBuf,ContainOf(uiBuf));
+	uiSpeed = get_average16(uiBuf+4,ContainOf(uiBuf)-4*2);
 	if ( uiSpeed > 99 )
 		uiSpeed = 99;
 	
@@ -526,6 +537,9 @@ void main(void)
 			//	sBike.siTemperature= (long)GetTemp()	*1000UL/sConfig.TempScale;
 				sBike.siTemperature= GetTemp();
 			}
+
+			sBike.ucSpeed 			= GetSpeed();
+
 			uiCount ++;
 		
 			LightTask();

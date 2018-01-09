@@ -512,12 +512,12 @@ uint8_t SpeedCaltTask(void)
 	static uint8_t ucLastSpeed = 0;
 	static uint8_t ucCount = 0;
     static signed char scSpeedInc=0;
+	static signed char ucSpeedLocked=0;
 	static uint8_t yxterr=0;
-	signed char scSpeed;
 
 	switch( TaskFlag ){
 	case TASK_INIT:
-		if ( Get_SysTick() < 3000 && sBike.bTurnLeft == 1 ){
+		if ( Get_SysTick() < 10000 && sBike.bTurnLeft == 1 ){
 			TaskFlag = TASK_STEP1;
 			ucCount = 0;
 		}
@@ -529,11 +529,12 @@ uint8_t SpeedCaltTask(void)
 				ucCount 	= 0;
 				scSpeedInc 	= 0;
 				sBike.bSpeedFlash = 1;
+				ucSpeedLocked = sBike.ucSpeed;
 				yxterr = sBike.bYXTERR;
-				if ( yxterr )
-					sConfig.uiSpeedScale 	 = 1000;
-				else
-					sConfig.uiYXT_SpeedScale = 1000;
+				//if ( yxterr )
+				//	sConfig.uiSpeedScale 	 = 1000;
+				//else
+				//	sConfig.uiYXT_SpeedScale = 1000;
 			}
 			uiPreTick = Get_SysTick();
 		}
@@ -544,21 +545,21 @@ uint8_t SpeedCaltTask(void)
 			uiPreTick = Get_SysTick();
             if ( sBike.bTurnLeft == 1 ) {
 				ucCount = 0;
-				if ( sBike.ucSpeed + scSpeedInc > 1 )
+				if ( ucSpeedLocked + scSpeedInc > 1 )
 					scSpeedInc --;
 	        } else if ( sBike.bTurnRight == 1 ) {
 				ucCount = 0;
-                if ( sBike.ucSpeed + scSpeedInc < 99 )
+                if ( ucSpeedLocked + scSpeedInc < 99 )
 					scSpeedInc ++;
             } else {
 				if ( ++ucCount >= 4 ){
 					TaskFlag = TASK_EXIT;
 					sBike.bSpeedFlash = 0;
-					if ( sBike.ucSpeed ) {
+					if ( ucSpeedLocked ) {
 						if ( yxterr )
-							sConfig.uiSpeedScale 	 = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+scSpeedInc);
+							sConfig.uiSpeedScale 	 = (uint32_t)ucSpeedLocked*1000UL/(ucSpeedLocked+scSpeedInc);
 						else
-							sConfig.uiYXT_SpeedScale = (uint32_t)sBike.ucSpeed*1000UL/(sBike.ucSpeed+scSpeedInc);
+							sConfig.uiYXT_SpeedScale = (uint32_t)ucSpeedLocked*1000UL/(ucSpeedLocked+scSpeedInc);
 						WriteConfig();
 					}
 				}
@@ -568,17 +569,11 @@ uint8_t SpeedCaltTask(void)
         
 		if ( sBike.ucSpeed )
 			uiPreTick = Get_SysTick();
-
-		scSpeed = sBike.ucSpeed + scSpeedInc;
-		if ( scSpeed < 0 )
-			sBike.ucSpeed = 0;
-		else
-			sBike.ucSpeed = scSpeed;
-			
-		if ( ucLastSpeed && sBike.ucSpeed == 0 )
+		else if ( ucLastSpeed )
 			TaskFlag = TASK_EXIT;
-			
 		ucLastSpeed = sBike.ucSpeed;
+
+		sBike.ucSpeed = ucSpeedLocked + scSpeedInc;			
 		break;
 	case TASK_EXIT:
 	default:
@@ -789,8 +784,6 @@ void LightTask(void)
 			case 0x08: 	sBike.ucSpeedMode = 4; break;
 			default:	sBike.ucSpeedMode = 0; break;
 		}
-		sBike.ucPHA_Speed	= GetSpeed();
-		sBike.ucSpeed 		= (uint32_t)sBike.ucPHA_Speed*1000UL/sConfig.uiSpeedScale;
 	}
 }
 
