@@ -119,8 +119,9 @@ void Display(BIKE_STATUS* bike)
 #endif
 
 	/*************************** ulMile Display**********************************/  
+	BL_Data[0x00] |= 0x80;	//S17
 	if ( bike->bMileFlash == 0 || flashflag >= 5 ) {
-		BL_Data[0x00] |= (SegDataMile2[ bike->ulMile		%10]) | 0x80;	//S17
+		BL_Data[0x00] |= (SegDataMile2[ bike->ulMile	   %10]);	//S17
 		BL_Data[0x01] |= (SegDataMile [(bike->ulMile/10   )%10]);
 		BL_Data[0x02] |= (SegDataMile [(bike->ulMile/100  )%10]); 
 		BL_Data[0x03] |= (SegDataMile [(bike->ulMile/1000 )%10]);
@@ -128,8 +129,8 @@ void Display(BIKE_STATUS* bike)
 	}
 	
 	/*************************** Speed Display**********************************/
+	BL_Data[0x0F] |= 0x08;	//S16
 	if ( bike->bSpeedFlash == 0 || flashflag >= 5 ) {
-		BL_Data[0x0F] |= 0x08;	//S16
 		BL_Data[0x0E] |= (SegDataSpeed[ bike->ucSpeed%10]	   )&0x0F;
 		BL_Data[0x0F] |= (SegDataSpeed[ bike->ucSpeed%10]	   )&0xF0;
 		BL_Data[0x0D] |= (SegDataSpeed[(bike->ucSpeed/10)%10])&0x0F; 

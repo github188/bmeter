@@ -135,7 +135,7 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 		speed = ((unsigned int )YXT_Status[5]<<8) | YXT_Status[6];
 		speed = speed*5/60;	//600->50Km/h
 		bike->ucYXT_Speed 	= speed;
-		bike->ucSpeed 		= bike->ucYXT_Speed*1000UL/config->uiYXT_SpeedScale;
+	//	bike->ucSpeed 		= bike->ucYXT_Speed*1000UL/config->uiYXT_SpeedScale;
 
 		YXT_Update = 0;  
 	} else if ( Get_ElapseTick(pre_tick) > 3000 ){
@@ -146,8 +146,8 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 		bike->bECUERR 	= 0;
 	}	
     
-	if ( bike->bYXTERR 	== 0 ){
-		bike->ucSpeed 	= bike->ucYXT_Speed*1000UL/config->uiYXT_SpeedScale;
-    }
+//	if ( bike->bYXTERR 	== 0 ){
+//		bike->ucSpeed 	= bike->ucYXT_Speed*1000UL/config->uiYXT_SpeedScale;
+//	}
 }
 

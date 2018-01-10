@@ -93,8 +93,9 @@ void Display(BIKE_STATUS* bike)
 	// BL_Data[1] |= (SegDataVoltage[(bike->uiBatVoltage/100)%10]);
 
 	/*************************** Mile Display**********************************/  
+	BL_Data[12] |= 0x01;
 	if ( bike->bMileFlash == 0 || flashflag >= 5 ) {
-		BL_Data[12] |= (SegDataMile [ bike->ulMile	   	 %10]) | 0x1;
+		BL_Data[12] |= (SegDataMile [ bike->ulMile	   	 %10]);
 		BL_Data[11] |= (SegDataMile [(bike->ulMile/10   )%10]);
 		BL_Data[10] |= (SegDataMile [(bike->ulMile/100  )%10]); 
 		BL_Data[ 9] |= (SegDataMile [(bike->ulMile/1000 )%10] & 0x0F); 
@@ -103,10 +104,10 @@ void Display(BIKE_STATUS* bike)
 	}		
 
 	/*************************** Speed Display**********************************/
+	BL_Data[14] |= 0x80;
 	if ( bike->bSpeedFlash == 0 || flashflag >= 5 ) {
 		BL_Data[14] |= (SegDataSpeed[ bike->ucSpeed	 	%10]);
 		BL_Data[13] |= (SegDataSpeed[(bike->ucSpeed/10)	%10]); 
-		BL_Data[14] |= 0x80;
 	}
 
 	/*************************** Mode Display**********************************/ 

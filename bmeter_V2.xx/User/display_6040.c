@@ -48,14 +48,14 @@ void Display(BIKE_STATUS* bike)
 
 	/*************************** ulMile Display**********************************/  
 	if ( bike->bMileFlash == 0 || flashflag >= 5 ) {
-		BL_Data[ 5] |= (SegDataMile [ bike->ulMile	 %10]);
+		BL_Data[ 5] |= (SegDataMile [ bike->ulMile	 	 %10]);
 		BL_Data[ 6] |= (SegDataMile [(bike->ulMile/10	)%10]);
 		if ( bike->ulMile >= 100 )  BL_Data[ 6] |= 0x08;  //S20
 	}
 
 	/*************************** Speed Display**********************************/
 	if ( bike->bSpeedFlash == 0 || flashflag >= 5 ) {
-		BL_Data[ 1] |= (SegDataSpeed[ bike->ucSpeed	 %10]);
+		BL_Data[ 1] |= (SegDataSpeed[ bike->ucSpeed	   %10]);
 		BL_Data[ 0] |= (SegDataSpeed[(bike->ucSpeed/10)%10]); 
 	}
 
