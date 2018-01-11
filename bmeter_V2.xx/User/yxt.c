@@ -51,7 +51,7 @@ void YXT_Tim_Receive(uint16_t duty)
 			checksum ^= YXT_Buf[i];
 	
 		if ( checksum )	return ;
-		if ( YXT_Update ) return ;
+		if ( YXT_Update == 1 ) return ;
 		
 		if ( YXT_Buf[0] == 0x1F ){	//YXT_WXJX
 			PlusCode = (char)(YXT_Buf[1]+0x9E);
@@ -99,7 +99,7 @@ void YXT_Tim_Receive(uint16_t duty)
 		//YXT_Status[7] = YXT_Buf[9] - PlusCode;
 		//YXT_Status[8] = YXT_Buf[10]- PlusCode;
 		
-		YXT_Update = 1;
+		YXT_Update = 2;
 	}
 	if ( duty > 2560 ) {
 		YXT_RxBit  = 0;
@@ -112,13 +112,11 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 	static unsigned int pre_tick=0;
 	uint32_t speed;
 	
-	if ( YXT_Update ){
+	if ( YXT_Update == 2 ){
+		YXT_Update = 1;
 		pre_tick = Get_SysTick();
 		bike->bYXTERR = 0;
 
-#ifdef JIKE13050	
-		if ( (YXT_Status[1] & (1<<7)) )	bike->bECO     = 1; else bike->bECO     = 0;
-#endif
 		if ( (YXT_Status[1] & (1<<6)) )	bike->bHallERR = 1; else bike->bHallERR = 0;
 		if ( (YXT_Status[1] & (1<<5)) ) bike->bWheelERR= 1; else bike->bWheelERR= 0; 
 		if ( (YXT_Status[1] & (1<<4)) )	bike->bECUERR  = 1; else bike->bECUERR  = 0;
@@ -127,17 +125,19 @@ void YXT_Task(BIKE_STATUS *bike,BIKE_CONFIG* config)
 
 		if ( (YXT_Status[2] & (1<<5)) )	bike->bBraked  = 1; else bike->bBraked  = 0;
 #ifdef JIKE13050	
+		if ( (YXT_Status[1] & (1<<7)) )	bike->bECO     = 1; else bike->bECO     = 0;
 		if ( (YXT_Status[2] & (1<<3)) )	bike->bRCHG    = 1; else bike->bRCHG    = 0;
 		if ( (YXT_Status[2] & (1<<6)) )	bike->bParking = 0; else bike->bParking = 1;
 #endif
 	
 		bike->ucSpeedMode = ((YXT_Status[2]>>5)&0x04)|(YXT_Status[2]&0x03);
 		speed = ((unsigned int )YXT_Status[5]<<8) | YXT_Status[6];
+		YXT_Update = 0;
+		
 		speed = speed*5/60;	//600->50Km/h
 		bike->ucYXT_Speed 	= speed;
 	//	bike->ucSpeed 		= bike->ucYXT_Speed*1000UL/config->uiYXT_SpeedScale;
 
-		YXT_Update = 0;  
 	} else if ( Get_ElapseTick(pre_tick) > 3000 ){
 		bike->bYXTERR 	= 1;
 		bike->bHallERR 	= 0;

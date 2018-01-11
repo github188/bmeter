@@ -267,17 +267,18 @@ uint8_t GetSpeed(void)
 	#else	
 		uiSpeed = GetSpeedHall();
 	#endif
+
+		uiSpeedBuf[ucIndex++] = uiSpeed;
+		if ( ucIndex >= ContainOf(uiSpeedBuf) )
+			ucIndex = 0;
+
+		for(i=0;i<ContainOf(uiBuf);i++)	uiBuf[i] = uiSpeedBuf[i];
+		exchange_sort16(uiBuf,ContainOf(uiBuf));
+		uiSpeed = get_average16(uiBuf+4,ContainOf(uiBuf)-4*2);
 	} else {
 		uiSpeed = (uint32_t)sBike.ucYXT_Speed*1000UL/sConfig.uiYXT_SpeedScale;
 	}
 
-	uiSpeedBuf[ucIndex++] = uiSpeed;
-	if ( ucIndex >= ContainOf(uiSpeedBuf) )
-		ucIndex = 0;
-
-	for(i=0;i<ContainOf(uiBuf);i++)	uiBuf[i] = uiSpeedBuf[i];
-	exchange_sort16(uiBuf,ContainOf(uiBuf));
-	uiSpeed = get_average16(uiBuf+4,ContainOf(uiBuf)-4*2);
 	if ( uiSpeed > 99 )
 		uiSpeed = 99;
 	
