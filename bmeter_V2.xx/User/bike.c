@@ -453,7 +453,7 @@ void MileTask(void)
 	static uint16_t uiTime = 0;
 	static uint8_t task=MT_INIT;
 	
-	if ( MileSetupTask() ){
+	if ( MileSetupTask() > TASK_STEP1 ){
 		task	= MT_INIT;
 		return ;
 	}
