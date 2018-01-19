@@ -23,20 +23,11 @@ void Display(BIKE_STATUS* bike)
 
 	for(i=0;i<18;i++) BL_Data[i] = 0x00;
 
-#if ( PCB_VER != 201745UL	)
+#if 0
     if( bike->bLFlashType || flashflag >= 5 ) { if ( bike->bLeftFlash 	) BL_Data[0x08] |= 0x01; }	//S1
     if( bike->bRFlashType || flashflag >= 5 ) {	if ( bike->bRightFlash	) BL_Data[0x0F] |= 0x04; }	//S12
-#endif
-	
 //	if( bike->bCruise 		) BL_Data[0x0B] |= 0x20;	//S4
 	if( bike->bNearLight	) BL_Data[0x0B] |= 0x10;	//S5
-	
-#if ( PCB_VER != 201745UL	)
-	#if ( ( TurnLeftOut_PIN == GPIO_PIN_1 ) )
-	CFG->GCR = CFG_GCR_SWD;
-	#endif
-	GPIO_Init(NearLightOut_PORT, NearLightOut_PIN, GPIO_MODE_OUT_OD_HIZ_SLOW);
-	if( bike->bNearLight ) GPIO_WriteLow (NearLightOut_PORT,NearLightOut_PIN); else GPIO_WriteHigh (NearLightOut_PORT,NearLightOut_PIN);
 #endif
 	
 	if( bike->bHallERR 	) BL_Data[0x0B] |= 0x80;	//S2	电机霍尔故障

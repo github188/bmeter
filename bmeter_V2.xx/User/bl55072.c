@@ -16,6 +16,7 @@ extern unsigned char BL_Data[19];
 void BL55072_Config(unsigned char status)
 {
 	unsigned char BL_Reg[6];
+	unsigned char i,dat=0;
 
 	CLK_PeripheralClockConfig(CLK_PERIPHERAL_I2C, ENABLE);
 
@@ -28,12 +29,20 @@ void BL55072_Config(unsigned char status)
 	BL_Reg[3] = 0xEC;	//ICSET InnerOsc
 	BL_Reg[4] = 0xC8;	//MODESET Display on,1/3 bias
 	switch(status){
-		case 0:	BL_Reg[5] = 0xFC; break;	//APCTL normal
-		case 1:	BL_Reg[5] = 0xFE; break;	//APCTL Apon
+		case 0:	BL_Reg[5] = 0xFC; dat = 0x00; break;	//APCTL normal,all off
+		case 1:	//BL_Reg[5] = 0xFE; break;	//APCTL Apon
+				BL_Reg[5] = 0xFC; dat = 0xFF; break;	//APCTL normal,all on
 		case 2:	BL_Reg[5] = 0xFC; BL_Reg[1] = 0xF3; break;	//APCTL normal,1Hz
 		default: break;
 	}
 	I2C_WriteBuf(BL_ADDR,BL_Reg,6);
+	for(i=0;i<sizeof(BL_Data);i++)	BL_Data[i] = dat;
+#if ( PCB_VER == 201745UL	)
+	BL_Data[0x08] &= ~0x01;	//S1 ,left 
+	BL_Data[0x0F] &= ~0x04;	//S12,right
+	BL_Data[0x0B] &= ~0x10;	//S5 ,light
+#endif
+	BL_Write_Data(0,18,BL_Data);
 }
 
 unsigned char BL_Write_Data(unsigned char ADSTART,unsigned char LEN, unsigned char * p)
