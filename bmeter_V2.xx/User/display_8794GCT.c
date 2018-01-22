@@ -67,7 +67,7 @@ void Display(BIKE_STATUS* bike)
 	BL_Data[0x11] |= (SegDataTemp[abs(bike->siTemperature/10)/10]);	//D1
 	BL_Data[0x10] |= 0x01;		//S9
 	if (bike->siTemperature < 0)
-	BL_Data[0x11] |= 0x10;	//S8       
+		BL_Data[0x11] |= 0x01;	//S8       
 
 	/***************************Time Area Display**********************************/
 #if ( TIME_ENABLE == 1 )
