@@ -50,6 +50,9 @@
     <path>$WS_DIR$\Project - LCD9040_VD48H72N_ST.ewp</path>
   </project>
   <project>
+    <path>$WS_DIR$\Project - LCD9040P100.ewp</path>
+  </project>
+  <project>
     <path>$WS_DIR$\Project - LCD9040T.ewp</path>
   </project>
   <project>
@@ -151,6 +154,10 @@
       </member>
       <member>
         <project>Project - LCD9040_SingleTrip</project>
+        <configuration>STM8S208</configuration>
+      </member>
+      <member>
+        <project>Project - LCD9040P100</project>
         <configuration>STM8S208</configuration>
       </member>
     </batchDefinition>

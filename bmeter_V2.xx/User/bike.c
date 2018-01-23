@@ -139,11 +139,11 @@ int16_t NTCtoTemp(int16_t ntc)
 	if ( ntc > NTC_B3450[0][0] ){
 		return (int16_t)NTC_B3450[0][1] - 150;
 	} else {
-		for(i=0;i<ContainOf(NTC_B3450)/2-1;i++){
+		for(i=0;i<sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1;i++){
 			if ( ntc <= NTC_B3450[i][0] && ntc > NTC_B3450[i+1][0] )
 				break;
 		}
-		if ( i == ContainOf(NTC_B3450)/2-1 ){
+		if ( i == sizeof(NTC_B3450)/sizeof(NTC_B3450[0][0])/2-1 ){
 			return (int16_t)NTC_B3450[i][1] - 150;
 		} else {
 			for(j=0;j<50;j++){

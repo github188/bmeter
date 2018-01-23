@@ -71,7 +71,7 @@ unsigned char I2C_WriteBuf(unsigned char chip,unsigned char* buf, unsigned char 
 	//Delay(50000);
 
 	//I2C_DeInit();   
-  I2C_Cmd( ENABLE);
+	I2C_Cmd( ENABLE);
 	I2C_SoftwareResetCmd(ENABLE);
 	I2C_SoftwareResetCmd(DISABLE);
 	I2C_Init(50000, 0xA0, I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 8);

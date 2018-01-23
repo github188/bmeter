@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.39 - 20180123
+  * 改正温度显示范围问题；
+  *
   * V2.38 - 20180119
   * 开机全显由芯片控制改为程序写入方式，JIKE13050全显时隐去左右转灯，正常工作时LCD上大灯不显示；
   *
@@ -151,6 +154,7 @@
 /******************************************************************************/
 //release define
 //#define LCD9040
+//#define LCD9040P100
 //#define LCD9040_VD48H72L_ST
 //#define LCD9040_VD48H72N_ST
 //#define LCD9040_JP_45KM
@@ -193,6 +197,12 @@
 #if defined LCD9040
 	#define PCB_VER		0200
 	//#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1				
+	#define VD72L48L	
+#elif defined LCD9040P100
+	#define PCB_VER		0100
+	#define LCD9040
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1				
 	#define VD72L48L	
