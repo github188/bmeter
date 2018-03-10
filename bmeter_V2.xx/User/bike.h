@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.40 - 20180310
+  * 关闭启动时的HotReset检测函数，避免开机时可能出现的无全屏显示的现象；
+  *
   * V2.39 - 20180123
   * 改正温度显示范围问题；
   *
@@ -234,8 +237,8 @@
 	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-//	#define VD48L72N	
-	#define VD48N72L	
+	#define VD48L72N	
+//	#define VD48N72L	
 #elif JINPENG_4860
 	#define PCB_VER		0200
 	#define LCD9040

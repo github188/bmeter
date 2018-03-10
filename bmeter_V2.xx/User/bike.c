@@ -158,8 +158,8 @@ int16_t NTCtoTemp(int16_t ntc)
 void HotReset(void)
 {
 	if (sConfig.ucBike[0] == 'b' &&
-	//	sConfig.ucBike[1] == 'i' && 
-	//	sConfig.ucBike[2] == 'k' && 
+		sConfig.ucBike[1] == 'i' && 
+		sConfig.ucBike[2] == 'k' && 
 		sConfig.ucBike[3] == 'e' ){
 		sBike.bHotReset = 1;
 	} else {

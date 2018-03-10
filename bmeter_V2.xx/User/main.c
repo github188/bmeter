@@ -478,8 +478,8 @@ void main(void)
 #else
 
 	InitTimer();  
-	HotReset();
-    //sBike.bHotReset = 0;
+	//HotReset();
+    sBike.bHotReset = 0;
 	if ( sBike.bHotReset == 0 ) {
 		DisplayInit(1);
 	} else
