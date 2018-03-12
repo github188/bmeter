@@ -160,6 +160,7 @@
 //#define LCD9040P100
 //#define LCD9040_VD48H72L_ST
 //#define LCD9040_VD48H72N_ST
+#define LCD9040_VD48L72L_ST
 //#define LCD9040_JP_45KM
 //#define JINPENG_4860
 //#define JINPENG_6072
@@ -222,6 +223,13 @@
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1	
 	#define VD48H72N	
+	#define SINGLE_TRIP
+#elif defined LCD9040_VD48L72L_ST
+	#define PCB_VER		0200
+	#define LCD9040
+	#define TIME_ENABLE 0
+	#define YXT_ENABLE  1	
+	#define VD48L72L	
 	#define SINGLE_TRIP
 #elif defined LCD9040_JP_45KM
 	#define PCB_VER		0200

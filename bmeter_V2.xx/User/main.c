@@ -349,6 +349,16 @@ void GetSysVoltage(void)
 			sConfig.uiSysVoltage = 60;
 		}
 	}
+#elif defined VD48L72L
+	if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
+		sConfig.uiSysVoltage = 48;
+	} else {
+		if ( GPIO_Read(V72_PORT, V72_PIN) == RESET ){
+			sConfig.uiSysVoltage = 72;
+		} else {
+			sConfig.uiSysVoltage = 60;
+		}
+	}
 #else
 	#error "Please select a system voltage detection method!!!"
 #endif
