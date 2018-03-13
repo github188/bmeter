@@ -245,8 +245,8 @@
 	#define LCD8794GCT
 	#define TIME_ENABLE 0
 	#define YXT_ENABLE  1
-	#define VD48L72N	
-//	#define VD48N72L	
+//	#define VD48L72N	
+	#define VD72L_48PIN	
 #elif JINPENG_4860
 	#define PCB_VER		0200
 	#define LCD9040

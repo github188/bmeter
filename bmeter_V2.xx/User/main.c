@@ -321,7 +321,7 @@ void GetSysVoltage(void)
 	sConfig.uiSysVoltage = 60;
 #elif defined VD72
 	sConfig.uiSysVoltage = 72;
-#elif defined VD48N72L
+#elif defined VD72L_48PIN
 	if ( GPIO_Read(V48_PORT, V48_PIN) == RESET ){
 		sConfig.uiSysVoltage = 72;
 	} else {
