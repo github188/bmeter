@@ -1,4 +1,4 @@
-/**
+﻿/**
   ******************************************************************************
   * @file    
   * @author  ahzzc@sina.com
@@ -7,6 +7,9 @@
   * @brief   
   ******************************************************************************
   * @Changlog
+  * V2.41 - 20180318
+  * JINPENG_QD版本关闭YXT,提高LED亮度为全亮，关闭PRND四个灯的显示；
+  *
   * V2.40 - 20180310
   * 关闭启动时的HotReset检测函数，避免开机时可能出现的无全屏显示的现象；
   *
@@ -286,7 +289,7 @@
 	#define PCB_VER		0200
 	#define TM1640
 	#define TIME_ENABLE 0
-	#define YXT_ENABLE  1
+	#define YXT_ENABLE  0
 	#define VD48L72N	
 	#define SPEED_CALC_48V(spd) spd*1575UL/8192UL	/*24V->45KM/H*/
 	#define SPEED_CALC_60V(spd) spd*315UL /2048UL	/*30V->45KM/H*/

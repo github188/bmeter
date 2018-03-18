@@ -72,6 +72,7 @@ void Display(BIKE_STATUS* bike)
 	TM16XX[ 4] |= 0x80;	//T2
 	TM16XX[ 5] |= 0x80;	//T3
 
+#if 0
 	/*************************** Mode Display**********************************/ 
 	switch (bike->ucSpeedMode){
     case 1: TM16XX[13] |= 0x01;break;	//S8	P
@@ -82,6 +83,7 @@ void Display(BIKE_STATUS* bike)
 			TM16XX[13] &= ~0x0F;
 			break;
 	}
-  
+#endif
+    
 	TM1640_Write_Data(TM16XX,16);
 }
